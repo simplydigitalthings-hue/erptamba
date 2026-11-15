@@ -309,7 +309,7 @@
           <span class="line-stk-qty" data-idx="${idx}">${fmt2(l.stkQty)}</span>
         </td>
         <td style="border: 1px solid #c0c0c0; padding: 2px; text-align: right;">
-          <span>${fmt4(l.balQtyIn != null ? l.balQtyIn : l.qtyIn)}</span>
+          <span class="line-bal-in" data-idx="${idx}">${fmt4(l.balQtyIn != null ? l.balQtyIn : l.qtyIn)}</span>
         </td>
         <td style="border: 1px solid #c0c0c0; padding: 2px; text-align: center;">
           ${isEditable ? 
@@ -343,7 +343,17 @@
       dom.tbody.querySelectorAll(".line-qty-out").forEach(inp => {
         inp.addEventListener("input", (e) => {
           const idx = Number(e.target.getAttribute("data-idx"));
-          lines[idx].qtyOut = Number(e.target.value || 0);
+          const val = Number(e.target.value || 0);
+          lines[idx].qtyOut = val;
+          // If qtyIn is unset or 0, auto-sync qtyIn with qtyOut to avoid incomplete row error
+          if (!lines[idx].qtyIn || lines[idx].qtyIn === 0) {
+            lines[idx].qtyIn = val;
+            lines[idx].balQtyIn = val;
+            const inInp = dom.tbody.querySelector(`.line-qty-in[data-idx="${idx}"]`);
+            if (inInp) inInp.value = val;
+            const balSpan = dom.tbody.querySelector(`.line-bal-in[data-idx="${idx}"]`);
+            if (balSpan) balSpan.textContent = fmt4(val);
+          }
         });
       });
 
@@ -362,10 +372,11 @@
       dom.tbody.querySelectorAll(".line-qty-in").forEach(inp => {
         inp.addEventListener("input", (e) => {
           const idx = Number(e.target.getAttribute("data-idx"));
-          lines[idx].qtyIn = Number(e.target.value || 0);
-          if (lines[idx].balQtyIn == null) {
-            lines[idx].balQtyIn = lines[idx].qtyIn;
-          }
+          const val = Number(e.target.value || 0);
+          lines[idx].qtyIn = val;
+          lines[idx].balQtyIn = val;
+          const balSpan = dom.tbody.querySelector(`.line-bal-in[data-idx="${idx}"]`);
+          if (balSpan) balSpan.textContent = fmt4(val);
         });
       });
 
@@ -624,6 +635,21 @@
     const transFrom = dom.transFrom.value.trim();
     const transTo = dom.transTo.value.trim();
     const dcRem = dom.dcRem.value.trim();
+
+    // Validate completeness of rows before proceeding
+    if (!lines || lines.length === 0) {
+      alert("Please enter the item details by adding at least one row.");
+      return;
+    }
+    const firstRow = lines[0];
+    if (!firstRow.itemCodeOut || Number(firstRow.qtyOut || 0) <= 0) {
+      alert("Please enter valid 'ITEM CODE - OUT' and 'QTY - OUT' for Row 1.");
+      return;
+    }
+    if (!firstRow.itemCodeIn || Number(firstRow.qtyIn || 0) <= 0) {
+      alert("Please enter valid 'ITEM CODE - IN' and 'QTY - IN' (Expected Return Quantity) for Row 1.\n\nSub-Contract Outward DCs require specifying the quantity expected back from the job worker.");
+      return;
+    }
 
     // Check for stock shortages in selected store and prompt warning
     const shortages = [];

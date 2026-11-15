@@ -139,6 +139,95 @@ function clearSessionCookie(res) {
   res.setHeader("Set-Cookie", "smart_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0");
 }
 
+function parseDateOrNull(val) {
+  if (!val) return null;
+  const s = String(val).trim();
+  if (!s) return null;
+
+  // Match ISO YYYY-MM-DD
+  const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (isoMatch) {
+    const y = isoMatch[1];
+    const m = isoMatch[2].padStart(2, "0");
+    const d = isoMatch[3].padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  // Match DD-MM-YYYY or DD/MM/YYYY
+  const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+  if (dmyMatch) {
+    const d = dmyMatch[1].padStart(2, "0");
+    const m = dmyMatch[2].padStart(2, "0");
+    const y = dmyMatch[3];
+    return `${y}-${m}-${d}`;
+  }
+
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) {
+    return dt.toISOString().slice(0, 10);
+  }
+  return null;
+}
+
+function parseTimestampOrNow(val) {
+  if (!val) return new Date().toISOString();
+  const s = String(val).trim();
+  if (!s) return new Date().toISOString();
+
+  // Match DD/MM/YYYY or DD-MM-YYYY with optional time and AM/PM
+  const dmyMatch = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?\s*(am|pm)?)?/i);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    let hours = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
+    const minutes = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+    const seconds = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
+    const meridiem = dmyMatch[7] ? dmyMatch[7].toLowerCase() : null;
+
+    if (meridiem === "pm" && hours < 12) hours += 12;
+    if (meridiem === "am" && hours === 12) hours = 0;
+
+    const dt = new Date(year, month, day, hours, minutes, seconds);
+    if (!isNaN(dt.getTime())) {
+      const yyyy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
+      const hh = String(dt.getHours()).padStart(2, "0");
+      const min = String(dt.getMinutes()).padStart(2, "0");
+      const ss = String(dt.getSeconds()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+    }
+  }
+
+  // Match YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss
+  const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if (isoMatch) {
+    const year = parseInt(isoMatch[1], 10);
+    const month = parseInt(isoMatch[2], 10) - 1;
+    const day = parseInt(isoMatch[3], 10);
+    const hours = isoMatch[4] ? parseInt(isoMatch[4], 10) : 0;
+    const minutes = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
+    const seconds = isoMatch[6] ? parseInt(isoMatch[6], 10) : 0;
+    const dt = new Date(year, month, day, hours, minutes, seconds);
+    if (!isNaN(dt.getTime())) {
+      const yyyy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
+      const hh = String(dt.getHours()).padStart(2, "0");
+      const min = String(dt.getMinutes()).padStart(2, "0");
+      const ss = String(dt.getSeconds()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+    }
+  }
+
+  const dt = new Date(s);
+  if (!isNaN(dt.getTime())) {
+    return dt.toISOString();
+  }
+  return new Date().toISOString();
+}
+
 async function factoryId() {
   const result = await pool.query("SELECT id FROM factories ORDER BY id LIMIT 1");
   return result.rows[0].id;
@@ -16047,8 +16136,8 @@ async function handleSubconDcOutSave(req, res) {
       finalDcId = Number(maxRes.rows[0].next_id || 1);
     }
 
-    const dcDateVal = body.dcDate || new Date().toISOString().slice(0, 10);
-    const poDateVal = body.poDate || null;
+    const dcDateVal = parseDateOrNull(body.dcDate) || new Date().toISOString().slice(0, 10);
+    const poDateVal = parseDateOrNull(body.poDate);
     const noOfItemsVal = lines.length;
     const goodsQtyVal = lines.reduce((acc, l) => acc + Number(l.qtyOut || 0), 0);
     const balQtyVal = lines.reduce((acc, l) => acc + Number(l.qtyIn || 0), 0);
@@ -16581,15 +16670,15 @@ async function handleSubconDcInSave(req, res) {
   const isNew = Boolean(body.isNew);
   let dcId = Number(body.dcId || 0);
   const dcNo = String(body.dcNo || "").trim();
-  const dcDate = body.dcDate || new Date().toISOString().slice(0, 10);
-  const grnDate = body.grnDate || new Date().toISOString();
+  const dcDate = parseDateOrNull(body.dcDate) || new Date().toISOString().slice(0, 10);
+  const grnDate = parseTimestampOrNow(body.grnDate);
   const suppId = Number(body.suppId || 0);
   const storeId = Number(body.storeId || 0);
   const costCntrId = Number(body.costCntrId || 0) || null;
   const poNo = String(body.poNo || "").trim();
-  const poDate = body.poDate || null;
+  const poDate = parseDateOrNull(body.poDate);
   const refDcNo = String(body.refDcNo || "").trim();
-  const refDcDate = body.refDcDate || null;
+  const refDcDate = parseDateOrNull(body.refDcDate);
   const dcSigned = Boolean(body.dcSigned);
   const transport = String(body.transport || "").trim();
   const vehicleNo = String(body.vehicleNo || "").trim();
@@ -17771,7 +17860,7 @@ async function handleSubconScnSave(req, res) {
       }
     }
 
-    const scnDate = body.scnSubConDate ? new Date(body.scnSubConDate) : new Date();
+    const scnDate = parseDateOrNull(body.scnSubConDate) || new Date().toISOString().slice(0, 10);
     const prepBy = String(body.preparedBy || "").trim();
     const remAny = String(body.remarks || "").trim();
     const costCntrId = Number(body.costCntrId) || Number(grn.costcntrid) || null;
@@ -18466,8 +18555,8 @@ async function handleSubconInvoiceSave(req, res) {
   try {
     await client.query("BEGIN");
 
-    const invDate = body.invDate ? body.invDate : new Date().toISOString().split("T")[0];
-    const recDate = body.recDate ? body.recDate : new Date().toISOString().split("T")[0];
+    const invDate = parseDateOrNull(body.invDate) || new Date().toISOString().split("T")[0];
+    const recDate = parseDateOrNull(body.recDate) || new Date().toISOString().split("T")[0];
     const invDateT = invDate.split("-").reverse().join("-");
     const packForwd = Number(body.packForwd || 0);
     const isGst = (body.taxRegime === "GST" || body.gstRate !== undefined);

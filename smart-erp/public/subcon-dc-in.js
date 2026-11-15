@@ -229,6 +229,7 @@
     dom.dcId.value = nextDcid || "";
     const now = new Date();
     dom.grnDate.value = now.toLocaleDateString("en-GB") + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    dom.grnDate.dataset.iso = now.toISOString();
 
     populateSuppliers();
     if (state.defaultStoreId) dom.store.value = String(state.defaultStoreId);
@@ -276,7 +277,22 @@
     };
 
     dom.dcId.value = rec.dcId || "";
-    dom.grnDate.value = rec.grnDate || "";
+    if (rec.grnDate) {
+      dom.grnDate.dataset.iso = rec.grnDate;
+      try {
+        const gd = new Date(rec.grnDate);
+        if (!isNaN(gd.getTime())) {
+          dom.grnDate.value = gd.toLocaleDateString("en-GB") + " " + gd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else {
+          dom.grnDate.value = rec.grnDate;
+        }
+      } catch {
+        dom.grnDate.value = rec.grnDate;
+      }
+    } else {
+      dom.grnDate.value = "";
+      dom.grnDate.dataset.iso = "";
+    }
 
     populateSuppliers(rec.suppId);
     dom.store.value = rec.storeId ? String(rec.storeId) : "";
@@ -840,7 +856,7 @@
       dcId: isNewFlag ? 0 : state.currentId,
       dcNo,
       dcDate: dom.dcDate.value,
-      grnDate: dom.grnDate.value,
+      grnDate: dom.grnDate.dataset.iso || (isNewFlag ? new Date().toISOString() : (dom.grnDate.value || new Date().toISOString())),
       suppId,
       storeId,
       costCntrId: Number(dom.costCntrId.value || 0) || null,

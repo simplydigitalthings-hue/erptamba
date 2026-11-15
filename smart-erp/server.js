@@ -15855,9 +15855,18 @@ async function handleSubconDcOutPoLines(req, res, url) {
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
   const poNo = String(url.searchParams.get("poNo") || "").trim();
   const suppId = Number(url.searchParams.get("suppId") || 0);
+  const storeId = Number(url.searchParams.get("storeId") || 0);
 
   const q = await pool.query(
-    `SELECT sub.*, i.item_code, i.item_name, i.measure_unit, 0 as stk_qty
+    `SELECT sub.*, i.item_code, i.item_name, i.measure_unit,
+            COALESCE((
+              SELECT SUM(s.bal_qty)
+              FROM store_add_sub s
+              JOIN store_add a ON a.factory_id = s.factory_id AND a.year_label = s.year_label AND a.id = s.id
+              WHERE s.factory_id = sub.factory_id AND s.year_label = sub.year_label
+                AND s.item_id = sub.itemid
+                AND ($5::int = 0 OR a.store_id = $5)
+            ), 0) AS stk_qty
      FROM subconposub sub
      JOIN subconpo po ON po.factory_id = sub.factory_id AND po.year_label = sub.year_label AND po.poid = sub.poid
      LEFT JOIN item i ON i.factory_id = sub.factory_id AND i.year_label = sub.year_label AND i.item_id = sub.itemid
@@ -15865,7 +15874,7 @@ async function handleSubconDcOutPoLines(req, res, url) {
        AND LOWER(TRIM(po.pono)) = LOWER(TRIM($3))
        AND ($4 = 0 OR po.suppid = $4)
      ORDER BY sub.slno`,
-    [session.factory_id, session.year_label, poNo, suppId]
+    [session.factory_id, session.year_label, poNo, suppId, storeId]
   );
 
   return sendJson(res, 200, {

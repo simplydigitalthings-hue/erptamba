@@ -219,20 +219,24 @@
 
     if (mode === "new") {
       try {
-        const data = await apiGet(`/api/subcon-dc-out/po-lines?poNo=${encodeURIComponent(poNo)}&suppId=${suppId}`);
+        const storeId = Number(dom.store.value || 0);
+        const data = await apiGet(`/api/subcon-dc-out/po-lines?poNo=${encodeURIComponent(poNo)}&suppId=${suppId}&storeId=${storeId}`);
         if (data.ok && Array.isArray(data.lines) && data.lines.length > 0) {
-          lines = data.lines.map((l, idx) => ({
-            slNo: idx + 1,
-            itemIdOut: l.itemId,
-            itemCodeOut: l.itemCode,
-            qtyOut: Number(l.qtyToReci || l.qty || 0),
-            itemIdIn: l.itemId,
-            itemCodeIn: l.itemCode,
-            qtyIn: Number(l.qtyToReci || l.qty || 0),
-            balQtyIn: Number(l.qtyToReci || l.qty || 0),
-            dcRowRem: l.dcRowRem || "",
-            stkQty: Number(l.stkQty || 0)
-          }));
+          lines = data.lines.map((l, idx) => {
+            const avail = l.stkQty != null && Number(l.stkQty) > 0 ? Number(l.stkQty) : getStockOnHand(storeId, l.itemId);
+            return {
+              slNo: idx + 1,
+              itemIdOut: l.itemId,
+              itemCodeOut: l.itemCode,
+              qtyOut: Number(l.qtyToReci || l.qty || 0),
+              itemIdIn: l.itemId,
+              itemCodeIn: l.itemCode,
+              qtyIn: Number(l.qtyToReci || l.qty || 0),
+              balQtyIn: Number(l.qtyToReci || l.qty || 0),
+              dcRowRem: l.dcRowRem || "",
+              stkQty: avail
+            };
+          });
           renderLines();
         }
       } catch (e) {
@@ -626,9 +630,10 @@
     lines.forEach((l, idx) => {
       const sl = idx + 1;
       const qtyOut = Number(l.qtyOut || 0);
-      const stkQty = Number(l.stkQty || 0);
-      if (qtyOut > 0 && qtyOut > stkQty) {
-        shortages.push(`• SlNo ${sl} [${l.itemCodeOut || 'Item'}]: Sending ${qtyOut}, Stock in Store = ${stkQty.toFixed(2)} (Deficit: ${(qtyOut - stkQty).toFixed(2)})`);
+      const currentStk = l.itemIdOut ? getStockOnHand(storeId, l.itemIdOut) : Number(l.stkQty || 0);
+      l.stkQty = currentStk;
+      if (qtyOut > 0 && qtyOut > currentStk) {
+        shortages.push(`• SlNo ${sl} [${l.itemCodeOut || 'Item'}]: Sending ${qtyOut}, Stock in Store = ${currentStk.toFixed(2)} (Deficit: ${(qtyOut - currentStk).toFixed(2)})`);
       }
     });
 

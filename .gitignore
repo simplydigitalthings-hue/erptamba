@@ -17,3 +17,4 @@ tests_backup.zip
 # OS generated files
 .DS_Store
 Thumbs.db
+brag-output/

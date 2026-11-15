@@ -33,6 +33,9 @@ function publicSeoResponse(pathname, mode, host, method = "GET") {
     "X-Robots-Tag": production && publicDocument
       ? "index, follow, max-image-preview:large" : "noindex, nofollow"
   };
+  if (["tambaerp.in", "www.tambaerp.in"].includes(hostname) && ["GET", "HEAD"].includes(method)) {
+    return { headers, status: 301, location: SITE_URL + (cleanPath === "/" ? "/" : cleanPath) };
+  }
   if (production && hostname === "www.tambaerp.com" && publicDocument && ["GET", "HEAD"].includes(method)) {
     return { headers, status: 308, location: SITE_URL + cleanPath };
   }

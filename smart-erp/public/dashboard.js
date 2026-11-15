@@ -396,6 +396,8 @@
       cockpit.style.display = "none";
       const toggleBtn = document.getElementById("btn-toggle-dashboard");
       if (toggleBtn) toggleBtn.innerHTML = "Live Dashboard";
+      const refreshBtn = document.getElementById("dash-btn-refresh");
+      if (refreshBtn) refreshBtn.style.display = "none";
     }
   }
 

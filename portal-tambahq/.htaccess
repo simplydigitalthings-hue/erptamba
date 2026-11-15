@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Allow clean /sorry URL
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^sorry/?$ sorry.html [L,QSA]
+
+# 404 handler
+ErrorDocument 404 /sorry.html

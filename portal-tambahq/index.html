@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123f3a">
+  <meta name="description" content="Tamba HQ is the secure customer sign-in portal for Tamba ERP factory workspaces. Enter your workspace slug to access your dedicated manufacturing environment.">
+  <title>Customer Workspace Gateway | Tamba HQ</title>
+  <link rel="canonical" href="https://tambahq.in/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tamba HQ">
+  <meta property="og:title" content="Tamba HQ · Factory Customer Portal">
+  <meta property="og:description" content="Secure customer sign-in portal for Tamba ERP isolated factory workspaces.">
+  <meta property="og:url" content="https://tambahq.in/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;display=swap">
+  <link rel="stylesheet" href="/styles.css?v=3.0">
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <header class="portal-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/" aria-label="Tamba HQ Portal Home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="wordmark">Tamba<span>HQ</span></span>
+      </a>
+      <nav class="nav-links">
+        <a href="https://tambaerp.com" class="nav-link" target="_blank" rel="noopener">Tamba ERP Product ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="main-content">
+    <div class="wrap portal-grid">
+      <div class="portal-card">
+        <div class="card-eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>ENTERPRISE CUSTOMER PORTAL</span>
+        </div>
+        
+        <h1 class="card-title">Sign in to your factory workspace</h1>
+        <p class="card-subtitle">
+          Each manufacturing company runs on its own isolated workspace and dedicated database. Enter your factory workspace domain to sign in.
+        </p>
+
+        <form id="workspace-form" class="workspace-form" autocomplete="off">
+          <label for="workspace-input" class="input-label">Workspace Identifier</label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="workspace-input" 
+              name="workspace" 
+              class="workspace-input" 
+              placeholder="e.g. factory-name" 
+              autofocus 
+              required 
+              spellcheck="false"
+              autocomplete="off"
+            />
+            <span class="input-suffix">.tambahq.in</span>
+          </div>
+          
+          <div class="preview-bar" id="preview-bar">
+            Destination: <strong id="preview-url">https://{workspace}.tambahq.in</strong>
+          </div>
+
+          <div id="error-message" class="error-banner" role="alert" style="display: none;"></div>
+
+          <button type="submit" id="submit-btn" class="submit-button">
+            <span>Continue to Workspace</span>
+            <span class="btn-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <div id="recent-workspaces-section" class="recent-workspaces" style="display: none;">
+          <div class="recent-header">
+            <span>Recently visited workspaces</span>
+            <button type="button" id="clear-recent" class="clear-btn">Clear</button>
+          </div>
+          <div id="recent-list" class="recent-list"></div>
+        </div>
+      </div>
+
+      <div class="info-sidebar">
+        <div class="info-box architecture-box">
+          <div class="box-icon">🛡️</div>
+          <h3>Dedicated Isolation (Model 1)</h3>
+          <p>
+            Your production orders, heat codes, raw material weights, and financial records never mix with other tenants. Every customer workspace runs on its own sub-system with zero cross-tenant exposure.
+          </p>
+          <ul class="features-list">
+            <li><span>✓</span> Independent database partition</li>
+            <li><span>✓</span> Real-time heartbeat monitoring</li>
+            <li><span>✓</span> End-to-end HTTPS encryption</li>
+            <li><span>✓</span> Role-based worker & supervisor access</li>
+          </ul>
+        </div>
+
+        <div class="info-box help-box">
+          <h3>Need assistance?</h3>
+          <p>
+            Don't know your factory's workspace identifier? Check the onboarding email sent to your factory administrator, or contact your IT representative.
+          </p>
+          <div class="help-links">
+            <a href="https://tambaerp.com#operations" target="_blank" rel="noopener">Factory Workflows Guide ↗</a>
+            <a href="https://tambaerp.com#access" target="_blank" rel="noopener">Deployment Architecture ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="portal-footer">
+    <div class="wrap footer-inner">
+      <div class="footer-left">
+        <span>© 2026 Tamba ERP · Manufacturing ERP Platform</span>
+      </div>
+      <div class="footer-right">
+        <a href="https://tambaerp.com" target="_blank" rel="noopener">tambaerp.com ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/portal.js?v=2.1"></script>
+</body>
+</html>

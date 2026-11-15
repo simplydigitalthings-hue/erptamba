@@ -126,7 +126,8 @@ License Date   :   01/04/2008</div>
       <span class="app-brand">Tamba <span>ERP</span></span>
       <div style="display: flex; align-items: center; gap: 8px;">
         <button id="btn-toggle-theme" type="button" class="theme-toggle-btn" title="Switch between Dark and Light theme">🌙 Dark Theme</button>
-        <button id="btn-toggle-dashboard" type="button" style="height: 24px; font-family: var(--font-family); font-size: 11px; font-weight: bold; cursor: pointer; padding: 0 10px;" title="Toggle Operations Dashboard">Live Dashboard</button>
+        <button id="dash-btn-refresh" type="button" class="theme-toggle-btn" title="Refresh real-time data">↻ Refresh</button>
+        <button id="btn-toggle-dashboard" type="button" class="theme-toggle-btn" title="Toggle Operations Dashboard">Live Dashboard</button>
       </div>
     </header>
     <div class="workspace">
@@ -149,23 +150,7 @@ License Date   :   01/04/2008</div>
       <div class="stage">
         <!-- Live Operations Dashboard Cockpit -->
         <div id="dashboard-cockpit" class="dashboard-cockpit">
-          <!-- Cockpit Header -->
-          <div class="dash-header">
-            <div class="dash-title-group">
-              <h2 id="dash-comp-name">Tamba ERP</h2>
-              <div class="dash-subhead">
-                <span id="dash-comp-gstin" class="dash-badge">GST Active</span>
-                <span id="dash-fiscal-year" class="dash-badge">FY: 2026-27</span>
-                <span class="dash-subtitle">Operations Cockpit</span>
-              </div>
-            </div>
-            <div class="dash-actions">
-              <button type="button" class="btn" id="dash-btn-refresh" title="Refresh real-time data">Refresh</button>
-              <button type="button" class="btn" id="dash-btn-close-cockpit" title="Minimize Cockpit">Minimize</button>
-            </div>
-          </div>
-
-          <!-- KPI Summary Cards Grid -->
+                    <!-- KPI Summary Cards Grid -->
           <div class="dash-kpi-grid">
             <div class="dash-kpi-card kpi-blue">
               <div class="dash-kpi-label">TOTAL SALES (FY)</div>

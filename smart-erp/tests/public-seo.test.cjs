@@ -38,6 +38,9 @@ test("crawler files have exact public URLs and do not block rendering assets", (
   assert.equal(publicSeoResponse("/sitemap.xml", "platform", "tambaerp.com", "POST").status, 405);
 });
 test("www public pages redirect, without changing private sessions or preview navigation", () => {
+  assert.equal(publicSeoResponse("/", "platform", "tambaerp.in").status, 301);
+  assert.equal(publicSeoResponse("/", "platform", "tambaerp.in").location, SITE_URL + "/");
+  assert.equal(publicSeoResponse("/erp-for-brass-manufacturing", "platform", "tambaerp.in").location, SITE_URL + "/erp-for-brass-manufacturing");
   assert.deepEqual(publicSeoResponse("/", "platform", "www.tambaerp.com").location, SITE_URL + "/");
   assert.equal(publicSeoResponse("/owner", "platform", "www.tambaerp.com").location, undefined);
   assert.equal(publicSeoResponse("/", "platform", "preview.replit.dev").location, undefined);

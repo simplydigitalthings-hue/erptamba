@@ -15835,15 +15835,18 @@ async function handleSubconDcOutSupplierPos(req, res, url) {
      ORDER BY poid DESC`,
     [session.factory_id, session.year_label, suppId]
   );
+  const orders = q.rows.map(r => ({
+    poId: Number(r.poid),
+    poNo: r.pono,
+    poDate: r.podate ? r.podate.toISOString().slice(0, 10) : "",
+    isOpen: Boolean(r.isopenpo),
+    isOpenPO: Boolean(r.isopenpo),
+    costCntrId: r.costcntrid ? Number(r.costcntrid) : null
+  }));
   return sendJson(res, 200, {
     ok: true,
-    pos: q.rows.map(r => ({
-      poId: Number(r.poid),
-      poNo: r.pono,
-      poDate: r.podate ? r.podate.toISOString().slice(0, 10) : "",
-      isOpenPO: Boolean(r.isopenpo),
-      costCntrId: r.costcntrid ? Number(r.costcntrid) : null
-    }))
+    pos: orders,
+    orders: orders
   });
 }
 

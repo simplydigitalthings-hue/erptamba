@@ -185,15 +185,16 @@
 
     try {
       const data = await apiGet(`/api/subcon-dc-out/supplier-pos?suppId=${suppId}`);
-      if (data.ok && Array.isArray(data.orders)) {
+      const orders = Array.isArray(data.orders) ? data.orders : (Array.isArray(data.pos) ? data.pos : []);
+      if (data.ok && orders.length > 0) {
         dom.poNo.innerHTML = '<option value="">-- Select Work Order --</option>' +
-          data.orders.map(o => `<option value="${escapeHtml(o.poNo)}" data-date="${o.poDate || ''}" data-open="${o.isOpen ? '1' : '0'}">${escapeHtml(o.poNo)} (${o.poDate ? o.poDate.slice(0, 10) : ''})</option>`).join("");
+          orders.map(o => `<option value="${escapeHtml(o.poNo)}" data-date="${o.poDate || ''}" data-open="${(o.isOpen || o.isOpenPO) ? '1' : '0'}">${escapeHtml(o.poNo)} (${o.poDate ? o.poDate.slice(0, 10) : ''})</option>`).join("");
         if (selectedPoToSet) {
           dom.poNo.value = selectedPoToSet;
           const opt = dom.poNo.options[dom.poNo.selectedIndex];
           if (opt) {
             dom.poDate.value = opt.getAttribute("data-date") || "";
-            dom.lblOpenPo.textContent = opt.getAttribute("data-open") === "1" ? "OPEN WORK ORDER" : "";
+            dom.lblOpenPo.textContent = (opt.getAttribute("data-open") === "1" || opt.getAttribute("data-open") === "true") ? "OPEN WORK ORDER" : "";
           }
         }
       }

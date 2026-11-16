@@ -25,4 +25,5 @@ portal-tambahq/config.php
 .env
 .env.*
 *.local
+.neon
 

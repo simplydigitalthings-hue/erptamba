@@ -2,34 +2,48 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
-// 1. Load environment configuration if available
+// 1. Detect environment automatically from incoming hostname
+$httpHost = isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
+$isBetaHost = (strpos($httpHost, 'beta.') === 0) || (strpos($httpHost, 'beta') !== false) || (strpos($httpHost, 'localhost') !== false);
+
+$defaultEnv = $isBetaHost ? 'beta' : 'production';
+$defaultDomain = $isBetaHost ? 'beta.tambahq.in' : 'tambahq.in';
+$defaultConnStr = $isBetaHost
+    ? "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-restless-dawn-az4e43w8-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+    : "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
+$defaultEndpoint = $isBetaHost
+    ? "https://ep-restless-dawn-az4e43w8.c-3.ap-southeast-1.aws.neon.tech/sql"
+    : "https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql";
+
+// 2. Load explicit config.php override if available
 $configFile = __DIR__ . '/config.php';
 $config = file_exists($configFile) ? require $configFile : [];
 
-$appEnv = !empty($config['APP_ENV']) ? $config['APP_ENV'] : (getenv('APP_ENV') ?: 'production');
+$appEnv = !empty($config['APP_ENV']) ? $config['APP_ENV'] : (getenv('APP_ENV') ?: $defaultEnv);
 $appVersion = !empty($config['APP_VERSION']) ? $config['APP_VERSION'] : 'v2.0-beta';
-$baseDomain = !empty($config['BASE_DOMAIN']) ? $config['BASE_DOMAIN'] : ($appEnv === 'beta' ? 'beta.tambahq.in' : 'tambahq.in');
+$baseDomain = !empty($config['BASE_DOMAIN']) ? $config['BASE_DOMAIN'] : (getenv('BASE_DOMAIN') ?: $defaultDomain);
 
 $connStr = !empty($config['NEON_DB_URL'])
     ? $config['NEON_DB_URL']
-    : (getenv('NEON_DB_URL') ?: "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require");
+    : (getenv('NEON_DB_URL') ?: $defaultConnStr);
 
 $endpoint = !empty($config['NEON_ENDPOINT'])
     ? $config['NEON_ENDPOINT']
-    : (getenv('NEON_ENDPOINT') ?: "https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql");
+    : (getenv('NEON_ENDPOINT') ?: $defaultEndpoint);
 
-// 2. Health / Environment metadata probe endpoint
+// 3. Health / Environment metadata probe endpoint
 if (isset($_GET['action']) && $_GET['action'] === 'info') {
     echo json_encode([
         'status' => 'ok',
         'env' => $appEnv,
         'version' => $appVersion,
-        'base_domain' => $baseDomain
+        'base_domain' => $baseDomain,
+        'db_endpoint' => parse_url($endpoint, PHP_URL_HOST)
     ]);
     exit;
 }
 
-// 3. Validate slug parameter
+// 4. Validate slug parameter
 $slug = isset($_GET['slug']) ? trim(strtolower($_GET['slug'])) : '';
 $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
 
@@ -39,7 +53,7 @@ if (empty($slug) || strlen($slug) < 2) {
     exit;
 }
 
-// 4. Query Neon SQL endpoint
+// 5. Query Neon SQL endpoint
 $payload = json_encode([
     'query' => "SELECT slug, deployment_url, access_status FROM platform_companies WHERE slug = $1 AND access_status = 'active' LIMIT 1;",
     'params' => [$slug]

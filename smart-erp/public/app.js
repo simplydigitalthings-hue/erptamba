@@ -739,19 +739,23 @@ function renderMenu(items, anchor) {
         return;
       }
       if (item.form === "frmPayments") {
-        if (window.openPayments) window.openPayments();
+        if (window.openCashflowHub) window.openCashflowHub("voucher", "Payment");
+        else if (window.openPayments) window.openPayments();
         return;
       }
       if (item.form === "frmReceipts") {
-        if (window.openReceipts) window.openReceipts();
+        if (window.openCashflowHub) window.openCashflowHub("voucher", "Receipt");
+        else if (window.openReceipts) window.openReceipts();
         return;
       }
       if (item.form === "frmBankTrans") {
-        if (window.openBankTrans) window.openBankTrans();
+        if (window.openCashflowHub) window.openCashflowHub("batch");
+        else if (window.openBankTrans) window.openBankTrans();
         return;
       }
       if (item.form === "frmAdvAdjust") {
-        if (window.openAdvAdjust) window.openAdvAdjust();
+        if (window.openCashflowHub) window.openCashflowHub("advadjust");
+        else if (window.openAdvAdjust) window.openAdvAdjust();
         return;
       }
       if (item.form === "frmInspection") {
@@ -988,6 +992,16 @@ function renderMenu(items, anchor) {
 document.querySelectorAll(".sidebar button[data-menu]").forEach((button) => {
   button.addEventListener("click", (event) => {
     event.stopPropagation();
+    if (button.dataset.menu === "cash") {
+      hidePopup();
+      if (typeof window.toggleDashboard === "function") {
+        window.toggleDashboard(false);
+      }
+      if (window.openCashflowHub) {
+        window.openCashflowHub();
+        return;
+      }
+    }
     const rect = button.getBoundingClientRect();
     renderMenu(MENUS[button.dataset.menu], { left: rect.right, top: rect.top });
   });

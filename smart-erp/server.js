@@ -21797,6 +21797,537 @@ async function handleAdvAdjustDelete(req, res) {
   }
 }
 
+/* ==========================================================================
+   CASH FLOW & TREASURY SUITE — MODERN DASHBOARD, PASSBOOK & BATCH ENGINE
+   ========================================================================== */
+
+async function handleCashflowOverview(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const balances = await getFundTransBalances(session.factory_id, session.year_label);
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+
+  const mtdInQ = await pool.query(
+    `SELECT COALESCE(SUM(amount), 0) AS total
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND is_expense = false AND datet >= $3`,
+    [session.factory_id, session.year_label, startOfMonth]
+  );
+  const mtdOutQ = await pool.query(
+    `SELECT COALESCE(SUM(amount), 0) AS total
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND is_expense = true AND datet >= $3`,
+    [session.factory_id, session.year_label, startOfMonth]
+  );
+
+  const mtdIn = Number(mtdInQ.rows[0]?.total || 0);
+  const mtdOut = Number(mtdOutQ.rows[0]?.total || 0);
+
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().split("T")[0];
+  const monthlyQ = await pool.query(
+    `SELECT TO_CHAR(dates, 'Mon YYYY') as month_label,
+            DATE_TRUNC('month', dates) as m_date,
+            COALESCE(SUM(CASE WHEN is_expense = false THEN amount ELSE 0 END), 0) as inflows,
+            COALESCE(SUM(CASE WHEN is_expense = true THEN amount ELSE 0 END), 0) as outflows
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND datet >= $3
+     GROUP BY DATE_TRUNC('month', dates), TO_CHAR(dates, 'Mon YYYY')
+     ORDER BY m_date ASC`,
+    [session.factory_id, session.year_label, sixMonthsAgo]
+  );
+
+  const expCatQ = await pool.query(
+    `SELECT party_name as category, COALESCE(SUM(amount), 0) as total
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND is_expense = true AND code = 'Expense'
+     GROUP BY party_name
+     ORDER BY total DESC LIMIT 6`,
+    [session.factory_id, session.year_label]
+  );
+
+  const recentQ = await pool.query(
+    `SELECT fund_trans_id, p_r_a, datet, is_expense, code, party_name, p_r_a_src_dst, amount, ch_no, bank_name, description
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND status_c = true
+     ORDER BY dates DESC, fund_trans_id DESC LIMIT 10`,
+    [session.factory_id, session.year_label]
+  );
+
+  const totalBankBal = (balances.banks || []).reduce((acc, b) => acc + Number(b.balance || 0), 0);
+  const totalLiquid = Number(balances.cashBalance || 0) + totalBankBal;
+
+  return sendJson(res, 200, {
+    cashBalance: balances.cashBalance,
+    banks: balances.banks,
+    totalLiquid,
+    mtd: {
+      inflows: mtdIn,
+      outflows: mtdOut,
+      net: mtdIn - mtdOut
+    },
+    monthlyTrend: monthlyQ.rows.map(r => ({
+      month: r.month_label,
+      inflows: Number(r.inflows),
+      outflows: Number(r.outflows),
+      net: Number(r.inflows) - Number(r.outflows)
+    })),
+    expenseCategories: expCatQ.rows.map(r => ({
+      category: r.category || "General Expense",
+      total: Number(r.total)
+    })),
+    recent: recentQ.rows.map(r => ({
+      id: r.fund_trans_id,
+      voucherNo: r.p_r_a,
+      date: r.datet,
+      isExpense: r.is_expense,
+      type: r.is_expense ? "Payment" : "Receipt",
+      code: r.code,
+      party: r.party_name,
+      account: r.p_r_a_src_dst === "Bank" ? (r.bank_name || "Bank") : "Cash",
+      amount: Number(r.amount),
+      refNo: r.ch_no,
+      description: r.description
+    }))
+  });
+}
+
+async function handleCashflowBook(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const now = new Date();
+  const defaultFrom = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+  const fromDate = url.searchParams.get("from") || defaultFrom;
+  const toDate = url.searchParams.get("to") || now.toISOString().split("T")[0];
+  const account = url.searchParams.get("account") || "all";
+
+  let openingBalance = 0;
+  if (account === "all" || account === "cash") {
+    const miscQ = await pool.query(
+      "SELECT COALESCE(open_bal, 0) AS open_bal FROM misc WHERE factory_id = $1 AND year_label = $2 LIMIT 1",
+      [session.factory_id, session.year_label]
+    );
+    let cashOp = Number(miscQ.rows[0]?.open_bal || 0);
+    const priorCashQ = await pool.query(
+      `SELECT COALESCE(SUM(CASE WHEN is_expense = false THEN amount ELSE -amount END), 0) AS net
+       FROM fund_trans
+       WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND p_r_a_src_dst = 'Cash' AND datet < $3`,
+      [session.factory_id, session.year_label, fromDate]
+    );
+    cashOp += Number(priorCashQ.rows[0]?.net || 0);
+    openingBalance += cashOp;
+  }
+
+  if (account === "all" || account !== "cash") {
+    let bankFilter = "";
+    const params = [session.factory_id, session.year_label, fromDate];
+    if (account !== "all") {
+      params.push(Number(account));
+      bankFilter = "AND b.bank_id = $4";
+    }
+
+    const bankOpQ = await pool.query(
+      `SELECT COALESCE(SUM(b.bank_op_bal), 0) as op_bal
+       FROM bank b
+       WHERE b.factory_id = $1 AND b.year_label = $2 ${bankFilter}`,
+      account === "all" ? [session.factory_id, session.year_label] : [session.factory_id, session.year_label, Number(account)]
+    );
+    let bOp = Number(bankOpQ.rows[0]?.op_bal || 0);
+
+    const priorBankQ = await pool.query(
+      `SELECT COALESCE(SUM(dept_amt - draw_amt), 0) AS net
+       FROM bank_trans
+       WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND datet < $3
+       ${account !== "all" ? "AND bank_id = $4" : ""}`,
+      params
+    );
+    bOp += Number(priorBankQ.rows[0]?.net || 0);
+    if (account !== "cash" && account !== "all") {
+      openingBalance = bOp;
+    } else if (account === "all") {
+      openingBalance += bOp;
+    }
+  }
+
+  let queryText = "";
+  let queryParams = [];
+
+  if (account === "cash") {
+    queryText = `
+      SELECT fund_trans_id AS id, p_r_a AS voucher_no, datet AS date, is_expense,
+             code, party_name, p_r_a_src_dst, amount, ch_no, description
+      FROM fund_trans
+      WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND p_r_a_src_dst = 'Cash'
+        AND datet >= $3 AND datet <= $4
+      ORDER BY datet ASC, fund_trans_id ASC`;
+    queryParams = [session.factory_id, session.year_label, fromDate, toDate];
+  } else if (account !== "all") {
+    queryText = `
+      SELECT trans_id AS id, p_r_a AS voucher_no, datet AS date,
+             (dept_amt > 0) AS is_receipt,
+             draw_amt, dept_amt, ch_no, descr AS description, bank_id
+      FROM bank_trans
+      WHERE factory_id = $1 AND year_label = $2 AND status_c = true AND bank_id = $3
+        AND datet >= $4 AND datet <= $5
+      ORDER BY datet ASC, trans_id ASC`;
+    queryParams = [session.factory_id, session.year_label, Number(account), fromDate, toDate];
+  } else {
+    queryText = `
+      SELECT fund_trans_id AS id, p_r_a AS voucher_no, datet AS date, is_expense,
+             code, party_name, p_r_a_src_dst, bank_name, amount, ch_no, description
+      FROM fund_trans
+      WHERE factory_id = $1 AND year_label = $2 AND status_c = true
+        AND datet >= $3 AND datet <= $4
+      ORDER BY datet ASC, fund_trans_id ASC`;
+    queryParams = [session.factory_id, session.year_label, fromDate, toDate];
+  }
+
+  const entriesQ = await pool.query(queryText, queryParams);
+
+  let running = openingBalance;
+  let totalInflow = 0;
+  let totalOutflow = 0;
+
+  const entries = entriesQ.rows.map(row => {
+    let inflow = 0;
+    let outflow = 0;
+    let party = row.party_name || "";
+    let accountName = "Cash";
+    let type = "";
+
+    if (account !== "cash" && account !== "all") {
+      inflow = Number(row.dept_amt || 0);
+      outflow = Number(row.draw_amt || 0);
+      party = row.description || "Bank Entry";
+      accountName = "Bank Account";
+      type = inflow > 0 ? "Receipt / Deposit" : "Payment / Withdrawal";
+    } else {
+      if (row.is_expense) {
+        outflow = Number(row.amount || 0);
+        type = "Payment";
+      } else {
+        inflow = Number(row.amount || 0);
+        type = "Receipt";
+      }
+      accountName = row.p_r_a_src_dst === "Bank" ? (row.bank_name || "Bank") : "Cash";
+    }
+
+    running = running + inflow - outflow;
+    totalInflow += inflow;
+    totalOutflow += outflow;
+
+    return {
+      id: row.id,
+      voucherNo: row.voucher_no || "-",
+      date: row.date,
+      type,
+      account: accountName,
+      party,
+      code: row.code || "",
+      refNo: row.ch_no || "",
+      inflow,
+      outflow,
+      runningBalance: running,
+      narration: row.description || ""
+    };
+  });
+
+  return sendJson(res, 200, {
+    from: fromDate,
+    to: toDate,
+    account,
+    openingBalance,
+    totalInflow,
+    totalOutflow,
+    closingBalance: running,
+    entries
+  });
+}
+
+async function handleCashflowForecast(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const balances = await getFundTransBalances(session.factory_id, session.year_label);
+  const totalBankBal = (balances.banks || []).reduce((acc, b) => acc + Number(b.balance || 0), 0);
+  const startingLiquid = Number(balances.cashBalance || 0) + totalBankBal;
+
+  const recQ = await pool.query(
+    `SELECT inv_no, inv_date, cust_id, cust_name, (grand_total - COALESCE(pndg_amt, 0)) as pending
+     FROM invmfg
+     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (grand_total - COALESCE(pndg_amt, 0)) > 0
+     ORDER BY inv_date ASC`,
+    [session.factory_id, session.year_label]
+  );
+
+  const payPurchQ = await pool.query(
+    `SELECT inv_no, inv_date, vendor_code as party_id, vendor_name as party_name, (net_amt - COALESCE(pndg_amt, 0)) as pending
+     FROM invpurch
+     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (net_amt - COALESCE(pndg_amt, 0)) > 0
+     ORDER BY inv_date ASC`,
+    [session.factory_id, session.year_label]
+  );
+
+  const paySubQ = await pool.query(
+    `SELECT inv_no, inv_date, supp_code as party_id, supp_name as party_name, (tot_amt - COALESCE(pndg_amt, 0)) as pending
+     FROM subcon_inv
+     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (tot_amt - COALESCE(pndg_amt, 0)) > 0
+     ORDER BY inv_date ASC`,
+    [session.factory_id, session.year_label]
+  );
+
+  let totalRec = 0;
+  let totalPay = 0;
+  const buckets = {
+    week1: { rec: 0, pay: 0, label: "Next 7 Days" },
+    week2: { rec: 0, pay: 0, label: "8 - 15 Days" },
+    week3: { rec: 0, pay: 0, label: "16 - 30 Days" },
+    later: { rec: 0, pay: 0, label: "30+ Days" }
+  };
+
+  const now = new Date();
+
+  function bucketForDate(dStr) {
+    if (!dStr) return "week1";
+    const d = new Date(dStr);
+    const diffDays = Math.round((d.getTime() - now.getTime()) / (1000 * 3600 * 24));
+    if (diffDays <= 7) return "week1";
+    if (diffDays <= 15) return "week2";
+    if (diffDays <= 30) return "week3";
+    return "later";
+  }
+
+  for (const r of recQ.rows) {
+    const amt = Number(r.pending || 0);
+    totalRec += amt;
+    const b = bucketForDate(r.inv_date);
+    buckets[b].rec += amt;
+  }
+
+  for (const p of payPurchQ.rows) {
+    const amt = Number(p.pending || 0);
+    totalPay += amt;
+    const b = bucketForDate(p.inv_date);
+    buckets[b].pay += amt;
+  }
+
+  for (const s of paySubQ.rows) {
+    const amt = Number(s.pending || 0);
+    totalPay += amt;
+    const b = bucketForDate(s.inv_date);
+    buckets[b].pay += amt;
+  }
+
+  return sendJson(res, 200, {
+    startingLiquid,
+    totalReceivables: totalRec,
+    totalPayables: totalPay,
+    projectedNet: startingLiquid + totalRec - totalPay,
+    buckets
+  });
+}
+
+async function handleCashflowParties(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const [custQ, vendQ, suppQ, expQ, bankQ] = await Promise.all([
+    pool.query(`SELECT cust_id AS id, cust_name AS name, 'Customer' AS type FROM customer WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY cust_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT vendor_code AS id, vendor_name AS name, 'Vendor' AS type FROM vendor WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY vendor_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT supp_code AS id, supp_name AS name, 'Sub-Contractor' AS type FROM supplier WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY supp_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT expense_code AS id, expense_name AS name, 'Expense' AS type FROM expense WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY expense_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT bank_id AS id, bank_name AS name, 'Bank' AS type FROM bank WHERE factory_id = $1 AND year_label = $2 ORDER BY bank_name`, [session.factory_id, session.year_label])
+  ]);
+
+  return sendJson(res, 200, {
+    parties: [
+      ...custQ.rows,
+      ...vendQ.rows,
+      ...suppQ.rows,
+      ...expQ.rows
+    ],
+    banks: bankQ.rows
+  });
+}
+
+async function handleCashflowBatchSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const body = await readBody(req);
+  const entries = Array.isArray(body.entries) ? body.entries : [];
+  if (entries.length === 0) return sendJson(res, 400, { error: "No entries to save." });
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const savedVouchers = [];
+
+    for (const e of entries) {
+      const type = String(e.type || "Payment");
+      const date = String(e.date || new Date().toISOString().split("T")[0]);
+      const amount = Number(e.amount || 0);
+      if (amount <= 0) continue;
+
+      const isBank = e.accountType === "Bank";
+      const bankId = isBank ? Number(e.bankId || 0) : null;
+      let bankName = "";
+      if (isBank && bankId) {
+        const bQ = await client.query("SELECT bank_name FROM bank WHERE factory_id = $1 AND year_label = $2 AND bank_id = $3", [session.factory_id, session.year_label, bankId]);
+        bankName = bQ.rows[0]?.bank_name || "";
+      }
+
+      const partyType = String(e.partyType || "Vendor");
+      const partyId = Number(e.partyId || 0);
+      const partyName = String(e.partyName || "").trim();
+      const chNo = String(e.refNo || "").trim();
+      const descr = String(e.description || "").trim();
+      const isExpense = type === "Payment";
+
+      const nextQ = await client.query(
+        `SELECT COALESCE(MAX(p_r_a), 0) + 1 AS next_pra FROM fund_trans WHERE factory_id = $1 AND year_label = $2 AND is_expense = $3`,
+        [session.factory_id, session.year_label, isExpense]
+      );
+      const p_r_a = Number(nextQ.rows[0].next_pra);
+
+      const ftIdQ = await client.query(
+        `SELECT COALESCE(MAX(fund_trans_id), 0) + 1 AS next_id FROM fund_trans WHERE factory_id = $1 AND year_label = $2`,
+        [session.factory_id, session.year_label]
+      );
+      const fundTransId = Number(ftIdQ.rows[0].next_id);
+
+      let trackBills = [];
+      let amtBal = amount;
+
+      if (e.autoAllocate && (partyType === "Vendor" || partyType === "Sub-Contractor" || partyType === "Customer")) {
+        let openBillsQuery = "";
+        if (partyType === "Vendor") {
+          openBillsQuery = `SELECT invpurch_id AS bill_id, inv_no, inv_date, (net_amt - COALESCE(pndg_amt, 0)) as pending FROM invpurch WHERE factory_id = $1 AND year_label = $2 AND vendor_code = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+        } else if (partyType === "Sub-Contractor") {
+          openBillsQuery = `SELECT subcon_inv_id AS bill_id, inv_no, inv_date, (tot_amt - COALESCE(pndg_amt, 0)) as pending FROM subcon_inv WHERE factory_id = $1 AND year_label = $2 AND supp_code = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+        } else if (partyType === "Customer") {
+          openBillsQuery = `SELECT inv_id AS bill_id, inv_no, inv_date, (grand_total - COALESCE(pndg_amt, 0)) as pending FROM invmfg WHERE factory_id = $1 AND year_label = $2 AND cust_id = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+        }
+
+        if (openBillsQuery && partyId) {
+          const billsQ = await client.query(openBillsQuery, [session.factory_id, session.year_label, partyId]);
+          let remainingToAllocate = amount;
+          for (const b of billsQ.rows) {
+            if (remainingToAllocate <= 0) break;
+            const pend = Number(b.pending || 0);
+            if (pend <= 0) continue;
+            const alloc = Math.min(remainingToAllocate, pend);
+            remainingToAllocate -= alloc;
+            amtBal -= alloc;
+            trackBills.push({
+              bill_id: b.bill_id,
+              bill_no: b.inv_no,
+              bill_date: b.inv_date ? new Date(b.inv_date).toISOString().slice(0, 10) : "",
+              amount: alloc
+            });
+
+            const isFull = (pend - alloc) <= 0.001;
+            if (partyType === "Vendor") {
+              await client.query(
+                `UPDATE invpurch SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND invpurch_id = $5`,
+                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+              );
+            } else if (partyType === "Sub-Contractor") {
+              await client.query(
+                `UPDATE subcon_inv SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND subcon_inv_id = $5`,
+                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+              );
+            } else if (partyType === "Customer") {
+              await client.query(
+                `UPDATE invmfg SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND inv_id = $5`,
+                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+              );
+            }
+          }
+        }
+      }
+
+      const p_r_a_type = trackBills.length > 0 ? "Bill" : "Advance";
+      const trackBillStr = trackBills.length > 0 ? JSON.stringify(trackBills) : null;
+
+      await client.query(
+        `INSERT INTO fund_trans
+           (factory_id, year_label, fund_trans_id, p_r_a, dates, datet, is_expense,
+            code, party_name, exp_inc_id, p_r_a_type, p_r_a_src_dst, amount, amt_bal,
+            adv_amount, adv_balance, bank_id, bank_name, ch_no, description, track_bill, status_c)
+         VALUES
+           ($1, $2, $3, $4, $5, $6, $7,
+            $8, $9, $10, $11, $12, $13, $14,
+            $15, $16, $17, $18, $19, $20, $21, true)`,
+        [
+          session.factory_id, session.year_label, fundTransId, p_r_a,
+          new Date(date), date, isExpense,
+          partyType, partyName, partyId, p_r_a_type, isBank ? "Bank" : "Cash",
+          amount, amtBal,
+          p_r_a_type === "Advance" ? amount : 0, amtBal,
+          bankId, bankName, chNo, descr, trackBillStr
+        ]
+      );
+
+      if (isBank && bankId) {
+        const transIdQ = await client.query(
+          `SELECT COALESCE(MAX(trans_id), 0) + 1 AS next_id FROM bank_trans WHERE factory_id = $1 AND year_label = $2`,
+          [session.factory_id, session.year_label]
+        );
+        const transId = Number(transIdQ.rows[0].next_id);
+        const drawAmt = isExpense ? amount : 0;
+        const deptAmt = isExpense ? 0 : amount;
+
+        await client.query(
+          `INSERT INTO bank_trans
+             (factory_id, year_label, trans_id, dates, datet, bank_id, draw_amt, dept_amt,
+              ch_no, descr, fund_trans_id, p_r_a, status_c)
+           VALUES
+             ($1, $2, $3, $4, $5, $6, $7, $8,
+              $9, $10, $11, $12, true)`,
+          [
+            session.factory_id, session.year_label, transId,
+            new Date(date), date, bankId, drawAmt, deptAmt,
+            chNo, descr || `${isExpense ? 'Payment to' : 'Receipt from'} ${partyName}`,
+            fundTransId, p_r_a
+          ]
+        );
+      }
+
+      savedVouchers.push({ voucherNo: p_r_a, type, partyName, amount });
+    }
+
+    await client.query("COMMIT");
+
+    await recordAuditLog(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      userCode: session.user_code,
+      username: session.username,
+      action: "CASHFLOW_BATCH_ENTRY",
+      module: "ACCOUNTS_FINANCE",
+      recordId: String(savedVouchers.map(v => v.voucherNo).join(",")),
+      details: { count: savedVouchers.length, saved: savedVouchers },
+      severity: "INFO"
+    });
+
+    return sendJson(res, 200, {
+      ok: true,
+      message: `Successfully saved ${savedVouchers.length} voucher(s).`,
+      saved: savedVouchers
+    });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("handleCashflowBatchSave error:", err);
+    return sendJson(res, 500, { error: err.message || "Failed to save batch entries." });
+  } finally {
+    client.release();
+  }
+}
+
 async function getSessionWithFallback(req) {
   return openSession(req);
 }
@@ -30531,6 +31062,12 @@ const server = http.createServer(async (req, res) => {
       if (req.method === "GET" && url.pathname === "/api/subcon-invoice/dc-lines") return await handleSubconInvoiceDcLines(req, res, url);
       if (req.method === "POST" && url.pathname === "/api/subcon-invoice/save") return await handleSubconInvoiceSave(req, res);
       if (req.method === "POST" && url.pathname === "/api/subcon-invoice/delete") return await handleSubconInvoiceDelete(req, res);
+
+      if (req.method === "GET" && url.pathname === "/api/cashflow/overview") return await handleCashflowOverview(req, res, url);
+      if (req.method === "GET" && url.pathname === "/api/cashflow/book") return await handleCashflowBook(req, res, url);
+      if (req.method === "GET" && url.pathname === "/api/cashflow/forecast") return await handleCashflowForecast(req, res, url);
+      if (req.method === "GET" && url.pathname === "/api/cashflow/parties") return await handleCashflowParties(req, res, url);
+      if (req.method === "POST" && url.pathname === "/api/cashflow/batch-save") return await handleCashflowBatchSave(req, res);
 
       if (req.method === "GET" && url.pathname === "/api/payments") return await handlePaymentsGet(req, res, url);
       if (req.method === "GET" && url.pathname === "/api/payments/payees") return await handlePaymentsPayees(req, res, url);

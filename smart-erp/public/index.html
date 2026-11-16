@@ -5907,6 +5907,404 @@ License Date   :   01/04/2008</div>
             <input type="hidden" id="subcon-inv-mode" value="new">
           </section>
 
+          <!-- ============================================================= -->
+          <!-- CASH FLOW & TREASURY COMMAND CENTER (#cashflow-hub)           -->
+          <!-- ============================================================= -->
+          <section id="cashflow-hub" class="cf-hub" hidden tabindex="-1">
+            <!-- Header Bar -->
+            <div class="cf-header">
+              <div class="cf-title-group">
+                <h2><span>💼</span> Cash Flow &amp; Treasury Command Center</h2>
+                <p>Real-Time Liquidity Cockpit, Daily Passbook Register &amp; Rapid Batch Vouchers</p>
+              </div>
+              <div class="cf-header-actions">
+                <div class="cf-liquid-badge" id="cf-total-liquid-badge">
+                  <span>Liquid Funds:</span>
+                  <span id="cf-total-liquid-val">₹0.00</span>
+                </div>
+                <button type="button" class="cf-btn" id="cf-btn-refresh" title="Refresh Live Balances">🔄 Refresh</button>
+                <button type="button" class="cf-btn" id="cf-btn-close" style="font-size: 16px; font-weight: bold;" title="Close Hub">×</button>
+              </div>
+            </div>
+
+            <!-- Tab Navigation Rail -->
+            <div class="cf-tabs">
+              <button type="button" class="cf-tab-btn active" data-tab="overview" id="cf-tabnav-overview">📊 1. Overview &amp; Liquidity Cockpit</button>
+              <button type="button" class="cf-tab-btn" data-tab="book" id="cf-tabnav-book">📖 2. Daily Cash &amp; Bank Book</button>
+              <button type="button" class="cf-tab-btn" data-tab="batch" id="cf-tabnav-batch">⚡ 3. Batch Spreadsheet Entry (Fast Grid)</button>
+              <button type="button" class="cf-tab-btn" data-tab="voucher" id="cf-tabnav-voucher">📝 4. Single Voucher Studio</button>
+              <button type="button" class="cf-tab-btn" data-tab="advadjust" id="cf-tabnav-advadjust">⚖️ 5. Advance Adjustments</button>
+            </div>
+
+            <!-- TAB 1: OVERVIEW & LIQUIDITY COCKPIT -->
+            <div id="cf-view-overview" class="cf-tab-content">
+              <!-- KPI Cards Deck -->
+              <div class="cf-kpi-grid">
+                <div class="cf-kpi-card">
+                  <span class="cf-kpi-label">Total Liquid Capital</span>
+                  <span class="cf-kpi-value" id="cf-kpi-liquid" style="color: var(--primary);">₹0.00</span>
+                  <span class="cf-kpi-sub">Cash in hand + all bank accounts</span>
+                </div>
+                <div class="cf-kpi-card">
+                  <span class="cf-kpi-label">Month-To-Date Collections (Inflow)</span>
+                  <span class="cf-kpi-value" id="cf-kpi-mtd-in" style="color: var(--success);">₹0.00</span>
+                  <span class="cf-kpi-sub" id="cf-kpi-mtd-in-sub">Customer receipts &amp; deposits</span>
+                </div>
+                <div class="cf-kpi-card">
+                  <span class="cf-kpi-label">Month-To-Date Disbursements (Outflow)</span>
+                  <span class="cf-kpi-value" id="cf-kpi-mtd-out" style="color: var(--danger);">₹0.00</span>
+                  <span class="cf-kpi-sub" id="cf-kpi-mtd-out-sub">Vendor payments &amp; factory overheads</span>
+                </div>
+                <div class="cf-kpi-card">
+                  <span class="cf-kpi-label">30-Day Liquidity Forecast</span>
+                  <span class="cf-kpi-value" id="cf-kpi-forecast" style="color: var(--primary);">₹0.00</span>
+                  <span class="cf-kpi-sub" id="cf-kpi-forecast-sub">Projected net position after due invoices</span>
+                </div>
+              </div>
+
+              <!-- Bank Accounts & Cash in Hand Grid -->
+              <h3 style="font-size: 13.5px; margin: 0 0 10px 0; color: var(--text-main); font-weight: 700;">🏦 Account Balances Breakdown</h3>
+              <div class="cf-bank-grid" id="cf-bank-cards-container">
+                <!-- Dynamically populated bank cards -->
+              </div>
+
+              <!-- Analytics Row: Monthly Trend & Expense Breakdown -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                <!-- Monthly Trend Card -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-xs);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">📈 Inflows vs Outflows (Past 6 Months)</h4>
+                    <span style="font-size: 11px; color: var(--text-muted);">Collections vs Payouts</span>
+                  </div>
+                  <div id="cf-monthly-chart-container" style="height: 180px; width: 100%; display: flex; align-items: flex-end; gap: 12px; padding-top: 10px; box-sizing: border-box; border-bottom: 1px solid var(--border-color);">
+                    <!-- Dynamic chart bars -->
+                  </div>
+                  <div id="cf-monthly-chart-labels" style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">
+                    <!-- Month labels -->
+                  </div>
+                </div>
+
+                <!-- 30-Day Aging Forecast & Expense Categories -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-xs);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">⏳ 30-Day Liquidity Projections</h4>
+                    <span style="font-size: 11px; color: var(--text-muted);">Receivables vs Payables Aging</span>
+                  </div>
+                  <div id="cf-forecast-buckets-container" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Forecast bucket rows -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: DAILY CASH & BANK BOOK (PASSBOOK) -->
+            <div id="cf-view-book" class="cf-tab-content" hidden>
+              <!-- Filter Toolbar -->
+              <div class="cf-toolbar">
+                <div class="cf-filter-group">
+                  <button type="button" class="cf-btn" id="cf-book-preset-today">Today</button>
+                  <button type="button" class="cf-btn" id="cf-book-preset-week">This Week</button>
+                  <button type="button" class="cf-btn" id="cf-book-preset-month">This Month</button>
+                  <label>From: <input type="date" id="cf-book-from" class="cf-input"></label>
+                  <label>To: <input type="date" id="cf-book-to" class="cf-input"></label>
+                  <label>Account: 
+                    <select id="cf-book-account" class="cf-select">
+                      <option value="all">All Accounts (Consolidated)</option>
+                      <option value="cash">Cash in Hand / Petty Cash</option>
+                    </select>
+                  </label>
+                  <input type="text" id="cf-book-search" class="cf-input" placeholder="Search party, voucher or UTR..." style="width: 180px;">
+                  <button type="button" class="cf-btn cf-btn-primary" id="cf-book-btn-filter">Search</button>
+                </div>
+                <div class="cf-filter-group">
+                  <button type="button" class="cf-btn" id="cf-btn-export-excel">📥 Export Excel/CSV</button>
+                  <button type="button" class="cf-btn" id="cf-btn-print-book">🖨️ Print Passbook</button>
+                </div>
+              </div>
+
+              <!-- Passbook Running Summary Bar -->
+              <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-toolbar); padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 10px; font-size: 11.5px; font-weight: 600; flex-wrap: wrap; gap: 10px;">
+                <span>Opening Balance: <b id="cf-book-opening-bal" style="font-family: var(--font-mono);">₹0.00</b></span>
+                <span style="color: var(--success);">Total Inflow (Receipts): <b id="cf-book-total-in" style="font-family: var(--font-mono);">₹0.00</b></span>
+                <span style="color: var(--danger);">Total Outflow (Payments): <b id="cf-book-total-out" style="font-family: var(--font-mono);">₹0.00</b></span>
+                <span>Closing Balance: <b id="cf-book-closing-bal" style="font-family: var(--font-mono); color: var(--primary);">₹0.00</b></span>
+              </div>
+
+              <!-- Passbook Register Table -->
+              <div class="cf-table-wrap">
+                <table class="cf-table" id="cf-book-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 80px;">Date</th>
+                      <th style="width: 70px;">Voucher #</th>
+                      <th style="width: 80px;">Type</th>
+                      <th style="width: 110px;">Account</th>
+                      <th>Party / Ledger Account</th>
+                      <th style="width: 90px;">Ref / UTR #</th>
+                      <th class="num" style="width: 95px;">Inflow (Dr)</th>
+                      <th class="num" style="width: 95px;">Outflow (Cr)</th>
+                      <th class="num" style="width: 105px;">Balance</th>
+                      <th>Narration / Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cf-book-tbody">
+                    <!-- Dynamic passbook rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 3: BATCH SPREADSHEET ENTRY (FAST GRID) -->
+            <div id="cf-view-batch" class="cf-tab-content" hidden>
+              <!-- Batch Grid Controls -->
+              <div class="cf-toolbar">
+                <div class="cf-filter-group">
+                  <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">
+                    ⚡ <b>Rapid Entry Mode:</b> Press <code>Tab</code> / <code>Enter</code> to navigate cells. Click <b>"Match Bills"</b> or press <code>F4</code> to hand-pick invoices.
+                  </span>
+                </div>
+                <div class="cf-filter-group">
+                  <span style="font-size: 12px; font-weight: 700;">Total Batch: <span id="cf-batch-total-val" style="font-family: var(--font-mono); color: var(--primary);">₹0.00</span></span>
+                  <button type="button" class="cf-btn" id="cf-btn-add-batch-row">+ Add Row (Enter)</button>
+                  <button type="button" class="cf-btn" id="cf-btn-clear-batch">Clear All</button>
+                  <button type="button" class="cf-btn cf-btn-success" id="cf-btn-save-batch">💾 Save All Vouchers (Ctrl+S)</button>
+                </div>
+              </div>
+
+              <!-- Spreadsheet Table -->
+              <div class="cf-table-wrap">
+                <table class="cf-batch-grid" id="cf-batch-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 32px;">#</th>
+                      <th style="width: 110px;">Date</th>
+                      <th style="width: 95px;">Voucher Type</th>
+                      <th style="width: 105px;">Account Type</th>
+                      <th style="width: 140px;">Bank Account</th>
+                      <th style="width: 100px;">Party Type</th>
+                      <th style="width: 220px;">Party / Ledger Name</th>
+                      <th style="width: 100px;">Payment Mode</th>
+                      <th style="width: 105px;">Ref / UTR #</th>
+                      <th class="num" style="width: 110px;">Amount (₹)</th>
+                      <th style="width: 110px;">Bill Matching</th>
+                      <th>Narration / Remarks</th>
+                      <th style="width: 40px;"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="cf-batch-tbody">
+                    <!-- Dynamic spreadsheet rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 4: SINGLE VOUCHER STUDIO & PRINT -->
+            <div id="cf-view-voucher" class="cf-tab-content" hidden>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- Single Voucher Entry / View Card -->
+                <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-xs);">
+                  <h3 style="font-size: 14px; margin: 0 0 12px 0; color: var(--primary);">Voucher Details</h3>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Type:
+                      <select id="cf-sv-type" class="cf-select" style="width: 100%;">
+                        <option value="Payment">Payment Voucher (Disbursement)</option>
+                        <option value="Receipt">Receipt Voucher (Collection)</option>
+                      </select>
+                    </label>
+                    <label style="font-size: 11.5px; font-weight: 600;">Voucher Date:
+                      <input type="date" id="cf-sv-date" class="cf-input" style="width: 100%;">
+                    </label>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Account:
+                      <select id="cf-sv-account-type" class="cf-select" style="width: 100%;">
+                        <option value="Cash">Cash Account</option>
+                        <option value="Bank">Bank Account</option>
+                      </select>
+                    </label>
+                    <label style="font-size: 11.5px; font-weight: 600;">Select Bank:
+                      <select id="cf-sv-bank" class="cf-select" style="width: 100%;" disabled>
+                        <option value="">-- Choose Bank --</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Party Type:
+                      <select id="cf-sv-party-type" class="cf-select" style="width: 100%;">
+                        <option value="Vendor">Vendor</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Sub-Contractor">Sub-Contractor</option>
+                        <option value="Expense">Expense</option>
+                      </select>
+                    </label>
+                    <label style="font-size: 11.5px; font-weight: 600;">Party / Ledger Name:
+                      <input type="text" id="cf-sv-party-name" class="cf-input" style="width: 100%;" list="cf-parties-datalist" placeholder="Search or select party...">
+                    </label>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Payment Mode:
+                      <select id="cf-sv-mode" class="cf-select" style="width: 100%;">
+                        <option value="NEFT/RTGS">NEFT / RTGS / IMPS</option>
+                        <option value="UPI">UPI / QR Code</option>
+                        <option value="Cheque">Cheque / DD</option>
+                        <option value="Cash">Cash</option>
+                      </select>
+                    </label>
+                    <label style="font-size: 11.5px; font-weight: 600;">Cheque / UTR / Ref No:
+                      <input type="text" id="cf-sv-refno" class="cf-input" style="width: 100%;" placeholder="e.g. UTR / Cheque #">
+                    </label>
+                  </div>
+                  <div style="margin-bottom: 10px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Amount (₹):
+                      <input type="number" step="0.01" id="cf-sv-amount" class="cf-input" style="width: 100%; font-family: var(--font-mono); font-size: 15px; font-weight: 700;">
+                    </label>
+                    <div id="cf-sv-words" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; font-style: italic;">Rupees Zero Only</div>
+                  </div>
+                  <div style="margin-bottom: 14px;">
+                    <label style="font-size: 11.5px; font-weight: 600;">Narration / Purpose:
+                      <input type="text" id="cf-sv-narration" class="cf-input" style="width: 100%;" placeholder="e.g. Payment for raw material cut pieces">
+                    </label>
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <button type="button" class="cf-btn cf-btn-success" id="cf-sv-btn-save" style="flex: 1;">💾 Save &amp; Print Voucher</button>
+                    <button type="button" class="cf-btn" id="cf-sv-btn-preview" style="flex: 1;">👁️ Preview Voucher</button>
+                  </div>
+                </div>
+
+                <!-- Live Voucher Preview Frame -->
+                <div id="cf-voucher-preview-card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between; min-height: 380px;">
+                  <div>
+                    <div style="text-align: center; border-bottom: 2px solid #1c625a; padding-bottom: 10px; margin-bottom: 14px;">
+                      <h3 style="margin: 0; font-size: 16px; color: #1c625a; font-weight: 800;">BHARANI BRASS INDUSTRIES</h3>
+                      <p style="margin: 2px 0 0 0; font-size: 11px; color: #586b65;">Foundry, Extrusion &amp; Precision CNC Machined Components</p>
+                      <h4 id="cf-pv-title" style="margin: 6px 0 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #192625;">PAYMENT VOUCHER</h4>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 12px;">
+                      <span>Voucher No: <b id="cf-pv-no">NEW</b></span>
+                      <span>Date: <b id="cf-pv-date">16-11-2026</b></span>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 14px;">
+                      <tr><td style="padding: 4px 0; color: #586b65; width: 110px;">Account:</td><td><b id="cf-pv-account">Cash</b></td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">Paid To / From:</td><td><b id="cf-pv-party">ABC Metals</b></td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">Amount:</td><td><b id="cf-pv-amount" style="font-family: var(--font-mono); font-size: 15px; color: #1c625a;">₹0.00</b></td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">In Words:</td><td id="cf-pv-words" style="font-style: italic;">Rupees Zero Only</td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">Payment Mode:</td><td id="cf-pv-mode">NEFT / RTGS</td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">Ref / UTR #:</td><td id="cf-pv-refno">-</td></tr>
+                      <tr><td style="padding: 4px 0; color: #586b65;">Narration:</td><td id="cf-pv-narration">-</td></tr>
+                    </table>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 10px; border-top: 1px dashed #d5dfd9; font-size: 11px; color: #586b65;">
+                    <div>Prepared By: <b>Accountant</b></div>
+                    <div>Verified By: <b>Plant Manager</b></div>
+                    <div>Authorized Signature: <b>Managing Director</b></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 5: ADVANCE ADJUSTMENTS -->
+            <div id="cf-view-advadjust" class="cf-tab-content" hidden>
+              <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <label style="font-size: 12px; font-weight: 600;">Select Party Type:
+                  <select id="cf-aa-party-type" class="cf-select">
+                    <option value="Customer">Customer (Sales Advances)</option>
+                    <option value="Vendor">Vendor (Purchase Advances)</option>
+                    <option value="Sub-Contractor">Sub-Contractor</option>
+                  </select>
+                </label>
+                <label style="font-size: 12px; font-weight: 600;">Party:
+                  <input type="text" id="cf-aa-party-search" class="cf-input" placeholder="Search party..." list="cf-parties-datalist" style="width: 240px;">
+                </label>
+                <button type="button" class="cf-btn cf-btn-primary" id="cf-aa-btn-load">Load Open Balances</button>
+              </div>
+
+              <!-- Unadjusted Advances & Open Invoices Grid -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px;">
+                <!-- Unadjusted Advances List -->
+                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card);">
+                  <h4 style="margin: 0 0 8px 0; font-size: 12.5px; color: var(--primary);">1. Available Unadjusted Advances</h4>
+                  <div style="height: 180px; overflow-y: auto; border: 1px solid var(--border-color); background: var(--bg-surface);">
+                    <table class="cf-table" id="cf-aa-table-advances">
+                      <thead>
+                        <tr>
+                          <th>Voucher #</th>
+                          <th>Date</th>
+                          <th class="num">Original</th>
+                          <th class="num">Available Advance</th>
+                        </tr>
+                      </thead>
+                      <tbody id="cf-aa-tbody-advances">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Select a party to load advances</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Open Invoices List -->
+                <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card);">
+                  <h4 style="margin: 0 0 8px 0; font-size: 12.5px; color: var(--primary);">2. Open Unpaid Invoices</h4>
+                  <div style="height: 180px; overflow-y: auto; border: 1px solid var(--border-color); background: var(--bg-surface);">
+                    <table class="cf-table" id="cf-aa-table-bills">
+                      <thead>
+                        <tr>
+                          <th>Invoice #</th>
+                          <th>Date</th>
+                          <th class="num">Pending Amt</th>
+                          <th class="num" style="width: 90px;">Adjust (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="cf-aa-tbody-bills">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Select a party to load invoices</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="cf-btn cf-btn-success" id="cf-aa-btn-commit">⚖️ Settle Selected Adjustments</button>
+              </div>
+            </div>
+
+            <!-- Datalist for Party Autocompletion -->
+            <datalist id="cf-parties-datalist"></datalist>
+
+            <!-- Slide-Out Drawer for Bill Matching -->
+            <div id="cf-bill-matcher-drawer" class="cf-drawer-overlay" style="display: none;">
+              <div class="cf-drawer">
+                <div class="cf-drawer-header">
+                  <h3>📑 Bill-by-Bill Allocation</h3>
+                  <button type="button" class="cf-btn" id="cf-drawer-btn-close">×</button>
+                </div>
+                <div class="cf-drawer-body">
+                  <div style="margin-bottom: 12px; font-size: 12px;">
+                    <div>Party: <b id="cf-drawer-party-name">-</b></div>
+                    <div>Transaction Amount: <b id="cf-drawer-trans-amt" style="font-family: var(--font-mono); color: var(--primary);">₹0.00</b></div>
+                    <div>Allocated: <b id="cf-drawer-alloc-amt" style="font-family: var(--font-mono); color: var(--success);">₹0.00</b></div>
+                  </div>
+                  <table class="cf-table" id="cf-drawer-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 25px;"><input type="checkbox" id="cf-drawer-chk-all"></th>
+                        <th>Invoice #</th>
+                        <th>Date</th>
+                        <th class="num">Pending</th>
+                        <th class="num" style="width: 85px;">Allocate (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cf-drawer-tbody">
+                      <!-- Dynamically loaded open bills -->
+                    </tbody>
+                  </table>
+                </div>
+                <div class="cf-drawer-footer">
+                  <button type="button" class="cf-btn" id="cf-drawer-btn-cancel">Cancel</button>
+                  <button type="button" class="cf-btn cf-btn-primary" id="cf-drawer-btn-apply">Apply Allocation</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- CASH FLOW - Payments [frmPayments] -->
           <section id="payments" class="invmfg-window" hidden>
             <div class="invmfg-card" style="width: 760px; max-width: 98vw;">
@@ -8576,6 +8974,7 @@ License Date   :   01/04/2008</div>
     <script src="/receipts.js?v=20261107"></script>
     <script src="/bank-trans.js?v=20261107"></script>
     <script src="/adv-adjust.js?v=20261107"></script>
+    <script src="/cashflow.js?v=20261116"></script>
     <script src="/inspection-random.js?v=20261107"></script>
     <script src="/inspection-inde.js?v=20261107"></script>
   <script src="/inspection-sc.js?v=20261107"></script>

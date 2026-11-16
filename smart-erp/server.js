@@ -22056,26 +22056,26 @@ async function handleCashflowForecast(req, res, url) {
   const startingLiquid = Number(balances.cashBalance || 0) + totalBankBal;
 
   const recQ = await pool.query(
-    `SELECT inv_no, inv_date, cust_id, cust_name, (grand_total - COALESCE(pndg_amt, 0)) as pending
-     FROM invmfg
-     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (grand_total - COALESCE(pndg_amt, 0)) > 0
-     ORDER BY inv_date ASC`,
+    `SELECT dcinvid AS id, dcno AS inv_no, to_char(dcdate, 'YYYY-MM-DD') AS inv_date, custid AS party_id, balance AS pending
+     FROM dcinv
+     WHERE factory_id = $1 AND year_label = $2 AND balance > 0 AND dcno IS NOT NULL AND dcno <> ''
+     ORDER BY dcinvid ASC`,
     [session.factory_id, session.year_label]
   );
 
   const payPurchQ = await pool.query(
-    `SELECT inv_no, inv_date, vendor_code as party_id, vendor_name as party_name, (net_amt - COALESCE(pndg_amt, 0)) as pending
-     FROM invpurch
-     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (net_amt - COALESCE(pndg_amt, 0)) > 0
-     ORDER BY inv_date ASC`,
+    `SELECT purchid AS id, invno AS inv_no, to_char(invdate, 'YYYY-MM-DD') AS inv_date, vendor_code AS party_id, balance AS pending
+     FROM purchase
+     WHERE factory_id = $1 AND year_label = $2 AND balance > 0 AND invno IS NOT NULL AND invno <> '' AND invno <> 'Nil'
+     ORDER BY purchid ASC`,
     [session.factory_id, session.year_label]
   );
 
   const paySubQ = await pool.query(
-    `SELECT inv_no, inv_date, supp_code as party_id, supp_name as party_name, (tot_amt - COALESCE(pndg_amt, 0)) as pending
-     FROM subcon_inv
-     WHERE factory_id = $1 AND year_label = $2 AND statusc = false AND (tot_amt - COALESCE(pndg_amt, 0)) > 0
-     ORDER BY inv_date ASC`,
+    `SELECT dcid AS id, invno AS inv_no, to_char(invdate, 'YYYY-MM-DD') AS inv_date, suppid AS party_id, balance AS pending
+     FROM dcsubconincoming
+     WHERE factory_id = $1 AND year_label = $2 AND balance > 0 AND invno IS NOT NULL AND invno <> '' AND invno <> 'Nil'
+     ORDER BY dcid ASC`,
     [session.factory_id, session.year_label]
   );
 
@@ -22135,10 +22135,10 @@ async function handleCashflowParties(req, res, url) {
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
 
   const [custQ, vendQ, suppQ, expQ, bankQ] = await Promise.all([
-    pool.query(`SELECT cust_id AS id, cust_name AS name, 'Customer' AS type FROM customer WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY cust_name`, [session.factory_id, session.year_label]),
-    pool.query(`SELECT vendor_code AS id, vendor_name AS name, 'Vendor' AS type FROM vendor WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY vendor_name`, [session.factory_id, session.year_label]),
-    pool.query(`SELECT supp_code AS id, supp_name AS name, 'Sub-Contractor' AS type FROM supplier WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY supp_name`, [session.factory_id, session.year_label]),
-    pool.query(`SELECT expense_code AS id, expense_name AS name, 'Expense' AS type FROM expense WHERE factory_id = $1 AND year_label = $2 AND inactive = false ORDER BY expense_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT cust_id AS id, cust_name AS name, 'Customer' AS type FROM customer WHERE factory_id = $1 AND year_label = $2 ORDER BY cust_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT vendor_code AS id, vendor_name AS name, 'Vendor' AS type FROM vendor WHERE factory_id = $1 AND year_label = $2 ORDER BY vendor_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT supp_id AS id, supp_name AS name, 'Sub-Contractor' AS type FROM supplier WHERE factory_id = $1 AND year_label = $2 ORDER BY supp_name`, [session.factory_id, session.year_label]),
+    pool.query(`SELECT expense_code AS id, expense_name AS name, 'Expense' AS type FROM expense WHERE factory_id = $1 AND year_label = $2 ORDER BY expense_name`, [session.factory_id, session.year_label]),
     pool.query(`SELECT bank_id AS id, bank_name AS name, 'Bank' AS type FROM bank WHERE factory_id = $1 AND year_label = $2 ORDER BY bank_name`, [session.factory_id, session.year_label])
   ]);
 
@@ -22205,11 +22205,11 @@ async function handleCashflowBatchSave(req, res) {
       if (e.autoAllocate && (partyType === "Vendor" || partyType === "Sub-Contractor" || partyType === "Customer")) {
         let openBillsQuery = "";
         if (partyType === "Vendor") {
-          openBillsQuery = `SELECT invpurch_id AS bill_id, inv_no, inv_date, (net_amt - COALESCE(pndg_amt, 0)) as pending FROM invpurch WHERE factory_id = $1 AND year_label = $2 AND vendor_code = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+          openBillsQuery = `SELECT purchid AS bill_id, invno AS bill_no, to_char(invdate, 'YYYY-MM-DD') AS bill_date, balance AS pending FROM purchase WHERE factory_id = $1 AND year_label = $2 AND vendor_code = $3 AND balance > 0 ORDER BY purchid ASC FOR UPDATE`;
         } else if (partyType === "Sub-Contractor") {
-          openBillsQuery = `SELECT subcon_inv_id AS bill_id, inv_no, inv_date, (tot_amt - COALESCE(pndg_amt, 0)) as pending FROM subcon_inv WHERE factory_id = $1 AND year_label = $2 AND supp_code = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+          openBillsQuery = `SELECT dcid AS bill_id, invno AS bill_no, to_char(invdate, 'YYYY-MM-DD') AS bill_date, balance AS pending FROM dcsubconincoming WHERE factory_id = $1 AND year_label = $2 AND suppid = $3 AND balance > 0 ORDER BY dcid ASC FOR UPDATE`;
         } else if (partyType === "Customer") {
-          openBillsQuery = `SELECT inv_id AS bill_id, inv_no, inv_date, (grand_total - COALESCE(pndg_amt, 0)) as pending FROM invmfg WHERE factory_id = $1 AND year_label = $2 AND cust_id = $3 AND statusc = false ORDER BY inv_date ASC FOR UPDATE`;
+          openBillsQuery = `SELECT dcinvid AS bill_id, dcno AS bill_no, to_char(dcdate, 'YYYY-MM-DD') AS bill_date, balance AS pending FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND custid = $3 AND balance > 0 ORDER BY dcinvid ASC FOR UPDATE`;
         }
 
         if (openBillsQuery && partyId) {
@@ -22224,26 +22224,25 @@ async function handleCashflowBatchSave(req, res) {
             amtBal -= alloc;
             trackBills.push({
               bill_id: b.bill_id,
-              bill_no: b.inv_no,
-              bill_date: b.inv_date ? new Date(b.inv_date).toISOString().slice(0, 10) : "",
+              bill_no: b.bill_no,
+              bill_date: b.bill_date,
               amount: alloc
             });
 
-            const isFull = (pend - alloc) <= 0.001;
             if (partyType === "Vendor") {
               await client.query(
-                `UPDATE invpurch SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND invpurch_id = $5`,
-                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+                `UPDATE purchase SET balance = balance - $1 WHERE factory_id = $2 AND year_label = $3 AND purchid = $4`,
+                [alloc, session.factory_id, session.year_label, b.bill_id]
               );
             } else if (partyType === "Sub-Contractor") {
               await client.query(
-                `UPDATE subcon_inv SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND subcon_inv_id = $5`,
-                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+                `UPDATE dcsubconincoming SET balance = balance - $1 WHERE factory_id = $2 AND year_label = $3 AND dcid = $4`,
+                [alloc, session.factory_id, session.year_label, b.bill_id]
               );
             } else if (partyType === "Customer") {
               await client.query(
-                `UPDATE invmfg SET pndg_amt = COALESCE(pndg_amt, 0) + $1, statusc = $2 WHERE factory_id = $3 AND year_label = $4 AND inv_id = $5`,
-                [alloc, isFull, session.factory_id, session.year_label, b.bill_id]
+                `UPDATE dcinv SET balance = balance - $1 WHERE factory_id = $2 AND year_label = $3 AND dcinvid = $4`,
+                [alloc, session.factory_id, session.year_label, b.bill_id]
               );
             }
           }

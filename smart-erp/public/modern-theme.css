@@ -3598,3 +3598,124 @@ select[size] option:checked, .name-list option:checked {
   height: 240px;
   width: 100%;
 }
+
+/* --------------------------------------------------------------------------
+   Additive Non-Breaking Status Indicators & Form Mode Badges
+   Replit Design Tokens: DM Sans, DM Mono, deep teal, paper/steel surfaces
+   -------------------------------------------------------------------------- */
+
+.order-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.4;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.15s ease;
+}
+
+.order-status-pill .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.order-status-pill.status-open {
+  background: var(--info-subtle);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
+}
+.order-status-pill.status-open .status-dot {
+  background: var(--info);
+  box-shadow: 0 0 0 2px rgba(40, 108, 117, 0.2);
+}
+
+.order-status-pill.status-partial {
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+.order-status-pill.status-partial .status-dot {
+  background: var(--warning);
+  box-shadow: 0 0 0 2px rgba(135, 85, 28, 0.2);
+}
+
+.order-status-pill.status-closed {
+  background: var(--success-subtle);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+.order-status-pill.status-closed .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 2px rgba(40, 115, 84, 0.2);
+}
+
+.form-mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.15s ease;
+}
+
+.form-mode-pill .mode-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.form-mode-pill.mode-view {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+.form-mode-pill.mode-view .mode-indicator {
+  background: var(--text-subtle);
+}
+
+.form-mode-pill.mode-new {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+}
+.form-mode-pill.mode-new .mode-indicator {
+  background: var(--primary);
+  box-shadow: 0 0 0 2px rgba(28, 98, 90, 0.2);
+}
+
+.form-mode-pill.mode-edit {
+  background: var(--warning-subtle);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
+}
+.form-mode-pill.mode-edit .mode-indicator {
+  background: var(--warning);
+  box-shadow: 0 0 0 2px rgba(135, 85, 28, 0.2);
+}
+
+.customer h1,
+.vendor h1,
+.item h1 {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}

@@ -485,6 +485,8 @@
       lines = [];
       setMode("view");
       updateCorresButton(0, 0);
+      const badge = document.querySelector("#mfgpo-status-badge");
+      if (badge) badge.style.display = "none";
       return;
     }
 
@@ -522,6 +524,28 @@
 
     setMode("view");
     updateCorresCount(note.poNo);
+
+    const badge = document.querySelector("#mfgpo-status-badge");
+    if (badge) {
+      badge.style.display = "inline-flex";
+      const isFulfilled = note.potally === true;
+      let totalQty = 0;
+      let pendingQty = 0;
+      for (const l of (note.lines || [])) {
+        totalQty += Number(l.qty) || 0;
+        pendingQty += Number(l.qtyToSend !== undefined ? l.qtyToSend : l.qty) || 0;
+      }
+      if (isFulfilled || (totalQty > 0 && pendingQty <= 0)) {
+        badge.className = "order-status-pill status-closed";
+        badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Fulfilled</span>';
+      } else if (pendingQty < totalQty && totalQty > 0) {
+        badge.className = "order-status-pill status-partial";
+        badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Partially Dispatched</span>';
+      } else {
+        badge.className = "order-status-pill status-open";
+        badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Open Order</span>';
+      }
+    }
   }
 
   async function updateCorresCount(poNo) {

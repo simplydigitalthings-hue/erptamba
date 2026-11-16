@@ -261,6 +261,32 @@
     total();
     calcCurrency();
 
+    const badge = document.querySelector("#po-status-badge");
+    if (badge) {
+      if (blank || !note) {
+        badge.style.display = "none";
+      } else {
+        badge.style.display = "inline-flex";
+        const isClosed = note.potally === true || note.isClosed === true;
+        let totalQty = 0;
+        let pendingQty = 0;
+        for (const l of lines) {
+          totalQty += Number(l.qty) || 0;
+          pendingQty += Number(l.qtyToReci) || 0;
+        }
+        if (isClosed || (totalQty > 0 && pendingQty <= 0)) {
+          badge.className = "order-status-pill status-closed";
+          badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Fulfilled</span>';
+        } else if (pendingQty < totalQty && totalQty > 0) {
+          badge.className = "order-status-pill status-partial";
+          badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Partially Received</span>';
+        } else {
+          badge.className = "order-status-pill status-open";
+          badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Open PO</span>';
+        }
+      }
+    }
+
     if (note && note.purchVal) {
       document.querySelector("#po-total").value = money(note.purchVal);
     }

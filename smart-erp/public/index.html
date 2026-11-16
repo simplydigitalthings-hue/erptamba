@@ -449,7 +449,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="customer" class="customer" hidden tabindex="-1">
-          <h1>Customer</h1>
+          <h1>Customer <span id="customer-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
           <fieldset>
             <legend>Customer Details</legend>
             <input id="customer-id" type="hidden">
@@ -593,7 +593,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="vendor" class="vendor" hidden tabindex="-1">
-          <h1>MASTER - General - Vendor</h1>
+          <h1>MASTER - General - Vendor <span id="vendor-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
           <fieldset>
             <legend>Vendor Details</legend>
             <input id="vendor-id" type="hidden">
@@ -709,7 +709,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="item" class="item" hidden>
-          <h1>MASTER - Inventory</h1>
+          <h1>MASTER - Inventory <span id="item-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
           <div class="item-top">
             <div>
               <p class="item-list-head">Select a Category</p>
@@ -2369,6 +2369,7 @@ License Date   :   01/04/2008</div>
           <div class="po-title">
             <h1>Purchase Order - Outgoing</h1>
             <div style="display: flex; align-items: center; gap: 12px;">
+              <span id="po-status-badge" class="order-status-pill status-open" style="display:none;"><span class="status-dot"></span><span class="status-label">Open PO</span></span>
               <p class="corres" id="po-corres">Correspondences</p>
               <button type="button" id="po-btn-close-x" style="background: transparent; border: none; font-size: 18px; line-height: 1; font-weight: bold; cursor: pointer; color: #0000ff;" title="Close">×</button>
             </div>
@@ -3021,6 +3022,7 @@ License Date   :   01/04/2008</div>
           <div class="mfgpo-titlebar">
             <span>SALES - Manufacturing-Purchase Order (Inwards)</span>
             <div class="mfgpo-title-right">
+              <span id="mfgpo-status-badge" class="order-status-pill status-open" style="display:none;"><span class="status-dot"></span><span class="status-label">Open Order</span></span>
               <button type="button" class="mfgpo-link-btn" id="mfgpo-btn-corres">Correspondences (0 / 0)</button>
               <button type="button" class="mfgpo-close-btn" id="mfgpo-btn-x" title="Close">×</button>
             </div>
@@ -3188,6 +3190,7 @@ License Date   :   01/04/2008</div>
             <div class="dc-titlebar">
               <span class="dc-title">Delevery Challan</span>
               <div class="dc-titlebar-right">
+                <span id="dc-status-badge" class="order-status-pill status-open" style="display:none;"><span class="status-dot"></span><span class="status-label">Pending Invoicing</span></span>
                 <button type="button" class="dc-link-btn" id="dc-btn-corres">Correspondences (0 / 0)</button>
                 <button type="button" class="dc-close-btn" id="dc-btn-x" title="Close">×</button>
               </div>

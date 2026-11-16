@@ -431,6 +431,8 @@
       lines = [];
       setMode("view");
       updateCorresButton(0, 0);
+      const badge = document.querySelector("#dc-status-badge");
+      if (badge) badge.style.display = "none";
       return;
     }
 
@@ -468,6 +470,19 @@
 
     setMode("view");
     updateCorresCount(note.dcNo);
+
+    const badge = document.querySelector("#dc-status-badge");
+    if (badge) {
+      badge.style.display = "inline-flex";
+      const isInvoiced = note.statusc === true || (note.invNo && note.invNo !== "0" && note.invNo !== "");
+      if (isInvoiced) {
+        badge.className = "order-status-pill status-closed";
+        badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Invoiced' + (note.invNo ? ' (' + note.invNo + ')' : '') + '</span>';
+      } else {
+        badge.className = "order-status-pill status-open";
+        badge.innerHTML = '<span class="status-dot"></span><span class="status-label">Pending Invoicing</span>';
+      }
+    }
   }
 
   async function updateCorresCount(dcNo) {

@@ -113,11 +113,27 @@
     return rightLevel == null ? null : (Number(rightLevel) & 255);
   }
 
+  function updateModePill(modeState) {
+    const pill = document.querySelector("#customer-mode-pill");
+    if (!pill) return;
+    if (modeState === "new") {
+      pill.className = "form-mode-pill mode-new";
+      pill.innerHTML = '<span class="mode-indicator"></span><span class="mode-text">New Entry</span>';
+    } else if (modeState === "edit") {
+      pill.className = "form-mode-pill mode-edit";
+      pill.innerHTML = '<span class="mode-indicator"></span><span class="mode-text">Editing</span>';
+    } else {
+      pill.className = "form-mode-pill mode-view";
+      pill.innerHTML = '<span class="mode-indicator"></span><span class="mode-text">View Mode</span>';
+    }
+  }
+
   function applyViewButtons() {
     saveButton.disabled = true;
     newButton.disabled = false;
     deleteButton.disabled = false;
     modifyButton.disabled = false;
+    updateModePill("view");
     const level = byte();
     if (level === 7) deleteButton.disabled = true;
     else if (level === 3) {
@@ -135,6 +151,7 @@
     newButton.disabled = true;
     deleteButton.disabled = true;
     modifyButton.disabled = true;
+    updateModePill("new");
     const level = byte();
     if (level === 1 || level === 0) saveButton.disabled = true;
   }
@@ -423,7 +440,13 @@
   saveButton.addEventListener("click", saveCustomer);
   modifyButton.addEventListener("click", () => {
     mode = "edit";
+    updateModePill("edit");
     saveCustomer();
+  });
+  panel.addEventListener("input", (e) => {
+    if (mode !== "new" && e.target && e.target.matches("input, textarea, select")) {
+      updateModePill("edit");
+    }
   });
   deleteButton.addEventListener("click", deleteCustomer);
   document.querySelector("#customer-first").addEventListener("click", () => showPlace(0));

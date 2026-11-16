@@ -9297,6 +9297,8 @@ async function poBundle(session, poId, vendorCodeOverride) {
         noOfItems: Number(h.no_of_items) || 0,
         body: h.body || "",
         retrkRej: h.retrk_rej === true,
+        potally: h.potally === true,
+        isClosed: h.is_closed === true,
         lines: lines.rows.map((row) => ({
           sl: Number(row.slno),
           itemId: Number(row.item_id),
@@ -11994,6 +11996,7 @@ async function mfgpoBundle(session, targetPoId) {
         currId: row.currid || 1,
         todayVal: Number(row.todayval || 1).toFixed(2),
         reTrkRej: row.retrkrej === true,
+        potally: row.potally === true,
         followupDate: row.followupdate ? new Date(row.followupdate).toISOString().slice(0, 10) : "",
         mfgPoFollowupNo: row.mfgpofollowupno || "",
         lines: linesQ.rows.map((s) => {
@@ -12008,6 +12011,8 @@ async function mfgpoBundle(session, targetPoId) {
             name: s.item_name || "",
             uom: s.uom || "",
             qty: String(s.qty ?? ""),
+            qtyToSend: String(s.qtytosend ?? s.qty ?? ""),
+            statusc: s.statusc === true,
             rate: String(s.rate ?? ""),
             discount: String(s.discount ?? "0"),
             dueDate: s.duedate ? new Date(s.duedate).toISOString().slice(0, 10) : "",
@@ -13943,6 +13948,8 @@ async function dcBundle(session, targetDcInvId) {
         poDate: row.podate ? new Date(row.podate).toISOString().slice(0, 10) : "",
         girNo: row.girno || "",
         dcSigned: row.dcsign === true,
+        statusc: row.statusc === true,
+        invNo: row.invno || "",
         remark: row.dcrem || "",
         lines: linesQ.rows.map((s) => ({
           slno: s.slno,

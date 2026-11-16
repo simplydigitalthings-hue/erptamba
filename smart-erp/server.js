@@ -6617,7 +6617,7 @@ async function handleIwoSave(req, res) {
            FROM store_add_sub s
            WHERE s.factory_id = $1 AND s.year_label = $2 AND s.item_id = $3 AND s.bal_qty > 0
              AND s.id IN (SELECT id FROM store_add WHERE factory_id = $1 AND year_label = $2 AND store_id = $4)
-           ORDER BY s.id`,
+           ORDER BY s.id FOR UPDATE`,
           [session.factory_id, session.year_label, line.outId, storeId]
         );
         for (const receipt of receipts.rows) {
@@ -6661,6 +6661,18 @@ async function handleIwoSave(req, res) {
   } finally {
     client.release();
   }
+
+  await recordAuditLog(pool, {
+    factoryId: session.factory_id,
+    yearLabel: session.year_label,
+    userCode: session.user_code,
+    username: session.username,
+    action: body.mode === "modify" ? "IWO_ISSUE_MODIFIED" : "IWO_ISSUE_CREATED",
+    module: "PRODUCTION_IWO",
+    recordId: String(dcId),
+    details: { dcId, dcNo: no, storeId, lineCount: prepared.length },
+    severity: "INFO"
+  });
 
   return sendJson(res, 200, { ok: true, message: body.mode === "modify" ? "Record Modified ." : "Record Saved" });
 }
@@ -7056,7 +7068,7 @@ async function issueFromStore(client, session, issueId, storeId, itemId, qty, sl
      FROM store_add_sub s
      WHERE s.factory_id = $1 AND s.year_label = $2 AND s.item_id = $3 AND s.bal_qty > 0
        AND s.id IN (SELECT id FROM store_add WHERE factory_id = $1 AND year_label = $2 AND store_id = $4)
-     ORDER BY s.id`,
+     ORDER BY s.id FOR UPDATE`,
     [session.factory_id, session.year_label, itemId, storeId]
   );
   for (const receipt of receipts.rows) {
@@ -7084,7 +7096,7 @@ async function issueFromItem(client, session, issueId, itemId, qty, slno) {
   const receipts = await client.query(
     `SELECT id, bal_qty, trak FROM store_add_sub
      WHERE factory_id = $1 AND year_label = $2 AND item_id = $3 AND bal_qty > 0
-     ORDER BY id`,
+     ORDER BY id FOR UPDATE`,
     [session.factory_id, session.year_label, itemId]
   );
   for (const receipt of receipts.rows) {
@@ -7111,7 +7123,7 @@ async function issueFromReturnReceipt(client, session, issueId, receiptId, itemI
   let remaining = qty;
   const receipts = await client.query(
     `SELECT id, bal_qty, trak FROM store_add_sub
-     WHERE factory_id = $1 AND year_label = $2 AND id = $3 AND item_id = $4 AND bal_qty > 0`,
+     WHERE factory_id = $1 AND year_label = $2 AND id = $3 AND item_id = $4 AND bal_qty > 0 FOR UPDATE`,
     [session.factory_id, session.year_label, receiptId, itemId]
   );
   for (const receipt of receipts.rows) {
@@ -9569,6 +9581,19 @@ async function handlePoSave(req, res) {
   } finally {
     client.release();
   }
+
+  await recordAuditLog(pool, {
+    factoryId: session.factory_id,
+    yearLabel: session.year_label,
+    userCode: session.user_code,
+    username: session.username,
+    action: existingId ? "UPDATE_PO" : "CREATE_PO",
+    module: "PURCHASE_ORDER",
+    recordId: String(id),
+    details: { poId: id, poNo: no, vendorCode, itemCount: checked.ready.length, totalVal },
+    severity: "INFO"
+  });
+
   const bundle = await poBundle(session, id);
   bundle.ok = true;
   sendJson(res, 200, bundle);
@@ -10071,7 +10096,7 @@ async function handleGrnSave(req, res) {
       if (poId && !isOpenPo && toStock > 0) {
         let remainingToDeduct = toStock;
         const openPoLines = await client.query(
-          "SELECT slno, qty_to_reci FROM purch_po_sub WHERE factory_id = $1 AND year_label = $2 AND poid = $3 AND item_id = $4 AND qty_to_reci > 0 ORDER BY slno ASC",
+          "SELECT slno, qty_to_reci FROM purch_po_sub WHERE factory_id = $1 AND year_label = $2 AND poid = $3 AND item_id = $4 AND qty_to_reci > 0 ORDER BY slno ASC FOR UPDATE",
           [session.factory_id, session.year_label, poId, itemId]
         );
         for (const pol of openPoLines.rows) {
@@ -10107,10 +10132,32 @@ async function handleGrnSave(req, res) {
           "UPDATE purch_po SET potally = true WHERE factory_id = $1 AND year_label = $2 AND poid = $3",
           [session.factory_id, session.year_label, poId]
         );
+        await recordAuditLog(pool, {
+          factoryId: session.factory_id,
+          yearLabel: session.year_label,
+          userCode: session.user_code,
+          username: session.username,
+          action: "PO_RECEIVED_FULFILLED",
+          module: "PURCHASE_GRN",
+          recordId: String(poId),
+          details: { poId, purchId, reason: "All line items received; balance qty is zero" },
+          severity: "INFO"
+        });
       }
     }
 
     await client.query("COMMIT");
+    await recordAuditLog(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      userCode: session.user_code,
+      username: session.username,
+      action: "GRN_SAVED",
+      module: "PURCHASE_GRN",
+      recordId: String(purchId),
+      details: { purchId, poId, invoiceNo: body.invoiceNo || body.invoiceno },
+      severity: "INFO"
+    });
     const bundle = await grnBundle(session, purchId);
     bundle.ok = true;
     bundle.message = "Record Saved .";
@@ -14328,14 +14375,14 @@ async function handleDcSave(req, res) {
         );
       }
 
-      // Deduct from store inventory (FIFO from store_add_sub)
+      // Deduct from store inventory (FIFO from store_add_sub with row-level lock)
       let remainDeduct = rl.qty;
       const batches = await client.query(
         `SELECT s.id, s.bal_qty
          FROM store_add_sub s
          JOIN store_add a ON a.factory_id = s.factory_id AND a.year_label = s.year_label AND a.id = s.id
          WHERE s.factory_id = $1 AND s.year_label = $2 AND a.store_id = $3 AND s.item_id = $4 AND s.bal_qty > 0
-         ORDER BY s.id ASC`,
+         ORDER BY s.id ASC FOR UPDATE OF s`,
         [session.factory_id, session.year_label, storeId, rl.itemId]
       );
       for (const b of batches.rows) {
@@ -14360,10 +14407,32 @@ async function handleDcSave(req, res) {
           "UPDATE mfgpo SET potally = true WHERE factory_id = $1 AND year_label = $2 AND poid = $3",
           [session.factory_id, session.year_label, poId]
         );
+        await recordAuditLog(pool, {
+          factoryId: session.factory_id,
+          yearLabel: session.year_label,
+          userCode: session.user_code,
+          username: session.username,
+          action: "PO_DISPATCH_FULFILLED",
+          module: "SALES_DISPATCH",
+          recordId: String(poId),
+          details: { poId, dcInvId, reason: "All items dispatched; balance quantity is zero" },
+          severity: "INFO"
+        });
       }
     }
 
     await client.query("COMMIT");
+    await recordAuditLog(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      userCode: session.user_code,
+      username: session.username,
+      action: "DC_DISPATCHED",
+      module: "SALES_DISPATCH",
+      recordId: String(dcInvId),
+      details: { dcInvId, poId, storeId, linesCount: readyLines.length },
+      severity: "INFO"
+    });
 
     const bundle = await dcBundle(session, dcInvId);
     bundle.ok = true;
@@ -21498,7 +21567,7 @@ async function handleAdvAdjustSave(req, res) {
        WHERE factory_id = $1 AND year_label = $2 AND is_expense = $3
          AND (party_name = $4 OR (exp_inc_id = $5 AND exp_inc_id > 0))
          AND (amt_bal > 0 OR adv_balance > 0)
-       ORDER BY dates ASC, fund_trans_id ASC`,
+       ORDER BY dates ASC, fund_trans_id ASC FOR UPDATE`,
       [session.factory_id, session.year_label, isExpense, partyName, expIncId]
     );
 
@@ -21523,7 +21592,7 @@ async function handleAdvAdjustSave(req, res) {
         const openSales = await client.query(
           `SELECT invid, invno, balance FROM dcinv
            WHERE factory_id = $1 AND year_label = $2 AND (custid = $3 OR custname = $4) AND balance > 0
-           ORDER BY invid ASC`,
+           ORDER BY invid ASC FOR UPDATE`,
           [session.factory_id, session.year_label, expIncId, partyName]
         );
         const settledNos = [];
@@ -21542,7 +21611,7 @@ async function handleAdvAdjustSave(req, res) {
         const openPurch = await client.query(
           `SELECT purchid, inv_no, balance FROM purchase
            WHERE factory_id = $1 AND year_label = $2 AND (vendor_code = $3 OR vendor_name = $4) AND balance > 0
-           ORDER BY purchid ASC`,
+           ORDER BY purchid ASC FOR UPDATE`,
           [session.factory_id, session.year_label, expIncId, partyName]
         );
         const settledNos = [];
@@ -21626,6 +21695,17 @@ async function handleAdvAdjustSave(req, res) {
     );
 
     await client.query("COMMIT");
+    await recordAuditLog(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      userCode: session.user_code,
+      username: session.username,
+      action: "ADVANCE_ADJUSTMENT",
+      module: "ACCOUNTS_FINANCE",
+      recordId: String(adjNo),
+      details: { adjNo, partyName, isExpense, amount, method, bills: trackBillStr },
+      severity: "INFO"
+    });
 
     const bundle = await advAdjustBundle(session, adjNo);
     return sendJson(res, 200, {

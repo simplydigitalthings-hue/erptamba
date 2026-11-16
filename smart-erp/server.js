@@ -79,8 +79,8 @@ const { createPlatformController } = require("./platform/controller");
 const { CustomerDeployment } = require("./platform/customer-deployment");
 const { isPasswordHash, verifyPassword, hashPassword, PlatformError } = require("./platform/security");
 const ERP_MODE = process.env.ERP_MODE || "platform";
-if (!["platform", "customer"].includes(ERP_MODE)) throw new Error("ERP_MODE must be platform or customer.");
-const customerDeployment = ERP_MODE === "customer" ? new CustomerDeployment({
+if (!["platform", "customer", "standalone", "sandbox"].includes(ERP_MODE)) throw new Error("ERP_MODE must be platform, customer, standalone, or sandbox.");
+const customerDeployment = (ERP_MODE === "customer" && process.env.ERP_CONTROL_URL) ? new CustomerDeployment({
   pool, controlUrl: process.env.ERP_CONTROL_URL, companyId: process.env.ERP_COMPANY_ID,
   deploymentKey: process.env.ERP_DEPLOYMENT_KEY, deploymentUrl: process.env.ERP_PUBLIC_URL
 }) : null;

@@ -1,8 +1,8 @@
 // Share the public document boundary between the application and isolated tests.
 function resolvePublicPage(pathname, mode) {
-  if (!["platform", "customer"].includes(mode)) throw new TypeError("Unknown deployment mode");
+  if (!["platform", "customer", "standalone", "sandbox"].includes(mode)) throw new TypeError("Unknown deployment mode");
   const route = pathname.replace(/\/+$/, "") || "/";
-  if (mode === "customer" && (
+  if (["customer", "standalone", "sandbox"].includes(mode) && (
     route === "/owner" ||
     route === "/platform/owner.html" ||
     route === "/platform/owner.js" ||
@@ -12,7 +12,7 @@ function resolvePublicPage(pathname, mode) {
   )) return { status: 404 };
 
   if (route === "/") {
-    return { file: mode === "platform" ? "/marketing/index.html" : "/index.html" };
+    return { file: ["customer", "standalone", "sandbox"].includes(mode) ? "/index.html" : "/marketing/index.html" };
   }
   if (mode === "platform" && route === "/index.html") return { location: "/" };
   if (mode === "platform" && ["/marketing", "/marketing/index.html"].includes(route)) return { location: "/" };

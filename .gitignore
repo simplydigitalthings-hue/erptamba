@@ -11,6 +11,7 @@ yarn-error.log*
 
 # Backups and temporary files
 tests_backup.zip
+backups/
 *.tmp
 *.bak
 

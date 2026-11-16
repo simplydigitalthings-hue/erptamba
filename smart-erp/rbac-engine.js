@@ -5,6 +5,15 @@
 const { recordAuditLog } = require("./audit-engine");
 
 const ROLES = {
+  OWNER: {
+    key: "OWNER",
+    name: "Business Owner / Managing Director",
+    badge: "💎 Business Owner",
+    description: "Supreme administrative access across all business financials, operations, and configurations with dedicated Executive Financial Cockpit.",
+    defaultLevel: 12,
+    rules: {} // all 12
+  },
+
   PLANT_MANAGER: {
     key: "PLANT_MANAGER",
     name: "Plant Manager / Administrator",

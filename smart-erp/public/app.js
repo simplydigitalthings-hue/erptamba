@@ -290,10 +290,13 @@ function showMain(session) {
   if (window.manufacturerOnboarding) window.manufacturerOnboarding.check();
   notice.hidden = true;
   menuRights = session.rights || {};
-  const roleDisplay = session.role_name ? ` [${session.role_name}]` : (session.role_key ? ` [${session.role_key}]` : "");
+  window.currentSession = session;
+  const roleName = session.role_name || session.roleName;
+  const roleKey = session.role_key || session.roleKey;
+  const roleDisplay = roleName ? ` [${roleName}]` : (roleKey ? ` [${roleKey}]` : "");
   who.textContent = "User: " + session.username + roleDisplay + "\nLogged In: " + formatLoggedIn(session.loggedInAt);
-  if (window.initDashboard) window.initDashboard();
-  else if (window.loadDashboard) window.loadDashboard();
+  if (window.initDashboard) window.initDashboard(session);
+  else if (window.loadDashboard) window.loadDashboard(session);
   if (!session.rightsMissing) return;
   document.querySelector("#info-title").textContent = session.factoryName || "Tamba ERP";
   document.querySelector("#info-text").textContent = "User Rights for You has not been Made Contact Your Administrator";

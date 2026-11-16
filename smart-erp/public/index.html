@@ -150,149 +150,13 @@ License Date   :   01/04/2008</div>
       <div class="stage">
         <!-- Live Operations Dashboard Cockpit -->
         <div id="dashboard-cockpit" class="dashboard-cockpit">
-                    <!-- KPI Summary Cards Grid -->
-          <div class="dash-kpi-grid">
-            <div class="dash-kpi-card kpi-blue">
-              <div class="dash-kpi-label">TOTAL SALES (FY)</div>
-              <div class="dash-kpi-value" id="dash-kpi-sales">Rs. 0.00</div>
-              <div class="dash-kpi-sub" id="dash-kpi-sales-sub">Mfg: Rs. 0.00 | Labour: Rs. 0.00</div>
-            </div>
+          <!-- Multi-Role & Date Filter Toolbar (Populated by dashboard.js) -->
+          <div id="dash-toolbar-container"></div>
 
-            <div class="dash-kpi-card kpi-green">
-              <div class="dash-kpi-label">PURCHASES (INWARD BILLS)</div>
-              <div class="dash-kpi-value" id="dash-kpi-purch">Rs. 0.00</div>
-              <div class="dash-kpi-sub" id="dash-kpi-purch-sub">0 Inward Bills Cleared</div>
-            </div>
-
-            <div class="dash-kpi-card kpi-amber">
-              <div class="dash-kpi-label">UN-INVOICED OUTWARD DCS</div>
-              <div class="dash-kpi-value" id="dash-kpi-dc-val">Rs. 0.00</div>
-              <div class="dash-kpi-sub" id="dash-kpi-dc-count">0 DCs Awaiting Billing</div>
-            </div>
-
-            <div class="dash-kpi-card kpi-red">
-              <div class="dash-kpi-label">CRITICAL STOCK WATCH</div>
-              <div class="dash-kpi-value" id="dash-kpi-stock-count">0 Items</div>
-              <div class="dash-kpi-sub" id="dash-kpi-stock-sub">Stock Levels Healthy</div>
-            </div>
-          </div>
-
-          <!-- Live Metal Rates & Mandi Intelligence Ticker (Apple Design) -->
-          <div class="dash-metal-strip" id="dash-metal-strip">
-            <div class="dash-metal-header">
-              <div class="dash-metal-title-wrap">
-                <span class="dash-metal-live-dot" title="Real-Time Market Stream Active"></span>
-                <span class="dash-metal-title">Live Metal Rates &amp; Mandi Benchmark</span>
-                <span class="dash-metal-badge">MCX &bull; Jamnagar &bull; Forex</span>
-              </div>
-              <div class="dash-metal-actions">
-                <span id="dash-metal-timestamp" class="dash-metal-time">Syncing live benchmark...</span>
-                <button type="button" id="btn-metal-edit-modal" class="dash-metal-action-btn" title="Set Today's Factory / Mandi Yard Rates">⚙️ Set Mandi Rates</button>
-                <button type="button" id="btn-metal-refresh" class="dash-metal-action-btn" title="Refresh Live Market Rates">↻ Refresh</button>
-              </div>
-            </div>
-            <div class="dash-metal-grid" id="dash-metal-cards">
-              <!-- Dynamically populated by dashboard.js -->
-            </div>
-          </div>
-
-          <!-- Quick Operations Launchpad -->
-          <div class="dash-launchpad">
-            <span class="dash-launchpad-title">Quick Launchpad</span>
-            <div class="dash-launchpad-btns">
-              <button type="button" class="dash-quick-btn" id="dash-btn-new-mfg-inv">+ New Mfg Invoice</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-new-lab-inv">+ New Labour Invoice</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-new-dc">+ New Delivery Challan</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-new-po">+ New Purchase PO</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-gst-reports">GST Reports &amp; Filing</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-traceability">Material Traceability</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-valuation">AS-2 Stock Valuation</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-export-center">Modern Export Center</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-audit-trail">Security &amp; Audit Trail</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-notify-hub">WhatsApp &amp; Email Dispatch</button>
-              <button type="button" class="dash-quick-btn" id="dash-btn-barcode-hub">Barcode &amp; QR Labels</button>
-            </div>
-          </div>
-
-          <!-- Split Operational Tables Grid -->
-          <div class="dash-tables-grid">
-            <!-- Un-invoiced DCs -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title">Outward DCs Pending Invoicing (Action Required)</span>
-                <span class="dash-panel-subbadge">Top Dispatches</span>
-              </div>
-              <div class="dash-table-wrap">
-                <table class="dash-table">
-                  <thead>
-                    <tr>
-                      <th style="width: 140px;">DC No</th>
-                      <th style="width: 100px;">Date</th>
-                      <th style="width: 70px; text-align: center;">Type</th>
-                      <th style="min-width: 200px;">Customer Name</th>
-                      <th style="min-width: 240px;">Material Details &amp; Parts</th>
-                      <th style="width: 85px; text-align: right;">Total Qty</th>
-                      <th style="width: 120px; text-align: right;">Total Value</th>
-                      <th style="width: 115px; text-align: center;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dash-tbody-uninvoiced-dcs">
-                    <tr><td colspan="8" style="text-align: center; color: #888; padding: 12px;">Loading dispatches...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Critical Stock & ROL Watch -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title">Critical Stock Watchlist (Below or Near ROL)</span>
-                <span class="dash-panel-subbadge">Re-Order Alerts</span>
-              </div>
-              <div class="dash-table-wrap">
-                <table class="dash-table">
-                  <thead>
-                    <tr>
-                      <th style="width: 120px;">Item Code</th>
-                      <th style="min-width: 260px;">Particulars / Material Description</th>
-                      <th style="width: 70px; text-align: center;">UOM</th>
-                      <th style="width: 110px; text-align: right;">Current Stock</th>
-                      <th style="width: 110px; text-align: right;">Re-Order Level (ROL)</th>
-                      <th style="width: 110px; text-align: center;">Status</th>
-                      <th style="width: 115px; text-align: center;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="dash-tbody-stock">
-                    <tr><td colspan="7" style="text-align: center; color: #888; padding: 12px;">Loading inventory levels...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Invoices & E-Way / E-Invoice Actions -->
-          <div class="dash-panel">
-            <div class="dash-panel-header">
-              <span class="dash-panel-title">Recent Tax Invoices &amp; Compliance Hub</span>
-              <span class="dash-panel-subbadge">Latest Invoices Issued</span>
-            </div>
-            <div class="dash-table-wrap">
-              <table class="dash-table">
-                <thead>
-                  <tr>
-                    <th style="width: 90px;">Invoice No</th>
-                    <th style="width: 80px;">Date</th>
-                    <th style="width: 55px; text-align: center;">Type</th>
-                    <th>Customer Name</th>
-                    <th style="width: 90px; text-align: right;">Taxable (Rs.)</th>
-                    <th style="width: 100px; text-align: right;">Total Value (Rs.)</th>
-                    <th style="width: 95px; text-align: center;">E-Way / E-Inv</th>
-                  </tr>
-                </thead>
-                <tbody id="dash-tbody-recent-invoices">
-                  <tr><td colspan="7" style="text-align: center; color: #888; padding: 12px;">Loading recent invoices...</td></tr>
-                </tbody>
-              </table>
+          <!-- Dynamic Role-Tailored Cockpit Body (Populated by dashboard.js) -->
+          <div id="dash-dynamic-content">
+            <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; font-weight: 600;">
+              ⚡ Loading enterprise cockpit...
             </div>
           </div>
         </div>
@@ -8505,7 +8369,8 @@ License Date   :   01/04/2008</div>
   <script src="/accounts.js?v=20261107"></script>
   <script src="/prod-setup.js?v=20261107"></script>
   <script src="/company-extra.js?v=20261107"></script>
-  <script src="/dashboard.js?v=20261107_12"></script>
+  <script src="/vendor/chart.umd.js"></script>
+  <script src="/dashboard.js?v=20261116_multi_role"></script>
   <script src="/export-center.js?v=20261107_1"></script>
   <script src="/audit.js?v=20261107_1"></script>
   <script src="/notification.js?v=20261107_1"></script>

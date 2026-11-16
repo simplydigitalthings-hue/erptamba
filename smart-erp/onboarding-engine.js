@@ -35,7 +35,8 @@ async function initOnboarding(pool, freshFactory) {
 
 function canManage(session, rights) {
   const level = Number(rights?.mnuMisc);
-  return session?.role_key === "PLANT_MANAGER" &&
+  const role = session?.role_key || session?.roleKey;
+  return (role === "PLANT_MANAGER" || role === "OWNER") &&
     Number.isInteger(level) && (level & 255) >= 7;
 }
 

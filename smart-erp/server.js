@@ -1882,122 +1882,296 @@ async function handleGstGenerateJson(req, res) {
   }
 }
 
-async function handleDashboardSummary(req, res) {
+async function handleDashboardSummary(req, res, url) {
   const session = await openSession(req);
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
 
-  // 1. Company / Factory info
-  const facRes = await pool.query("SELECT id, name, gstin, state_name FROM factories WHERE id = $1", [session.factory_id]);
-  const miscRes = await pool.query("SELECT print_head FROM misc WHERE factory_id = $1 AND year_label = $2", [session.factory_id, session.year_label]);
+  const factoryId = session.factory_id;
+  const yearLabel = session.year_label;
+
+  // 1. Role determination & access control
+  const userRoleKey = String(session.role_key || session.roleKey || "PLANT_MANAGER").toUpperCase();
+  const isExecutive = userRoleKey === "OWNER" || userRoleKey === "PLANT_MANAGER";
+
+  const requestedRole = url ? String(url.searchParams.get("role") || "").toUpperCase() : "";
+  const activeRole = (isExecutive && requestedRole) ? requestedRole : (userRoleKey || "PLANT_MANAGER");
+
+  // 2. Date Filtering (optional)
+  const fromDate = url ? url.searchParams.get("from") : null;
+  const toDate = url ? url.searchParams.get("to") : null;
+  const hasDates = Boolean(fromDate && toDate);
+
+  // 3. Company & Factory metadata
+  const facRes = await pool.query("SELECT id, name, gstin, state_name FROM factories WHERE id = $1", [factoryId]);
+  const miscRes = await pool.query("SELECT print_head FROM misc WHERE factory_id = $1 AND year_label = $2", [factoryId, yearLabel]);
   const factory = facRes.rows[0] || {};
   const compName = (miscRes.rows[0] && miscRes.rows[0].print_head) ? miscRes.rows[0].print_head.trim() : (factory.name || "Company");
 
-  // 2. Sales Mfg Totals
-  const salesMfgRes = await pool.query(
-    `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
-     FROM dcinv
-     WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`,
-    [session.factory_id, session.year_label]
-  );
+  // Allowed roles for executive switcher
+  const allowedRoles = isExecutive ? [
+    { key: "OWNER", name: "💎 Business Owner", badge: "💎 Owner" },
+    { key: "PLANT_MANAGER", name: "👑 Plant Manager", badge: "👑 Plant Manager" },
+    { key: "ACCOUNTS_BILLING", name: "💼 Accounts & Billing", badge: "💼 Accounts" },
+    { key: "STORE_KEEPER", name: "📦 Store & Warehouse", badge: "📦 Store" },
+    { key: "PRODUCTION_SUPERVISOR", name: "⚙️ Production Shop-Floor", badge: "⚙️ Production" },
+    { key: "QA_INSPECTOR", name: "🔬 Quality Assurance", badge: "🔬 QA" },
+    { key: "HR_PAYROLL", name: "👥 HR & Payroll", badge: "👥 HR" }
+  ] : [];
+
+  // 4. Sales Mfg Totals (with optional date filter)
+  const salesMfgQuery = hasDates
+    ? `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''
+       AND invdate >= $3::timestamp AND invdate <= $4::timestamp`
+    : `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`;
+  const salesMfgParams = hasDates ? [factoryId, yearLabel, fromDate + " 00:00:00", toDate + " 23:59:59"] : [factoryId, yearLabel];
+  const salesMfgRes = await pool.query(salesMfgQuery, salesMfgParams);
   const salesMfg = salesMfgRes.rows[0] || {};
 
-  // 3. Sales Labour Totals
-  const salesLabRes = await pool.query(
-    `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
-     FROM dcoutgoinginv
-     WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`,
-    [session.factory_id, session.year_label]
-  );
+  // 5. Sales Labour Totals (with optional date filter)
+  const salesLabQuery = hasDates
+    ? `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM dcoutgoinginv WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''
+       AND invdate >= $3::timestamp AND invdate <= $4::timestamp`
+    : `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM dcoutgoinginv WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`;
+  const salesLabParams = hasDates ? [factoryId, yearLabel, fromDate + " 00:00:00", toDate + " 23:59:59"] : [factoryId, yearLabel];
+  const salesLabRes = await pool.query(salesLabQuery, salesLabParams);
   const salesLab = salesLabRes.rows[0] || {};
 
-  // 4. Purchases Totals
-  const purchRes = await pool.query(
-    `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
-     FROM purchase
-     WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`,
-    [session.factory_id, session.year_label]
-  );
+  // 6. Purchases Totals (with optional date filter)
+  const purchQuery = hasDates
+    ? `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM purchase WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''
+       AND invdate >= $3::timestamp AND invdate <= $4::timestamp`
+    : `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total, COALESCE(SUM(taxable_amt), 0) AS taxable
+       FROM purchase WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''`;
+  const purchParams = hasDates ? [factoryId, yearLabel, fromDate + " 00:00:00", toDate + " 23:59:59"] : [factoryId, yearLabel];
+  const purchRes = await pool.query(purchQuery, purchParams);
   const purch = purchRes.rows[0] || {};
 
-  // 5. Un-invoiced Outward Mfg DCs (top 8)
-  const uninvMfgRes = await pool.query(
-    `SELECT d.dcinvid AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
-            COALESCE(c.cust_name, 'Customer') AS cust_name, 'mfg' AS type,
-            COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcinvsub sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcinvid = d.dcinvid), 'Manufacturing Goods') AS item_summary
-     FROM dcinv d
-     LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
-     WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
-     ORDER BY d.dcdate DESC, d.dcinvid DESC
-     LIMIT 8`,
-    [session.factory_id, session.year_label]
-  );
+  // 7. Un-invoiced Outward Mfg DCs (top 8)
+  const uninvMfgQuery = hasDates
+    ? `SELECT d.dcinvid AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
+              COALESCE(c.cust_name, 'Customer') AS cust_name, 'mfg' AS type,
+              COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcinvsub sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcinvid = d.dcinvid), 'Manufacturing Goods') AS item_summary
+       FROM dcinv d
+       LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
+       AND d.dcdate >= $3::date AND d.dcdate <= $4::date
+       ORDER BY d.dcdate DESC, d.dcinvid DESC LIMIT 8`
+    : `SELECT d.dcinvid AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
+              COALESCE(c.cust_name, 'Customer') AS cust_name, 'mfg' AS type,
+              COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcinvsub sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcinvid = d.dcinvid), 'Manufacturing Goods') AS item_summary
+       FROM dcinv d
+       LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
+       ORDER BY d.dcdate DESC, d.dcinvid DESC LIMIT 8`;
+  const uninvMfgParams = hasDates ? [factoryId, yearLabel, fromDate, toDate] : [factoryId, yearLabel];
+  const uninvMfgRes = await pool.query(uninvMfgQuery, uninvMfgParams);
 
-  // 6. Un-invoiced Outward Labour DCs (top 8)
-  const uninvLabRes = await pool.query(
-    `SELECT d.id AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
-            COALESCE(c.cust_name, 'Customer') AS cust_name, 'labour' AS type,
-            COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcoutgoingsubinv sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcid = d.id), 'Job Work Items') AS item_summary
-     FROM dcoutgoinginv d
-     LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
-     WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
-     ORDER BY d.dcdate DESC, d.id DESC
-     LIMIT 8`,
-    [session.factory_id, session.year_label]
-  );
+  // 8. Un-invoiced Outward Labour DCs (top 8)
+  const uninvLabQuery = hasDates
+    ? `SELECT d.id AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
+              COALESCE(c.cust_name, 'Customer') AS cust_name, 'labour' AS type,
+              COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcoutgoingsubinv sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcid = d.id), 'Job Work Items') AS item_summary
+       FROM dcoutgoinginv d
+       LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
+       AND d.dcdate >= $3::date AND d.dcdate <= $4::date
+       ORDER BY d.dcdate DESC, d.id DESC LIMIT 8`
+    : `SELECT d.id AS ref_id, d.dcno, d.dcdate, COALESCE(d.totqty, 0) AS totqty, COALESCE(d.totval, 0) AS totval,
+              COALESCE(c.cust_name, 'Customer') AS cust_name, 'labour' AS type,
+              COALESCE((SELECT STRING_AGG(DISTINCT TRIM(sub.name), ', ') FROM dcoutgoingsubinv sub WHERE sub.factory_id = d.factory_id AND sub.year_label = d.year_label AND sub.dcid = d.id), 'Job Work Items') AS item_summary
+       FROM dcoutgoinginv d
+       LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND (d.invno IS NULL OR TRIM(d.invno) = '')
+       ORDER BY d.dcdate DESC, d.id DESC LIMIT 8`;
+  const uninvLabParams = hasDates ? [factoryId, yearLabel, fromDate, toDate] : [factoryId, yearLabel];
+  const uninvLabRes = await pool.query(uninvLabQuery, uninvLabParams);
 
-  // Combined Uninvoiced DCs list
   const uninvoicedDcs = [...uninvMfgRes.rows, ...uninvLabRes.rows].sort((a, b) => new Date(b.dcdate) - new Date(a.dcdate)).slice(0, 8);
 
   // Uninvoiced totals
   const uninvMfgTotalRes = await pool.query(
     `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total
-     FROM dcinv
-     WHERE factory_id = $1 AND year_label = $2 AND (invno IS NULL OR TRIM(invno) = '')`,
-    [session.factory_id, session.year_label]
+     FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND (invno IS NULL OR TRIM(invno) = '')`,
+    [factoryId, yearLabel]
   );
   const uninvLabTotalRes = await pool.query(
     `SELECT COUNT(*) AS count, COALESCE(SUM(totval), 0) AS total
-     FROM dcoutgoinginv
-     WHERE factory_id = $1 AND year_label = $2 AND (invno IS NULL OR TRIM(invno) = '')`,
-    [session.factory_id, session.year_label]
+     FROM dcoutgoinginv WHERE factory_id = $1 AND year_label = $2 AND (invno IS NULL OR TRIM(invno) = '')`,
+    [factoryId, yearLabel]
   );
   const totalPendingDcCount = Number(uninvMfgTotalRes.rows[0].count) + Number(uninvLabTotalRes.rows[0].count);
   const totalPendingDcVal = Number(uninvMfgTotalRes.rows[0].total) + Number(uninvLabTotalRes.rows[0].total);
 
-  // 7. Stock Watchlist (ROL)
+  // 9. Stock Watchlist (ROL) & Valuation
   const stockRes = await pool.query(
     `SELECT i.item_id, i.item_code, i.item_name, i.measure_unit,
             COALESCE(NULLIF(TRIM(i.rol), '')::numeric, 0) AS rol,
             COALESCE(SUM(s.bal_qty) FILTER (WHERE s.bal_qty > 0), 0) AS current_stock
      FROM item i
      LEFT JOIN store_add_sub s ON s.factory_id = i.factory_id AND s.year_label = i.year_label AND s.item_id = i.item_id
-     WHERE i.factory_id = $1 AND i.year_label = $2 AND COALESCE(NULLIF(TRIM(i.rol), '')::numeric, 0) > 0
+     WHERE i.factory_id = $1 AND i.year_label = $2
      GROUP BY i.item_id, i.item_code, i.item_name, i.measure_unit, i.rol
-     ORDER BY (COALESCE(SUM(s.bal_qty) FILTER (WHERE s.bal_qty > 0), 0) - COALESCE(NULLIF(TRIM(i.rol), '')::numeric, 0)) ASC
-     LIMIT 6`,
-    [session.factory_id, session.year_label]
+     ORDER BY (COALESCE(SUM(s.bal_qty) FILTER (WHERE s.bal_qty > 0), 0) - COALESCE(NULLIF(TRIM(i.rol), '')::numeric, 0)) ASC`,
+    [factoryId, yearLabel]
+  );
+  const criticalStockList = stockRes.rows.filter(r => Number(r.rol) > 0 && Number(r.current_stock) <= Number(r.rol));
+  const criticalStockCount = criticalStockList.length;
+
+  // 10. Recent Sales Invoices
+  const recentInvQuery = hasDates
+    ? `SELECT 'Mfg' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
+       FROM dcinv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       AND d.invdate >= $3::timestamp AND d.invdate <= $4::timestamp
+       UNION ALL
+       SELECT 'Labour' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
+       FROM dcoutgoinginv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       AND d.invdate >= $3::timestamp AND d.invdate <= $4::timestamp
+       ORDER BY invdate DESC, invno DESC LIMIT 6`
+    : `SELECT 'Mfg' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
+       FROM dcinv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       UNION ALL
+       SELECT 'Labour' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
+       FROM dcoutgoinginv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       ORDER BY invdate DESC, invno DESC LIMIT 6`;
+  const recentInvParams = hasDates ? [factoryId, yearLabel, fromDate + " 00:00:00", toDate + " 23:59:59"] : [factoryId, yearLabel];
+  const recentInvRes = await pool.query(recentInvQuery, recentInvParams);
+
+  // 11. Bank Balances
+  const bankRes = await pool.query(
+    `SELECT bank_id, bank_name, COALESCE(bank_op_bal, 0) AS op_bal, is_debit, COALESCE(credit_limit, 0) AS credit_limit
+     FROM bank WHERE factory_id = $1 AND year_label = $2 ORDER BY bank_name`,
+    [factoryId, yearLabel]
+  );
+  const totalBankBalance = bankRes.rows.reduce((sum, b) => sum + (b.is_debit ? Number(b.op_bal) : -Number(b.op_bal)), 0);
+
+  // 12. Receivables & Payables
+  const custBalRes = await pool.query(
+    `SELECT COALESCE(SUM(open_bal), 0) AS total_receivables FROM customer WHERE factory_id = $1 AND year_label = $2`,
+    [factoryId, yearLabel]
+  );
+  const suppBalRes = await pool.query(
+    `SELECT COALESCE(SUM(open_bal), 0) AS total_payables FROM supplier WHERE factory_id = $1 AND year_label = $2`,
+    [factoryId, yearLabel]
+  );
+  const totalReceivables = Number(custBalRes.rows[0]?.total_receivables || 0);
+  const totalPayables = Number(suppBalRes.rows[0]?.total_payables || 0);
+
+  // 13. Top 5 Customers by Sales
+  const topCustQuery = hasDates
+    ? `SELECT COALESCE(c.cust_name, 'Customer') AS name, COALESCE(SUM(d.totval), 0) AS total, COUNT(d.dcinvid) AS count
+       FROM dcinv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       AND d.invdate >= $3::timestamp AND d.invdate <= $4::timestamp
+       GROUP BY c.cust_name ORDER BY total DESC LIMIT 5`
+    : `SELECT COALESCE(c.cust_name, 'Customer') AS name, COALESCE(SUM(d.totval), 0) AS total, COUNT(d.dcinvid) AS count
+       FROM dcinv d LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
+       WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
+       GROUP BY c.cust_name ORDER BY total DESC LIMIT 5`;
+  const topCustRes = await pool.query(topCustQuery, salesMfgParams);
+
+  // 14. Top 5 Suppliers by Purchases
+  const topSuppQuery = hasDates
+    ? `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purch_id) AS count
+       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.suppid
+       WHERE p.factory_id = $1 AND p.year_label = $2 AND p.invno IS NOT NULL AND TRIM(p.invno) <> ''
+       AND p.invdate >= $3::timestamp AND p.invdate <= $4::timestamp
+       GROUP BY s.supp_name ORDER BY total DESC LIMIT 5`
+    : `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purch_id) AS count
+       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.suppid
+       WHERE p.factory_id = $1 AND p.year_label = $2 AND p.invno IS NOT NULL AND TRIM(p.invno) <> ''
+       GROUP BY s.supp_name ORDER BY total DESC LIMIT 5`;
+  const topSuppRes = await pool.query(topSuppQuery, purchParams);
+
+  // 15. Time-Series Revenue & Purchases for Graphs
+  const trendSalesRes = await pool.query(
+    `SELECT TO_CHAR(invdate, 'Mon YYYY') AS label, DATE_TRUNC('month', invdate) AS m_date, COALESCE(SUM(totval), 0) AS total
+     FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''
+     GROUP BY label, m_date ORDER BY m_date ASC LIMIT 12`,
+    [factoryId, yearLabel]
+  );
+  const trendPurchRes = await pool.query(
+    `SELECT TO_CHAR(invdate, 'Mon YYYY') AS label, DATE_TRUNC('month', invdate) AS m_date, COALESCE(SUM(totval), 0) AS total
+     FROM purchase WHERE factory_id = $1 AND year_label = $2 AND invno IS NOT NULL AND TRIM(invno) <> ''
+     GROUP BY label, m_date ORDER BY m_date ASC LIMIT 12`,
+    [factoryId, yearLabel]
   );
 
-  const criticalStockCount = stockRes.rows.filter(r => Number(r.current_stock) <= Number(r.rol)).length;
+  const monthMap = new Map();
+  trendSalesRes.rows.forEach(r => {
+    monthMap.set(r.label, { label: r.label, sales: Number(r.total || 0), purch: 0 });
+  });
+  trendPurchRes.rows.forEach(r => {
+    const existing = monthMap.get(r.label) || { label: r.label, sales: 0, purch: 0 };
+    existing.purch = Number(r.total || 0);
+    monthMap.set(r.label, existing);
+  });
+  const trendData = Array.from(monthMap.values());
 
-  // 8. Recent Sales Invoices
-  const recentInvRes = await pool.query(
-    `SELECT 'Mfg' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
-     FROM dcinv d
-     LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
-     WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
-     UNION ALL
-     SELECT 'Labour' AS type, d.invno, d.invdate, c.cust_name, d.totval, d.taxable_amt
-     FROM dcoutgoinginv d
-     LEFT JOIN customer c ON c.factory_id = d.factory_id AND c.cust_id = d.custid
-     WHERE d.factory_id = $1 AND d.year_label = $2 AND d.invno IS NOT NULL AND TRIM(d.invno) <> ''
-     ORDER BY invdate DESC, invno DESC
-     LIMIT 6`,
-    [session.factory_id, session.year_label]
+  // 16. Production Supervisor data (IWOs, breakdowns)
+  const iwoRes = await pool.query(
+    `SELECT dc_id, dc_no, dc_date, to_whom, dc_rem, po_no, cancl
+     FROM prodn_iwo_iss WHERE factory_id = $1 AND year_label = $2
+     ORDER BY dc_date DESC LIMIT 8`,
+    [factoryId, yearLabel]
   );
+  const brkRes = await pool.query(
+    `SELECT b.id, b.brkdate, m.mach_name, b.brkfrom, b.brkto, b.brkdet, b.detcorrect, b.timespent
+     FROM brkdown b LEFT JOIN machine m ON m.factory_id = b.factory_id AND m.mach_id = b.machid
+     WHERE b.factory_id = $1 AND b.year_label = $2 ORDER BY b.brkdate DESC LIMIT 6`,
+    [factoryId, yearLabel]
+  );
+
+  // 17. QA Inspector data (Inward inspections, calibration)
+  const inspRes = await pool.query(
+    `SELECT q.id, q.ins_no, q.ins_date, q.qty, q.ins_by, q.remarks, i.item_name, c.cust_name
+     FROM inspection_in q
+     LEFT JOIN item i ON i.factory_id = q.factory_id AND i.item_id = q.item_id
+     LEFT JOIN customer c ON c.factory_id = q.factory_id AND c.cust_id = q.cust_id
+     WHERE q.factory_id = $1 AND q.year_label = $2 ORDER BY q.ins_date DESC LIMIT 8`,
+    [factoryId, yearLabel]
+  );
+  const calibRes = await pool.query(
+    `SELECT id, itemid, insgaugeid, nextcalibrate, freq FROM calibrate
+     WHERE factory_id = $1 AND year_label = $2 ORDER BY nextcalibrate ASC LIMIT 6`,
+    [factoryId, yearLabel]
+  );
+
+  // 18. HR data (Staff count, staff loans)
+  const staffRes = await pool.query(
+    `SELECT COUNT(*) AS total_staff, COUNT(*) FILTER (WHERE status_c = true) AS active_staff
+     FROM staff WHERE factory_id = $1 AND year_label = $2`,
+    [factoryId, yearLabel]
+  );
+  const loanRes = await pool.query(
+    `SELECT l.loanid, s.staff_name, l.loanamt, l.loandate, l.balance, l.reason, l.closed
+     FROM staffloan l LEFT JOIN staff s ON s.factory_id = l.factory_id AND s.staff_id = l.staffid
+     WHERE l.factory_id = $1 AND l.year_label = $2 AND (l.closed IS NULL OR l.closed = false)
+     ORDER BY l.loandate DESC LIMIT 6`,
+    [factoryId, yearLabel]
+  );
+
+  // Calculate gross totals
+  const totalSalesVal = Number(salesMfg.total || 0) + Number(salesLab.total || 0);
+  const totalPurchVal = Number(purch.total || 0);
+  const grossMarginVal = totalSalesVal - totalPurchVal;
+  const grossMarginPct = totalSalesVal > 0 ? ((grossMarginVal / totalSalesVal) * 100).toFixed(1) : "0.0";
 
   return sendJson(res, 200, {
     ok: true,
+    activeRole,
+    userRole: userRoleKey,
+    isExecutive,
+    allowedRoles,
+    dateRange: { from: fromDate || "", to: toDate || "" },
     company: {
       name: compName,
       gstin: factory.gstin || "",
@@ -2006,19 +2180,24 @@ async function handleDashboardSummary(req, res) {
       user: session.user_code
     },
     kpis: {
-      totalSales: Number(salesMfg.total || 0) + Number(salesLab.total || 0),
+      totalSales: totalSalesVal,
       salesMfg: Number(salesMfg.total || 0),
       mfgSales: Number(salesMfg.total || 0),
       salesLabour: Number(salesLab.total || 0),
       labourSales: Number(salesLab.total || 0),
       salesCount: Number(salesMfg.count || 0) + Number(salesLab.count || 0),
-      totalPurchases: Number(purch.total || 0),
-      purchases: Number(purch.total || 0),
+      totalPurchases: totalPurchVal,
+      purchases: totalPurchVal,
       purchasesCount: Number(purch.count || 0),
       purchInvoiceCount: Number(purch.count || 0),
       pendingDcCount: totalPendingDcCount,
       pendingDcVal: totalPendingDcVal,
-      criticalStockCount
+      criticalStockCount,
+      grossMargin: grossMarginVal,
+      grossMarginPct: Number(grossMarginPct),
+      bankBalance: totalBankBalance,
+      receivables: totalReceivables,
+      payables: totalPayables
     },
     uninvoicedDcs: uninvoicedDcs.map(d => ({
       refId: d.ref_id,
@@ -2034,7 +2213,7 @@ async function handleDashboardSummary(req, res) {
       val: Number(d.totval || 0),
       type: (d.type === "labour") ? "Labour" : "Mfg"
     })),
-    stockWatch: stockRes.rows.filter(r => Number(r.current_stock) <= Number(r.rol)).map(r => ({
+    stockWatch: criticalStockList.slice(0, 10).map(r => ({
       itemId: r.item_id,
       code: r.item_code || "",
       itemCode: r.item_code || "",
@@ -2057,6 +2236,73 @@ async function handleDashboardSummary(req, res) {
       totVal: Number(r.totval || 0),
       taxableAmt: Number(r.taxable_amt || 0)
     })),
+    topCustomers: topCustRes.rows.map(r => ({
+      name: r.name,
+      total: Number(r.total || 0),
+      count: Number(r.count || 0)
+    })),
+    topSuppliers: topSuppRes.rows.map(r => ({
+      name: r.name,
+      total: Number(r.total || 0),
+      count: Number(r.count || 0)
+    })),
+    banks: bankRes.rows.map(b => ({
+      id: b.bank_id,
+      name: b.bank_name,
+      balance: b.is_debit ? Number(b.op_bal) : -Number(b.op_bal),
+      isDebit: b.is_debit
+    })),
+    trend: trendData,
+    production: {
+      iwos: iwoRes.rows.map(i => ({
+        id: i.dc_id,
+        no: i.dc_no,
+        date: formatGstDate(i.dc_date) || (i.dc_date ? String(i.dc_date).slice(0, 10) : ""),
+        toWhom: i.to_whom || "Shop Floor",
+        remarks: i.dc_rem || "",
+        poNo: i.po_no || ""
+      })),
+      breakdowns: brkRes.rows.map(b => ({
+        id: b.id,
+        date: formatGstDate(b.brkdate) || (b.brkdate ? String(b.brkdate).slice(0, 10) : ""),
+        machine: b.mach_name || "Machine",
+        from: b.brkfrom || "",
+        to: b.brkto || "",
+        detail: b.brkdet || "",
+        correction: b.detcorrect || "",
+        timeSpent: b.timespent || ""
+      }))
+    },
+    qa: {
+      inspections: inspRes.rows.map(q => ({
+        id: q.id,
+        no: q.ins_no,
+        date: formatGstDate(q.ins_date) || (q.ins_date ? String(q.ins_date).slice(0, 10) : ""),
+        item: q.item_name || "Item",
+        party: q.cust_name || "Party",
+        qty: Number(q.qty || 0),
+        insBy: q.ins_by || "",
+        remarks: q.remarks || ""
+      })),
+      calibration: calibRes.rows.map(c => ({
+        id: c.id,
+        gaugeId: c.insgaugeid || c.itemid || "Gauge",
+        nextDate: formatGstDate(c.nextcalibrate) || (c.nextcalibrate ? String(c.nextcalibrate).slice(0, 10) : ""),
+        freq: c.freq || 0
+      }))
+    },
+    hr: {
+      totalStaff: Number(staffRes.rows[0]?.total_staff || 0),
+      activeStaff: Number(staffRes.rows[0]?.active_staff || 0),
+      loans: loanRes.rows.map(l => ({
+        id: l.loanid,
+        name: l.staff_name || "Staff",
+        amount: Number(l.loanamt || 0),
+        date: formatGstDate(l.loandate) || (l.loandate ? String(l.loandate).slice(0, 10) : ""),
+        balance: Number(l.balance || 0),
+        reason: l.reason || ""
+      }))
+    },
     metalRates: await getMetalRates()
   });
 }
@@ -29470,6 +29716,8 @@ async function handleSession(req, res) {
     username: row.username,
     roleKey: row.role_key,
     roleName: row.role_name,
+    role_key: row.role_key,
+    role_name: row.role_name,
     yearLabel: row.year_label,
     loggedInAt: row.logged_in_at,
     factoryName: row.factory_name,
@@ -29519,7 +29767,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/api/gst/generate-json") return await handleGstGenerateJson(req, res);
     if (req.method === "POST" && url.pathname === "/api/gst/reconcile-2b") return await handleGSTR2BReconcile(req, res);
     if (req.method === "GET" && url.pathname === "/api/gst/reconcile-2b/sample") return await handleGSTR2BSample(req, res);
-    if (req.method === "GET" && url.pathname === "/api/dashboard/summary") return await handleDashboardSummary(req, res);
+    if (req.method === "GET" && url.pathname === "/api/dashboard/summary") return await handleDashboardSummary(req, res, url);
     if (req.method === "GET" && url.pathname === "/api/inventory/valuation") return await handleInventoryValuation(req, res, url);
     if (req.method === "GET" && url.pathname === "/api/inventory/trace") return await handleInventoryTrace(req, res, url);
     if (req.method === "GET" && url.pathname === "/api/export/pdf") return await handleExportPdf(req, res, url);

@@ -21281,7 +21281,7 @@ async function handleAdvAdjustParties(req, res, url) {
       parties = q.rows;
     } else {
       const q = await pool.query(
-        `SELECT id, exp_name AS name FROM expense WHERE factory_id = $1 AND year_label = $2 ORDER BY exp_name`,
+        `SELECT expense_code AS id, expense_name AS name FROM expense WHERE factory_id = $1 AND year_label = $2 ORDER BY expense_name`,
         [session.factory_id, session.year_label]
       );
       parties = q.rows;

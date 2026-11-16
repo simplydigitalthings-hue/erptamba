@@ -21,6 +21,14 @@ const {
   formatGstDate
 } = require("./tax-engine");
 const { traceBackward, traceForward } = require("./traceability-engine");
+const {
+  getTravelers,
+  getTravelerById,
+  getNextTravelerNo,
+  createTraveler,
+  updateStageProgress,
+  renderTravelerPrintHtml
+} = require("./traveler-engine");
 const { calculateStockValuation } = require("./valuation-engine");
 const {
   generateInvoicePdf,
@@ -6745,6 +6753,103 @@ async function handleIwoDelete(req, res) {
   }
 
   return sendJson(res, 200, { ok: true, message: "Record Deleted Successfully." });
+}
+
+async function handleTravelerList(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const status = url.searchParams.get("status") || "ALL";
+    const q = url.searchParams.get("q") || "";
+    const limit = url.searchParams.get("limit") || 50;
+    const offset = url.searchParams.get("offset") || 0;
+
+    const data = await getTravelers(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      status,
+      q,
+      limit,
+      offset
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Traveler list error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleTravelerGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const id = url.searchParams.get("id");
+    const no = url.searchParams.get("no");
+    const data = await getTravelerById(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      travelerId: id,
+      travelerNo: no
+    });
+    if (!data) return sendJson(res, 404, { ok: false, message: "Route traveler not found" });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Traveler get error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleTravelerCreate(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const traveler = await createTraveler(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      dcId: body.dcId,
+      dcNo: body.dcNo,
+      heatNo: body.heatNo,
+      batchNo: body.batchNo,
+      partCode: body.partCode,
+      partName: body.partName,
+      drawingRev: body.drawingRev,
+      plannedQty: body.plannedQty,
+      createdBy: session.username,
+      customStages: body.customStages
+    });
+    return sendJson(res, 200, { ok: true, message: "Route Card / Traveler created successfully", data: traveler });
+  } catch (err) {
+    console.error("Traveler create error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleTravelerStageUpdate(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const updated = await updateStageProgress(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      stageId: body.stageId,
+      operatorName: body.operatorName,
+      machineName: body.machineName,
+      qtyOk: body.qtyOk,
+      qtyScrap: body.qtyScrap,
+      qcNotes: body.qcNotes,
+      qcSignoffBy: body.qcSignoffBy || session.username
+    });
+    return sendJson(res, 200, { ok: true, message: "Stage progress logged successfully", data: updated });
+  } catch (err) {
+    console.error("Traveler stage update error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
 }
 
 async function openReturnLines(session, refNo) {
@@ -27638,6 +27743,35 @@ async function handlePrintRoute(req, res, url) {
     return;
   }
 
+  if (type === "traveler" || type === "route-card") {
+    const rawId = url.searchParams.get("id");
+    const rawNo = url.searchParams.get("no");
+    let traveler = null;
+    if (rawId) {
+      traveler = await getTravelerById(pool, { factoryId: session.factory_id, yearLabel: session.year_label, travelerId: Number(rawId) });
+    } else if (rawNo) {
+      traveler = await getTravelerById(pool, { factoryId: session.factory_id, yearLabel: session.year_label, travelerNo: rawNo });
+    }
+    if (!traveler) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Route Card / Traveler record not found.</h3>");
+      return;
+    }
+    const misc = await pool.query(
+      "SELECT print_head, print_short_addr, (SELECT gstin FROM factories WHERE id = $1) AS gstin FROM misc WHERE factory_id = $1 AND year_label = $2",
+      [session.factory_id, session.year_label]
+    );
+    const origin = req.headers.host ? `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}` : "https://sandbox.tambahq.in";
+    const printHtml = await renderTravelerPrintHtml({
+      traveler,
+      companyInfo: misc.rows[0] || {},
+      origin
+    });
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
   if (type === "po" || type === "purch-po") {
     const rawId = Number(url.searchParams.get("id") || id || 0);
     const bundle = await poBundle(session, rawId);
@@ -30943,6 +31077,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/iwo-return") return await handleIwoReturnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/iwo-return/save") return await handleIwoReturnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/iwo-return/delete") return await handleIwoReturnDelete(req, res);
+    if (req.method === "GET" && url.pathname === "/api/traveler") return await handleTravelerList(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/traveler/get") return await handleTravelerGet(req, res, url);
+    if (req.method === "POST" && url.pathname === "/api/traveler/create") return await handleTravelerCreate(req, res);
+    if (req.method === "POST" && url.pathname === "/api/traveler/stage/update") return await handleTravelerStageUpdate(req, res);
     if (req.method === "GET" && url.pathname === "/api/scn") return await handleScnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/save") return await handleScnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/delete") return await handleScnDelete(req, res);

@@ -407,6 +407,16 @@
     });
   }
 
+  const btnTraveler = document.getElementById("trace-btn-traveler");
+  if (btnTraveler) {
+    btnTraveler.addEventListener("click", () => {
+      const q = currentTraceData?.heatNo || (inputQuery ? inputQuery.value : "");
+      if (window.openTravelerHub) {
+        window.openTravelerHub(q);
+      }
+    });
+  }
+
   if (btnClose) {
     btnClose.addEventListener("click", () => window.closeTraceability());
   }

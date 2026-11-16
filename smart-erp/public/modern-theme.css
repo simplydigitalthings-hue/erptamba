@@ -4235,3 +4235,28 @@ body.theme-dark .item-modal-body-scroll {
 body.theme-dark .item-modal-body-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.35) !important;
 }
+
+/* ==========================================================================
+   Digital Route Card & QR Traveler Hub
+   ========================================================================== */
+#traveler-hub {
+  font-family: var(--font-sans, "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif) !important;
+}
+
+.traveler-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+}
+
+.traveler-card:hover {
+  border-color: #1c625a !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.traveler-filter-tab {
+  transition: background 0.12s ease !important;
+}
+
+.traveler-filter-tab:hover {
+  background: #f1f5f9 !important;
+}

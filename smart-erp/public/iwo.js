@@ -265,6 +265,28 @@
     window.open(`/api/print?type=iwo&id=${record.id}`, "_blank");
   });
 
+  const btnRouteCard = document.querySelector("#iwo-route-card");
+  if (btnRouteCard) {
+    btnRouteCard.addEventListener("click", async () => {
+      const record = records[index];
+      if (!record || !record.id) return showInfo("You should save the Record First in order to generate Route Card...");
+      try {
+        const res = await fetch("/api/traveler/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dcId: record.id })
+        });
+        const data = await res.json();
+        if (!data.ok || !data.data) {
+          return showInfo(data.message || "Could not generate Route Card.");
+        }
+        window.open(`/api/print?type=traveler&id=${data.data.traveler_id}`, "_blank");
+      } catch (e) {
+        showInfo("Failed to open Route Card: " + e.message);
+      }
+    });
+  }
+
   document.querySelector("#iwo-first").addEventListener("click", () => { if (records.length) { index = 0; mode = "view"; showRecord(records[0]); } });
   document.querySelector("#iwo-prev").addEventListener("click", () => { if (index > 0) { index -= 1; mode = "view"; showRecord(records[index]); } });
   document.querySelector("#iwo-next").addEventListener("click", () => { if (index < records.length - 1) { index += 1; mode = "view"; showRecord(records[index]); } });

@@ -28,6 +28,7 @@ const FORM_RIGHTS = {
   frmProdnWOIssue: "mnuIWOiss",
   frmProdnWOReturn: "mnuIWOret",
   frmProdnStoreCrNote: "mnuProdnStoreCrNote",
+  frmRouteTraveler: "mnuRouteTraveler",
   frmAssmReqAnaly: "mnuAssmReqAnaly",
   frmMatReqAnaly: "mnuMatlReqAnaly",
   frmPlanY: "mnuPlanChart",
@@ -115,7 +116,8 @@ const MENUS = {
     { label: "Production Log", form: "frmProdn" },
     { label: "Internal Work Order cum Material Issue", form: "frmProdnWOIssue" },
     { label: "Produced Material - Return", form: "frmProdnWOReturn" },
-    { label: "Store Credit Note", form: "frmProdnStoreCrNote" }
+    { label: "Store Credit Note", form: "frmProdnStoreCrNote" },
+    { label: "Digital Route Card & QR Traveler", form: "frmRouteTraveler" }
   ],
   planning: [
     { label: "Assembly - Requirement Analysis", form: "frmAssmReqAnaly" },
@@ -354,6 +356,7 @@ function renderMenu(items, anchor) {
       if (item.form !== "frmProdnWOIssue" && window.closeIwo) window.closeIwo();
       if (item.form !== "frmProdnWOReturn" && window.closeIwoReturn) window.closeIwoReturn();
       if (item.form !== "frmProdnStoreCrNote" && window.closeScn) window.closeScn();
+      if (item.form !== "frmRouteTraveler" && window.closeTravelerHub) window.closeTravelerHub();
       if (item.form !== "frmAssmReqAnaly" && window.closeAssm) window.closeAssm();
       if (item.form !== "frmMatReqAnaly" && window.closeMat) window.closeMat();
       if (item.form !== "frmPlanY" && window.closePlan) window.closePlan();
@@ -883,6 +886,14 @@ function renderMenu(items, anchor) {
         if (window.closeProdn) window.closeProdn();
         if (window.closeScn) window.closeScn();
         window.openIwo();
+        return;
+      }
+      if (item.form === "frmRouteTraveler") {
+        if (window.closeCompany) window.closeCompany();
+        if (window.closeProdn) window.closeProdn();
+        if (window.closeIwo) window.closeIwo();
+        if (window.closeScn) window.closeScn();
+        if (window.openTravelerHub) window.openTravelerHub();
         return;
       }
       if (item.form === "frmProdn") {

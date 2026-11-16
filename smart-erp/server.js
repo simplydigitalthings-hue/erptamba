@@ -1883,8 +1883,9 @@ async function handleGstGenerateJson(req, res) {
 }
 
 async function handleDashboardSummary(req, res, url) {
-  const session = await openSession(req);
-  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+  try {
+    const session = await openSession(req);
+    if (!session) return sendJson(res, 401, { error: "Sign in first." });
 
   const factoryId = session.factory_id;
   const yearLabel = session.year_label;
@@ -2080,13 +2081,13 @@ async function handleDashboardSummary(req, res, url) {
 
   // 14. Top 5 Suppliers by Purchases
   const topSuppQuery = hasDates
-    ? `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purch_id) AS count
-       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.suppid
+    ? `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purchid) AS count
+       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.vendorcode
        WHERE p.factory_id = $1 AND p.year_label = $2 AND p.invno IS NOT NULL AND TRIM(p.invno) <> ''
        AND p.invdate >= $3::timestamp AND p.invdate <= $4::timestamp
        GROUP BY s.supp_name ORDER BY total DESC LIMIT 5`
-    : `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purch_id) AS count
-       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.suppid
+    : `SELECT COALESCE(s.supp_name, 'Supplier') AS name, COALESCE(SUM(p.totval), 0) AS total, COUNT(p.purchid) AS count
+       FROM purchase p LEFT JOIN supplier s ON s.factory_id = p.factory_id AND s.supp_id = p.vendorcode
        WHERE p.factory_id = $1 AND p.year_label = $2 AND p.invno IS NOT NULL AND TRIM(p.invno) <> ''
        GROUP BY s.supp_name ORDER BY total DESC LIMIT 5`;
   const topSuppRes = await pool.query(topSuppQuery, purchParams);
@@ -2303,8 +2304,12 @@ async function handleDashboardSummary(req, res, url) {
         reason: l.reason || ""
       }))
     },
-    metalRates: await getMetalRates()
-  });
+      metalRates: await getMetalRates()
+    });
+  } catch (err) {
+    console.error("handleDashboardSummary error:", err);
+    return sendJson(res, 500, { error: err.message || "Failed to load dashboard." });
+  }
 }
 
 async function handleMetalRatesGet(req, res) {

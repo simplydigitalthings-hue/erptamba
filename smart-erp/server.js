@@ -30024,7 +30024,7 @@ initDatabase()
   .then(async (freshFactory) => {
     await initOnboarding(pool, freshFactory);
     if (customerDeployment) await customerDeployment.init(freshFactory);
-    else await initPlatform(pool);
+    else if (ERP_MODE === "platform") await initPlatform(pool);
     await initMetalRatesTable().catch(err => console.error("Metal rates init warning:", err.message));
     server.listen(PORT, "0.0.0.0", () => {
       console.log("SMART shell listening on http://0.0.0.0:" + PORT);

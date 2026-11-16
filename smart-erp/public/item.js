@@ -325,9 +325,15 @@
       panel.hidden = false;
       openedEmpty = items.length === 0;
       if (items.length) {
-        currentCategory = data.focusCategoryId;
+        currentCategory = data.focusCategoryId || (categories.length ? categories[0].id : null);
         categoryList.value = String(currentCategory);
-        blankOpen();
+        renderNames();
+        const rows = inCategory();
+        if (rows.length) {
+          showItem(rows[rows.length - 1]);
+        } else {
+          blankOpen();
+        }
       } else {
         currentCategory = categories.length ? categories[0].id : null;
         if (currentCategory != null) categoryList.value = String(currentCategory);
@@ -457,23 +463,28 @@
     }
   }
 
-  categoryList.addEventListener("click", () => {
+  function onCategorySelect() {
     const id = Number(categoryList.value);
     if (!id) return;
     currentCategory = id;
+    renderNames();
     const rows = inCategory();
     if (!rows.length) {
-      renderNames();
       showInfo("No Records in this CATEGORY to Display!");
       startNew();
       return;
     }
     showItem(rows[rows.length - 1]);
-  });
-  nameList.addEventListener("click", () => {
+  }
+  categoryList.addEventListener("change", onCategorySelect);
+  categoryList.addEventListener("click", onCategorySelect);
+
+  function onNameSelect() {
     const row = items.find((item) => String(item.id) === nameList.value);
     if (row) showItem(row);
-  });
+  }
+  nameList.addEventListener("change", onNameSelect);
+  nameList.addEventListener("click", onNameSelect);
   showHiddenBox.addEventListener("change", renderNames);
   measureBox.addEventListener("change", () => updateLabels(true));
   purchaseBox.addEventListener("change", () => {
@@ -500,13 +511,15 @@
   document.querySelector("#item-last").addEventListener("click", () => showPlace(inCategory().length - 1));
   document.querySelector("#item-next").addEventListener("click", () => {
     const rows = inCategory();
-    if (!rows.length || place < 0) return;
-    showPlace(place + 1 >= rows.length ? 0 : place + 1);
+    if (!rows.length) return;
+    const nextIdx = place < 0 ? 0 : (place + 1 >= rows.length ? 0 : place + 1);
+    showPlace(nextIdx);
   });
   document.querySelector("#item-prev").addEventListener("click", () => {
     const rows = inCategory();
-    if (!rows.length || place < 0) return;
-    showPlace(place - 1 < 0 ? rows.length - 1 : place - 1);
+    if (!rows.length) return;
+    const prevIdx = place < 0 ? rows.length - 1 : (place - 1 < 0 ? rows.length - 1 : place - 1);
+    showPlace(prevIdx);
   });
   document.querySelector("#item-upload").addEventListener("click", () => {
     status.textContent = "Form: frmUpload. This screen is not built yet.";
@@ -548,9 +561,25 @@
   if (compWeight) compWeight.addEventListener("input", calcCompScrap);
   if (compFinWeight) compFinWeight.addEventListener("input", calcCompScrap);
 
+  function getActiveItem() {
+    let rows = inCategory();
+    if (place >= 0 && rows[place]) return rows[place];
+    if (nameList && nameList.value) {
+      const byName = items.find((it) => String(it.id) === nameList.value);
+      if (byName) {
+        showItem(byName);
+        return byName;
+      }
+    }
+    if (rows.length > 0) {
+      showItem(rows[rows.length - 1]);
+      return rows[rows.length - 1];
+    }
+    return null;
+  }
+
   async function openMoreModal() {
-    const rows = inCategory();
-    const current = rows[place];
+    const current = getActiveItem();
     if (!current) {
       showInfo("Please select an item first to view more details.");
       return;
@@ -619,6 +648,11 @@
   }
   if (compCloseBtn) compCloseBtn.addEventListener("click", closeMoreModal);
   if (compCancelBtn) compCancelBtn.addEventListener("click", closeMoreModal);
+  if (moreModal) {
+    moreModal.addEventListener("click", (e) => {
+      if (e.target === moreModal) closeMoreModal();
+    });
+  }
 
   if (compSaveBtn) {
     compSaveBtn.addEventListener("click", async () => {
@@ -861,8 +895,7 @@
   }
 
   async function openAssignModal() {
-    const rows = inCategory();
-    const current = rows[place];
+    const current = getActiveItem();
     if (!current) {
       showInfo("Please select an item first to manage assignments.");
       return;
@@ -882,6 +915,17 @@
   }
   if (assignCloseBtn) assignCloseBtn.addEventListener("click", closeAssignModal);
   if (assignCancelBtn) assignCancelBtn.addEventListener("click", closeAssignModal);
+  if (assignModal) {
+    assignModal.addEventListener("click", (e) => {
+      if (e.target === assignModal) closeAssignModal();
+    });
+  }
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (moreModal && !moreModal.hidden) closeMoreModal();
+      if (assignModal && !assignModal.hidden) closeAssignModal();
+    }
+  });
 
   if (assignSubmitBtn) {
     assignSubmitBtn.addEventListener("click", async () => {

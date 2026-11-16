@@ -825,9 +825,9 @@ License Date   :   01/04/2008</div>
         </section>
 
         <!-- Component Master / Technical Specifications Modal (frmCompMaster) -->
-          <div id="item-more-modal" class="item-modal-overlay" hidden>
+          <div id="item-more-modal" class="modal item-modal-overlay" role="dialog" aria-modal="true" hidden>
             <div class="status-modal-card item-modal-card">
-              <div class="status-modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
+              <div class="status-modal-header" style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
                 <div>
                   <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
                     <span>⚙️ Component Master &amp; Technical Specifications</span>
@@ -835,7 +835,7 @@ License Date   :   01/04/2008</div>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Define raw material cut geometry, weights, tolerances, cycle time &amp; routing</span>
                 </div>
-                <button id="item-more-close-btn" type="button" class="status-close-x" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                <button id="item-more-close-btn" type="button" class="status-close-x" aria-label="Close" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
               </div>
 
               <div class="status-modal-body item-modal-body-scroll">
@@ -946,7 +946,7 @@ License Date   :   01/04/2008</div>
                 <p id="comp-status" style="margin:0; font-size:12px; font-weight:600; min-height:18px;"></p>
               </div>
 
-              <div class="status-modal-footer" style="padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
+              <div class="status-modal-footer" style="flex-shrink:0; padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
                 <button id="comp-save-btn" type="button" style="background:#007aff; color:#fff; border:none; padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">💾 Save Specifications</button>
                 <button id="comp-cancel-btn" type="button" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Close</button>
               </div>
@@ -954,9 +954,9 @@ License Date   :   01/04/2008</div>
           </div>
 
           <!-- Item Assign To... Modal (frmItemAssign) -->
-          <div id="item-assign-modal" class="item-modal-overlay" hidden>
+          <div id="item-assign-modal" class="modal item-modal-overlay" role="dialog" aria-modal="true" hidden>
             <div class="status-modal-card item-modal-card">
-              <div class="status-modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
+              <div class="status-modal-header" style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
                 <div>
                   <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
                     <span>🔗 Item Party Assignments</span>
@@ -964,7 +964,7 @@ License Date   :   01/04/2008</div>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Assign this item to Customers, Vendors (Subcontractors), and Suppliers</span>
                 </div>
-                <button id="item-assign-close-btn" type="button" class="status-close-x" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                <button id="item-assign-close-btn" type="button" class="status-close-x" aria-label="Close" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
               </div>
 
               <div class="status-modal-body item-modal-body-scroll">
@@ -1039,7 +1039,7 @@ License Date   :   01/04/2008</div>
                 <p id="assign-status" style="margin:0; font-size:12px; font-weight:600; min-height:18px;"></p>
               </div>
 
-              <div class="status-modal-footer" style="padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
+              <div class="status-modal-footer" style="flex-shrink:0; padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
                 <button id="assign-close-btn" type="button" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Close</button>
               </div>
             </div>

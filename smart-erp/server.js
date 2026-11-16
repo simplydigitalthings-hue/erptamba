@@ -4233,6 +4233,266 @@ async function handleMeasureDelete(req, res) {
   return sendJson(res, 200, { ok: true, message: "Records Deleted ." });
 }
 
+async function handleItemMoreDetailsGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in again." });
+  const itemId = Number(url.searchParams.get("itemId") || 0);
+  if (!itemId) return sendJson(res, 400, { ok: false, error: "Item ID required" });
+
+  const itemRes = await pool.query(
+    `SELECT item_id, item_code, item_name, drg_no, category_code, cycle_time
+     FROM item WHERE factory_id = $1 AND year_label = $2 AND item_id = $3`,
+    [session.factory_id, session.year_label, itemId]
+  );
+  if (!itemRes.rowCount) return sendJson(res, 404, { ok: false, error: "Item not found" });
+  const item = itemRes.rows[0];
+
+  const rmRes = await pool.query(
+    `SELECT item_id, item_code, item_name, measure_unit, category_code
+     FROM item WHERE factory_id = $1 AND year_label = $2 AND hide IS NOT TRUE
+     ORDER BY item_code`,
+    [session.factory_id, session.year_label]
+  );
+
+  let details = null;
+  if (await relationExists("comp_master")) {
+    const compRes = await pool.query(
+      `SELECT c.*, r.item_code AS rm_code, r.item_name AS rm_name, r.measure_unit AS rm_unit
+       FROM comp_master c
+       LEFT JOIN item r ON r.factory_id = c.factory_id AND r.year_label = c.year_label AND r.item_id = c.rm_id
+       WHERE c.factory_id = $1 AND c.year_label = $2 AND c.item_id = $3`,
+      [session.factory_id, session.year_label, itemId]
+    );
+    if (compRes.rowCount > 0) {
+      const row = compRes.rows[0];
+      details = {
+        itemId: row.item_id,
+        rmId: row.rm_id,
+        rmCode: row.rm_code || "",
+        rmName: row.rm_name || "",
+        rmUnit: row.rm_unit || "",
+        weight: row.weight != null ? Number(row.weight) : null,
+        finishedWeight: row.finished_weight != null ? Number(row.finished_weight) : null,
+        scrapWeight: row.scrap_weight != null ? Number(row.scrap_weight) : null,
+        cutLength: row.cut_length != null ? Number(row.cut_length) : null,
+        diaThickness: row.dia_thickness != null ? Number(row.dia_thickness) : null,
+        geometry: row.geometry || "Round Bar",
+        grade: row.grade || "",
+        drgRevNo: row.drg_rev_no || "",
+        drgRevDate: row.drg_rev_date ? new Date(row.drg_rev_date).toISOString().split("T")[0] : "",
+        cycleTime: row.cycle_time != null ? Number(row.cycle_time) : (item.cycle_time != null ? Number(item.cycle_time) : null),
+        machineType: row.machine_type || "",
+        operationDesc: row.operation_desc || "",
+        toolingNotes: row.tooling_notes || "",
+        remarks: row.remarks || ""
+      };
+    }
+  }
+
+  return sendJson(res, 200, {
+    ok: true,
+    item: {
+      id: item.item_id,
+      code: item.item_code || "",
+      name: item.item_name || "",
+      drg: item.drg_no || "",
+      categoryId: item.category_code,
+      cycleTime: item.cycle_time
+    },
+    rawMaterials: rmRes.rows.map((r) => ({
+      id: r.item_id,
+      code: r.item_code,
+      name: r.item_name,
+      unit: r.measure_unit,
+      catId: r.category_code
+    })),
+    details
+  });
+}
+
+async function handleItemMoreDetailsSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in again." });
+  const body = await readBody(req);
+  const itemId = Number(body.itemId);
+  if (!itemId) return sendJson(res, 400, { ok: false, error: "Item ID required" });
+
+  const rmId = body.rmId ? Number(body.rmId) : null;
+  const weight = body.weight !== "" && body.weight != null ? Number(body.weight) : null;
+  const finishedWeight = body.finishedWeight !== "" && body.finishedWeight != null ? Number(body.finishedWeight) : null;
+  const scrapWeight = body.scrapWeight !== "" && body.scrapWeight != null ? Number(body.scrapWeight) : null;
+  const cutLength = body.cutLength !== "" && body.cutLength != null ? Number(body.cutLength) : null;
+  const diaThickness = body.diaThickness !== "" && body.diaThickness != null ? Number(body.diaThickness) : null;
+  const geometry = String(body.geometry || "Round Bar").trim();
+  const grade = String(body.grade || "").trim();
+  const drgRevNo = String(body.drgRevNo || "").trim();
+  const drgRevDate = body.drgRevDate ? body.drgRevDate : null;
+  const cycleTime = body.cycleTime !== "" && body.cycleTime != null ? Number(body.cycleTime) : null;
+  const machineType = String(body.machineType || "").trim();
+  const operationDesc = String(body.operationDesc || "").trim();
+  const toolingNotes = String(body.toolingNotes || "").trim();
+  const remarks = String(body.remarks || "").trim();
+
+  await pool.query(
+    `INSERT INTO comp_master (
+       factory_id, year_label, item_id, rm_id, weight, finished_weight, scrap_weight,
+       cut_length, dia_thickness, geometry, grade, drg_rev_no, drg_rev_date,
+       cycle_time, machine_type, operation_desc, tooling_notes, remarks
+     ) VALUES (
+       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
+     )
+     ON CONFLICT (factory_id, year_label, item_id) DO UPDATE SET
+       rm_id = EXCLUDED.rm_id,
+       weight = EXCLUDED.weight,
+       finished_weight = EXCLUDED.finished_weight,
+       scrap_weight = EXCLUDED.scrap_weight,
+       cut_length = EXCLUDED.cut_length,
+       dia_thickness = EXCLUDED.dia_thickness,
+       geometry = EXCLUDED.geometry,
+       grade = EXCLUDED.grade,
+       drg_rev_no = EXCLUDED.drg_rev_no,
+       drg_rev_date = EXCLUDED.drg_rev_date,
+       cycle_time = EXCLUDED.cycle_time,
+       machine_type = EXCLUDED.machine_type,
+       operation_desc = EXCLUDED.operation_desc,
+       tooling_notes = EXCLUDED.tooling_notes,
+       remarks = EXCLUDED.remarks`,
+    [
+      session.factory_id, session.year_label, itemId, rmId, weight, finishedWeight, scrapWeight,
+      cutLength, diaThickness, geometry, grade, drgRevNo, drgRevDate,
+      cycleTime, machineType, operationDesc, toolingNotes, remarks
+    ]
+  );
+
+  if (cycleTime != null) {
+    await pool.query(
+      `UPDATE item SET cycle_time = $4 WHERE factory_id = $1 AND year_label = $2 AND item_id = $3`,
+      [session.factory_id, session.year_label, itemId, cycleTime]
+    );
+  }
+
+  return sendJson(res, 200, { ok: true, message: "Component technical specifications saved successfully." });
+}
+
+async function handleItemAssignmentsGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in again." });
+  const itemId = Number(url.searchParams.get("itemId") || 0);
+  if (!itemId) return sendJson(res, 400, { ok: false, error: "Item ID required" });
+
+  const itemRes = await pool.query(
+    `SELECT item_id, item_code, item_name, drg_no
+     FROM item WHERE factory_id = $1 AND year_label = $2 AND item_id = $3`,
+    [session.factory_id, session.year_label, itemId]
+  );
+  if (!itemRes.rowCount) return sendJson(res, 404, { ok: false, error: "Item not found" });
+  const item = itemRes.rows[0];
+
+  const custRes = await pool.query(
+    `SELECT cust_id AS id, cust_name AS name FROM customer
+     WHERE factory_id = $1 AND year_label = $2 AND inactive IS NOT TRUE
+     ORDER BY cust_name`,
+    [session.factory_id, session.year_label]
+  );
+  const vendRes = await pool.query(
+    `SELECT vendor_code AS id, vendor_name AS name FROM vendor
+     WHERE factory_id = $1 AND year_label = $2 AND inactive IS NOT TRUE
+     ORDER BY vendor_name`,
+    [session.factory_id, session.year_label]
+  );
+  const suppRes = await pool.query(
+    `SELECT supp_id AS id, supp_name AS name FROM supplier
+     WHERE factory_id = $1 AND year_label = $2 AND inactive IS NOT TRUE
+     ORDER BY supp_name`,
+    [session.factory_id, session.year_label]
+  );
+
+  const assignRes = await pool.query(
+    `SELECT isub.item_id, isub.name_id AS party_id, isub.class_id, isub.hide,
+            isub.party_item_code, isub.party_item_desc, isub.party_rate,
+            CASE
+              WHEN isub.class_id = 1 THEN (SELECT c.cust_name FROM customer c WHERE c.factory_id = isub.factory_id AND c.year_label = isub.year_label AND c.cust_id = isub.name_id)
+              WHEN isub.class_id = 2 THEN (SELECT v.vendor_name FROM vendor v WHERE v.factory_id = isub.factory_id AND v.year_label = isub.year_label AND v.vendor_code = isub.name_id)
+              WHEN isub.class_id = 3 THEN (SELECT s.supp_name FROM supplier s WHERE s.factory_id = isub.factory_id AND s.year_label = isub.year_label AND s.supp_id = isub.name_id)
+              ELSE 'Unknown'
+            END AS party_name
+     FROM item_sub isub
+     WHERE isub.factory_id = $1 AND isub.year_label = $2 AND isub.item_id = $3
+     ORDER BY isub.class_id, party_name`,
+    [session.factory_id, session.year_label, itemId]
+  );
+
+  return sendJson(res, 200, {
+    ok: true,
+    item: {
+      id: item.item_id,
+      code: item.item_code || "",
+      name: item.item_name || "",
+      drg: item.drg_no || ""
+    },
+    customers: custRes.rows.map((r) => ({ id: r.id, name: r.name || "" })),
+    vendors: vendRes.rows.map((r) => ({ id: r.id, name: r.name || "" })),
+    suppliers: suppRes.rows.map((r) => ({ id: r.id, name: r.name || "" })),
+    assignments: assignRes.rows.map((r) => ({
+      itemId: r.item_id,
+      partyId: r.party_id,
+      classId: r.class_id,
+      className: r.class_id === 1 ? "Customer" : (r.class_id === 2 ? "Vendor" : "Supplier"),
+      partyName: r.party_name || "Unknown Party",
+      partyItemCode: r.party_item_code || "",
+      partyItemDesc: r.party_item_desc || "",
+      partyRate: r.party_rate != null ? Number(r.party_rate) : null,
+      hide: r.hide === true
+    }))
+  });
+}
+
+async function handleItemAssignSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in again." });
+  const body = await readBody(req);
+  const itemId = Number(body.itemId);
+  const partyId = Number(body.partyId);
+  const classId = Number(body.classId || 1);
+  if (!itemId || !partyId) return sendJson(res, 400, { ok: false, error: "Item ID and Party ID required" });
+
+  const partyItemCode = String(body.partyItemCode || "").trim();
+  const partyItemDesc = String(body.partyItemDesc || "").trim();
+  const partyRate = body.partyRate !== "" && body.partyRate != null ? Number(body.partyRate) : null;
+  const hide = body.hide === true;
+
+  await pool.query(
+    `INSERT INTO item_sub (factory_id, year_label, item_id, name_id, class_id, hide, party_item_code, party_item_desc, party_rate)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     ON CONFLICT (factory_id, year_label, item_id, name_id, class_id) DO UPDATE SET
+       hide = EXCLUDED.hide,
+       party_item_code = EXCLUDED.party_item_code,
+       party_item_desc = EXCLUDED.party_item_desc,
+       party_rate = EXCLUDED.party_rate`,
+    [session.factory_id, session.year_label, itemId, partyId, classId, hide, partyItemCode, partyItemDesc, partyRate]
+  );
+
+  return sendJson(res, 200, { ok: true, message: "Party assigned successfully." });
+}
+
+async function handleItemUnassignSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in again." });
+  const body = await readBody(req);
+  const itemId = Number(body.itemId);
+  const partyId = Number(body.partyId);
+  const classId = Number(body.classId || 1);
+  if (!itemId || !partyId) return sendJson(res, 400, { ok: false, error: "Item ID and Party ID required" });
+
+  await pool.query(
+    `DELETE FROM item_sub
+     WHERE factory_id = $1 AND year_label = $2 AND item_id = $3 AND name_id = $4 AND class_id = $5`,
+    [session.factory_id, session.year_label, itemId, partyId, classId]
+  );
+
+  return sendJson(res, 200, { ok: true, message: "Assignment removed successfully." });
+}
+
 async function bomRights(session) {
   const rights = await loadRights(session);
   if (!rights || rights.mnuBOM === 0) return null;
@@ -29949,6 +30209,21 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "POST" && url.pathname === "/api/item/category") {
       return await handleItemCategory(req, res);
+    }
+    if (req.method === "GET" && url.pathname === "/api/item/more-details") {
+      return await handleItemMoreDetailsGet(req, res, url);
+    }
+    if (req.method === "POST" && url.pathname === "/api/item/more-details") {
+      return await handleItemMoreDetailsSave(req, res);
+    }
+    if (req.method === "GET" && url.pathname === "/api/item/assignments") {
+      return await handleItemAssignmentsGet(req, res, url);
+    }
+    if (req.method === "POST" && url.pathname === "/api/item/assign") {
+      return await handleItemAssignSave(req, res);
+    }
+    if (req.method === "POST" && url.pathname === "/api/item/unassign") {
+      return await handleItemUnassignSave(req, res);
     }
     if (req.method === "POST" && url.pathname === "/api/measure") {
       return await handleMeasureSave(req, res);

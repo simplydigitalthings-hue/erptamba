@@ -216,7 +216,7 @@
     place = inCategory().findIndex((item) => item.id === row.id);
     renderNames();
     nameList.value = String(row.id);
-    moreButton.hidden = !(row.categoryId === 2 || row.categoryId === 8);
+    moreButton.hidden = false;
     assignButton.hidden = false;
     applyViewButtons();
   }
@@ -490,12 +490,440 @@
   document.querySelector("#item-upload").addEventListener("click", () => {
     status.textContent = "Form: frmUpload. This screen is not built yet.";
   });
-  moreButton.addEventListener("click", () => {
-    status.textContent = "Form: frmCompMaster. This screen is not built yet.";
-  });
-  assignButton.addEventListener("click", () => {
-    status.textContent = "Form: frmItemAssign. This screen is not built yet.";
-  });
+  // --- More Details (Component Master: frmCompMaster) ---
+  const moreModal = document.querySelector("#item-more-modal");
+  const compCloseBtn = document.querySelector("#item-more-close-btn");
+  const compCancelBtn = document.querySelector("#comp-cancel-btn");
+  const compSaveBtn = document.querySelector("#comp-save-btn");
+  const compItemCode = document.querySelector("#comp-item-code");
+  const compItemName = document.querySelector("#comp-item-name");
+  const compItemDrg = document.querySelector("#comp-item-drg");
+  const compRmId = document.querySelector("#comp-rm-id");
+  const compGeometry = document.querySelector("#comp-geometry");
+  const compGrade = document.querySelector("#comp-grade");
+  const compDia = document.querySelector("#comp-dia");
+  const compCutLength = document.querySelector("#comp-cut-length");
+  const compWeight = document.querySelector("#comp-weight");
+  const compFinWeight = document.querySelector("#comp-fin-weight");
+  const compScrapDisplay = document.querySelector("#comp-scrap-weight-display");
+  const compScrapPctDisplay = document.querySelector("#comp-scrap-pct-display");
+  const compCycleTime = document.querySelector("#comp-cycle-time");
+  const compMachineType = document.querySelector("#comp-machine-type");
+  const compDrgRevNo = document.querySelector("#comp-drg-rev-no");
+  const compDrgRevDate = document.querySelector("#comp-drg-rev-date");
+  const compOpDesc = document.querySelector("#comp-op-desc");
+  const compToolingNotes = document.querySelector("#comp-tooling-notes");
+  const compRemarks = document.querySelector("#comp-remarks");
+  const compStatus = document.querySelector("#comp-status");
+
+  function calcCompScrap() {
+    const gross = parseFloat(compWeight.value) || 0;
+    const fin = parseFloat(compFinWeight.value) || 0;
+    const scrap = Math.max(0, gross - fin);
+    if (compScrapDisplay) compScrapDisplay.textContent = scrap > 0 ? `${scrap.toFixed(4)} Kg` : "0.0000 Kg";
+    const pct = gross > 0 ? ((scrap / gross) * 100).toFixed(1) : "0.0";
+    if (compScrapPctDisplay) compScrapPctDisplay.textContent = `Scrap Rate: ${pct}%`;
+  }
+  if (compWeight) compWeight.addEventListener("input", calcCompScrap);
+  if (compFinWeight) compFinWeight.addEventListener("input", calcCompScrap);
+
+  async function openMoreModal() {
+    const rows = inCategory();
+    const current = rows[place];
+    if (!current) {
+      showInfo("Please select an item first to view more details.");
+      return;
+    }
+    if (compStatus) {
+      compStatus.textContent = "Loading component specifications...";
+      compStatus.style.color = "var(--text-muted)";
+    }
+    if (moreModal) moreModal.hidden = false;
+
+    if (compItemCode) compItemCode.textContent = current.code || "-";
+    if (compItemName) compItemName.textContent = current.name || "-";
+    if (compItemDrg) compItemDrg.textContent = current.drg || "-";
+
+    try {
+      const res = await fetch(`/api/item/more-details?itemId=${current.id}`);
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        if (compStatus) {
+          compStatus.textContent = data.error || "Failed to load details.";
+          compStatus.style.color = "#ef4444";
+        }
+        return;
+      }
+      if (compRmId) {
+        compRmId.innerHTML = '<option value="">-- Select Raw Material (Rod / Bar / Hex) --</option>';
+        for (const rm of data.rawMaterials || []) {
+          const opt = document.createElement("option");
+          opt.value = rm.id;
+          opt.textContent = `${rm.code} - ${rm.name} (${rm.unit || 'Kg'})`;
+          compRmId.appendChild(opt);
+        }
+      }
+
+      const det = data.details || {};
+      if (compRmId) compRmId.value = det.rmId ? String(det.rmId) : "";
+      if (compGeometry) compGeometry.value = det.geometry || "Round Bar";
+      if (compGrade) compGrade.value = det.grade || "";
+      if (compDia) compDia.value = det.diaThickness != null ? det.diaThickness : "";
+      if (compCutLength) compCutLength.value = det.cutLength != null ? det.cutLength : "";
+      if (compWeight) compWeight.value = det.weight != null ? det.weight : "";
+      if (compFinWeight) compFinWeight.value = det.finishedWeight != null ? det.finishedWeight : "";
+      if (compCycleTime) compCycleTime.value = det.cycleTime != null ? det.cycleTime : (current.cycle != null ? current.cycle : "");
+      if (compMachineType) compMachineType.value = det.machineType || "";
+      if (compDrgRevNo) compDrgRevNo.value = det.drgRevNo || "";
+      if (compDrgRevDate) compDrgRevDate.value = det.drgRevDate || "";
+      if (compOpDesc) compOpDesc.value = det.operationDesc || "";
+      if (compToolingNotes) compToolingNotes.value = det.toolingNotes || "";
+      if (compRemarks) compRemarks.value = det.remarks || "";
+
+      calcCompScrap();
+      if (compStatus) {
+        compStatus.textContent = det.rmId || det.weight ? "Loaded technical specifications." : "No existing specifications found. You can enter and save new details.";
+        compStatus.style.color = "var(--text-muted)";
+      }
+    } catch (err) {
+      if (compStatus) {
+        compStatus.textContent = "Network error loading details: " + err.message;
+        compStatus.style.color = "#ef4444";
+      }
+    }
+  }
+
+  function closeMoreModal() {
+    if (moreModal) moreModal.hidden = true;
+  }
+  if (compCloseBtn) compCloseBtn.addEventListener("click", closeMoreModal);
+  if (compCancelBtn) compCancelBtn.addEventListener("click", closeMoreModal);
+
+  if (compSaveBtn) {
+    compSaveBtn.addEventListener("click", async () => {
+      const rows = inCategory();
+      const current = rows[place];
+      if (!current) return;
+
+      compSaveBtn.disabled = true;
+      if (compStatus) {
+        compStatus.textContent = "Saving specifications...";
+        compStatus.style.color = "var(--text-muted)";
+      }
+
+      const gross = parseFloat(compWeight.value) || 0;
+      const fin = parseFloat(compFinWeight.value) || 0;
+      const scrap = Math.max(0, gross - fin);
+
+      const body = {
+        itemId: current.id,
+        rmId: compRmId && compRmId.value ? Number(compRmId.value) : null,
+        geometry: compGeometry ? compGeometry.value : "Round Bar",
+        grade: compGrade ? compGrade.value.trim() : "",
+        diaThickness: compDia && compDia.value ? parseFloat(compDia.value) : null,
+        cutLength: compCutLength && compCutLength.value ? parseFloat(compCutLength.value) : null,
+        weight: compWeight && compWeight.value ? parseFloat(compWeight.value) : null,
+        finishedWeight: compFinWeight && compFinWeight.value ? parseFloat(compFinWeight.value) : null,
+        scrapWeight: scrap > 0 ? scrap : null,
+        cycleTime: compCycleTime && compCycleTime.value ? parseFloat(compCycleTime.value) : null,
+        machineType: compMachineType ? compMachineType.value.trim() : "",
+        drgRevNo: compDrgRevNo ? compDrgRevNo.value.trim() : "",
+        drgRevDate: compDrgRevDate && compDrgRevDate.value ? compDrgRevDate.value : null,
+        operationDesc: compOpDesc ? compOpDesc.value.trim() : "",
+        toolingNotes: compToolingNotes ? compToolingNotes.value.trim() : "",
+        remarks: compRemarks ? compRemarks.value.trim() : ""
+      };
+
+      try {
+        const res = await fetch("/api/item/more-details", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (res.ok && result.ok) {
+          if (compStatus) {
+            compStatus.textContent = "✓ Specifications saved successfully!";
+            compStatus.style.color = "#10b981";
+          }
+          if (body.cycleTime != null && cycleBox) {
+            cycleBox.value = String(body.cycleTime);
+            current.cycle = body.cycleTime;
+          }
+          setTimeout(() => {
+            closeMoreModal();
+          }, 800);
+        } else {
+          if (compStatus) {
+            compStatus.textContent = result.error || result.message || "Failed to save.";
+            compStatus.style.color = "#ef4444";
+          }
+        }
+      } catch (err) {
+        if (compStatus) {
+          compStatus.textContent = "Error: " + err.message;
+          compStatus.style.color = "#ef4444";
+        }
+      } finally {
+        compSaveBtn.disabled = false;
+      }
+    });
+  }
+
+  moreButton.addEventListener("click", openMoreModal);
+
+  // --- Assign To... (Party Cross-Reference: frmItemAssign) ---
+  const assignModal = document.querySelector("#item-assign-modal");
+  const assignCloseBtn = document.querySelector("#item-assign-close-btn");
+  const assignCancelBtn = document.querySelector("#assign-close-btn");
+  const assignItemCode = document.querySelector("#assign-item-code");
+  const assignItemName = document.querySelector("#assign-item-name");
+  const assignItemDrg = document.querySelector("#assign-item-drg");
+  const assignTabCust = document.querySelector("#assign-tab-cust");
+  const assignTabVend = document.querySelector("#assign-tab-vend");
+  const assignTabSupp = document.querySelector("#assign-tab-supp");
+  const assignCntCust = document.querySelector("#assign-cnt-cust");
+  const assignCntVend = document.querySelector("#assign-cnt-vend");
+  const assignCntSupp = document.querySelector("#assign-cnt-supp");
+  const assignFormLegend = document.querySelector("#assign-form-legend");
+  const assignPartyLabel = document.querySelector("#assign-party-label");
+  const assignPartySelect = document.querySelector("#assign-party-select");
+  const assignPartyCode = document.querySelector("#assign-party-code");
+  const assignPartyDesc = document.querySelector("#assign-party-desc");
+  const assignPartyRate = document.querySelector("#assign-party-rate");
+  const assignSubmitBtn = document.querySelector("#assign-submit-btn");
+  const assignTableBody = document.querySelector("#assign-table-body");
+  const assignStatus = document.querySelector("#assign-status");
+
+  let currentClassId = 1; // 1: Customer, 2: Vendor, 3: Supplier
+  let partyLists = { customers: [], vendors: [], suppliers: [], assignments: [] };
+
+  function renderAssignClass() {
+    [assignTabCust, assignTabVend, assignTabSupp].forEach((btn, idx) => {
+      if (!btn) return;
+      const cls = idx + 1;
+      if (cls === currentClassId) {
+        btn.classList.add("active");
+        btn.style.background = "var(--primary, #007aff)";
+        btn.style.color = "#fff";
+        btn.style.borderColor = "var(--primary, #007aff)";
+      } else {
+        btn.classList.remove("active");
+        btn.style.background = "var(--bg-card)";
+        btn.style.color = "var(--text-main)";
+        btn.style.borderColor = "var(--border-color)";
+      }
+    });
+
+    if (assignFormLegend && assignPartyLabel && assignSubmitBtn) {
+      if (currentClassId === 1) {
+        assignFormLegend.textContent = "+ Assign New Customer";
+        assignPartyLabel.textContent = "Select Customer";
+        assignSubmitBtn.textContent = "+ Assign Customer";
+      } else if (currentClassId === 2) {
+        assignFormLegend.textContent = "+ Assign New Vendor / Subcontractor";
+        assignPartyLabel.textContent = "Select Vendor";
+        assignSubmitBtn.textContent = "+ Assign Vendor";
+      } else {
+        assignFormLegend.textContent = "+ Assign New Supplier";
+        assignPartyLabel.textContent = "Select Supplier";
+        assignSubmitBtn.textContent = "+ Assign Supplier";
+      }
+    }
+
+    if (assignPartySelect) {
+      const parties = currentClassId === 1 ? partyLists.customers : (currentClassId === 2 ? partyLists.vendors : partyLists.suppliers);
+      assignPartySelect.innerHTML = `<option value="">-- Choose ${currentClassId === 1 ? 'Customer' : (currentClassId === 2 ? 'Vendor' : 'Supplier')} --</option>`;
+      for (const p of parties) {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.name;
+        assignPartySelect.appendChild(opt);
+      }
+    }
+
+    if (assignPartyCode) assignPartyCode.value = "";
+    if (assignPartyDesc) assignPartyDesc.value = "";
+    if (assignPartyRate) assignPartyRate.value = "";
+
+    if (!assignTableBody) return;
+    const list = partyLists.assignments.filter((a) => a.classId === currentClassId);
+    if (!list.length) {
+      assignTableBody.innerHTML = `<tr><td colspan="6" style="padding:24px; text-align:center; color:var(--text-muted);">No ${currentClassId === 1 ? 'customers' : (currentClassId === 2 ? 'vendors' : 'suppliers')} assigned yet. Select a party above to assign.</td></tr>`;
+      return;
+    }
+
+    assignTableBody.innerHTML = list.map((a) => `
+      <tr style="border-bottom:1px solid var(--border-color); background:var(--bg-surface);">
+        <td style="padding:8px 12px; font-weight:600; color:var(--text-muted);">${a.className}</td>
+        <td style="padding:8px 12px; font-weight:600; color:var(--text-main);">${a.partyName}</td>
+        <td style="padding:8px 12px; font-family:monospace; color:var(--primary, #007aff);">${a.partyItemCode || '-'}</td>
+        <td style="padding:8px 12px; color:var(--text-muted);">${a.partyItemDesc || '-'}</td>
+        <td style="padding:8px 12px; text-align:right; font-weight:600; color:var(--text-main);">${a.partyRate != null ? '₹ ' + a.partyRate.toFixed(2) : '-'}</td>
+        <td style="padding:8px 12px; text-align:center;">
+          <button type="button" class="btn-unassign" data-party="${a.partyId}" data-class="${a.classId}" data-name="${a.partyName}" style="background:#ef4444; color:#fff; border:none; padding:3px 10px; border-radius:4px; font-size:11px; cursor:pointer;">Unassign</button>
+        </td>
+      </tr>
+    `).join("");
+
+    assignTableBody.querySelectorAll(".btn-unassign").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const partyId = Number(btn.getAttribute("data-party"));
+        const classId = Number(btn.getAttribute("data-class"));
+        const partyName = btn.getAttribute("data-name");
+        if (!confirm(`Are you sure you want to remove assignment for ${partyName}?`)) return;
+
+        const rows = inCategory();
+        const current = rows[place];
+        if (!current) return;
+
+        try {
+          const res = await fetch("/api/item/unassign", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ itemId: current.id, partyId, classId })
+          });
+          const result = await res.json();
+          if (res.ok && result.ok) {
+            if (assignStatus) {
+              assignStatus.textContent = "✓ Assignment removed.";
+              assignStatus.style.color = "#10b981";
+            }
+            await loadAssignments(current.id);
+          } else {
+            if (assignStatus) {
+              assignStatus.textContent = result.error || "Failed to remove assignment.";
+              assignStatus.style.color = "#ef4444";
+            }
+          }
+        } catch (err) {
+          if (assignStatus) {
+            assignStatus.textContent = "Error: " + err.message;
+            assignStatus.style.color = "#ef4444";
+          }
+        }
+      });
+    });
+  }
+
+  if (assignTabCust) assignTabCust.addEventListener("click", () => { currentClassId = 1; renderAssignClass(); });
+  if (assignTabVend) assignTabVend.addEventListener("click", () => { currentClassId = 2; renderAssignClass(); });
+  if (assignTabSupp) assignTabSupp.addEventListener("click", () => { currentClassId = 3; renderAssignClass(); });
+
+  async function loadAssignments(itemId) {
+    try {
+      const res = await fetch(`/api/item/assignments?itemId=${itemId}`);
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        if (assignStatus) {
+          assignStatus.textContent = data.error || "Failed to load assignments.";
+          assignStatus.style.color = "#ef4444";
+        }
+        return;
+      }
+      partyLists.customers = data.customers || [];
+      partyLists.vendors = data.vendors || [];
+      partyLists.suppliers = data.suppliers || [];
+      partyLists.assignments = data.assignments || [];
+
+      if (assignCntCust) assignCntCust.textContent = partyLists.assignments.filter((a) => a.classId === 1).length;
+      if (assignCntVend) assignCntVend.textContent = partyLists.assignments.filter((a) => a.classId === 2).length;
+      if (assignCntSupp) assignCntSupp.textContent = partyLists.assignments.filter((a) => a.classId === 3).length;
+
+      renderAssignClass();
+    } catch (err) {
+      if (assignStatus) {
+        assignStatus.textContent = "Error: " + err.message;
+        assignStatus.style.color = "#ef4444";
+      }
+    }
+  }
+
+  async function openAssignModal() {
+    const rows = inCategory();
+    const current = rows[place];
+    if (!current) {
+      showInfo("Please select an item first to manage assignments.");
+      return;
+    }
+    if (assignStatus) assignStatus.textContent = "";
+    if (assignModal) assignModal.hidden = false;
+
+    if (assignItemCode) assignItemCode.textContent = current.code || "-";
+    if (assignItemName) assignItemName.textContent = current.name || "-";
+    if (assignItemDrg) assignItemDrg.textContent = current.drg || "-";
+
+    await loadAssignments(current.id);
+  }
+
+  function closeAssignModal() {
+    if (assignModal) assignModal.hidden = true;
+  }
+  if (assignCloseBtn) assignCloseBtn.addEventListener("click", closeAssignModal);
+  if (assignCancelBtn) assignCancelBtn.addEventListener("click", closeAssignModal);
+
+  if (assignSubmitBtn) {
+    assignSubmitBtn.addEventListener("click", async () => {
+      const rows = inCategory();
+      const current = rows[place];
+      if (!current) return;
+
+      const partyId = Number(assignPartySelect.value);
+      if (!partyId) {
+        if (assignStatus) {
+          assignStatus.textContent = "Please select a party to assign.";
+          assignStatus.style.color = "#ef4444";
+        }
+        assignPartySelect.focus();
+        return;
+      }
+
+      assignSubmitBtn.disabled = true;
+      if (assignStatus) {
+        assignStatus.textContent = "Assigning party...";
+        assignStatus.style.color = "var(--text-muted)";
+      }
+
+      const body = {
+        itemId: current.id,
+        partyId,
+        classId: currentClassId,
+        partyItemCode: assignPartyCode ? assignPartyCode.value.trim() : "",
+        partyItemDesc: assignPartyDesc ? assignPartyDesc.value.trim() : "",
+        partyRate: assignPartyRate && assignPartyRate.value ? parseFloat(assignPartyRate.value) : null
+      };
+
+      try {
+        const res = await fetch("/api/item/assign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (res.ok && result.ok) {
+          if (assignStatus) {
+            assignStatus.textContent = "✓ Party assigned successfully!";
+            assignStatus.style.color = "#10b981";
+          }
+          await loadAssignments(current.id);
+        } else {
+          if (assignStatus) {
+            assignStatus.textContent = result.error || result.message || "Failed to assign.";
+            assignStatus.style.color = "#ef4444";
+          }
+        }
+      } catch (err) {
+        if (assignStatus) {
+          assignStatus.textContent = "Error: " + err.message;
+          assignStatus.style.color = "#ef4444";
+        }
+      } finally {
+        assignSubmitBtn.disabled = false;
+      }
+    });
+  }
+
+  assignButton.addEventListener("click", openAssignModal);
   document.querySelector("#item-add-units").addEventListener("click", () => {
     measurePanel.hidden = false;
     measureCode.value = "";

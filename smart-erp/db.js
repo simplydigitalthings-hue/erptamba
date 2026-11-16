@@ -349,7 +349,35 @@ async function initDatabase() {
       name_id integer NOT NULL,
       class_id integer NOT NULL DEFAULT 3,
       hide boolean DEFAULT false,
+      party_item_code text,
+      party_item_desc text,
+      party_rate double precision,
       PRIMARY KEY (factory_id, year_label, item_id, name_id, class_id)
+    );
+    ALTER TABLE item_sub ADD COLUMN IF NOT EXISTS party_item_code text;
+    ALTER TABLE item_sub ADD COLUMN IF NOT EXISTS party_item_desc text;
+    ALTER TABLE item_sub ADD COLUMN IF NOT EXISTS party_rate double precision;
+
+    CREATE TABLE IF NOT EXISTS comp_master (
+      factory_id integer NOT NULL REFERENCES factories(id),
+      year_label text NOT NULL,
+      item_id integer NOT NULL,
+      rm_id integer,
+      weight double precision,
+      finished_weight double precision,
+      scrap_weight double precision,
+      cut_length double precision,
+      dia_thickness double precision,
+      geometry text,
+      grade text,
+      drg_rev_no text,
+      drg_rev_date date,
+      cycle_time double precision,
+      machine_type text,
+      operation_desc text,
+      tooling_notes text,
+      remarks text,
+      PRIMARY KEY (factory_id, year_label, item_id)
     );
 
     CREATE TABLE IF NOT EXISTS assmbly_def (

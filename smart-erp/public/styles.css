@@ -1024,6 +1024,31 @@ section[hidden] { display: none !important; }
 }
 .measure h2 { margin: 0 0 6px; color: var(--primary, #007aff); font-size: 14px; }
 .measure label { grid-template-columns: 150px 1fr; }
+
+.item-modal-overlay {
+  position: fixed !important;
+  left: var(--erp-workspace-left, 0) !important;
+  top: var(--erp-workspace-top, 0) !important;
+  width: var(--erp-workspace-width, 100vw) !important;
+  height: var(--erp-workspace-height, 100vh) !important;
+  z-index: 99999 !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(160%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+.item-modal-overlay[hidden] {
+  display: none !important;
+}
+.assign-tab-btn.active {
+  background: var(--primary, #007aff) !important;
+  color: #fff !important;
+  border-color: var(--primary, #007aff) !important;
+}
 .shift {
   width: min(820px, 100%);
   margin: 8px auto;

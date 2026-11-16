@@ -821,6 +821,227 @@ License Date   :   01/04/2008</div>
               <button id="measure-close" type="button">Close</button>
             </div>
           </div>
+
+          <!-- Component Master / Technical Specifications Modal (frmCompMaster) -->
+          <div id="item-more-modal" class="item-modal-overlay" hidden>
+            <div class="status-modal-card" style="width: 820px; max-width: 95vw; max-height: 90vh;">
+              <div class="status-modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
+                <div>
+                  <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                    <span>⚙️ Component Master &amp; Technical Specifications</span>
+                    <span style="font-size:11px; padding:2px 8px; border-radius:12px; background:rgba(0,122,255,0.12); color:var(--primary, #007aff); font-weight:600;">frmCompMaster</span>
+                  </h2>
+                  <span style="font-size:12px; color:var(--text-muted);">Define raw material cut geometry, weights, tolerances, cycle time &amp; routing</span>
+                </div>
+                <button id="item-more-close-btn" type="button" class="status-close-x" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+              </div>
+
+              <div class="status-modal-body" style="padding:16px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px;">
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Item Code / Part No</span>
+                    <div id="comp-item-code" style="font-size:13px; font-weight:700; color:var(--primary, #007aff); font-family:monospace;">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Item Name</span>
+                    <div id="comp-item-name" style="font-size:13px; font-weight:600; color:var(--text-main);">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Drawing No</span>
+                    <div id="comp-item-drg" style="font-size:13px; font-weight:600; color:var(--text-main);">-</div>
+                  </div>
+                </div>
+
+                <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0;">
+                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;">📐 Raw Material &amp; Cutting Geometry</legend>
+                  <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; margin-bottom:10px;">
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Linked Raw Material (from Catalog)</label>
+                      <select id="comp-rm-id" style="width:100%; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                        <option value="">-- Select Raw Material (Rod / Bar / Hex) --</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Geometry Section</label>
+                      <select id="comp-geometry" style="width:100%; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                        <option value="Round Bar">Round Bar (Rod)</option>
+                        <option value="Hexagonal Bar">Hexagonal Bar</option>
+                        <option value="Square Bar">Square Bar</option>
+                        <option value="Hollow Tube">Hollow Tube / Pipe</option>
+                        <option value="Sheet / Strip">Sheet / Strip</option>
+                        <option value="Forging / Casting">Forging / Casting Blank</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Material Grade / Alloy</label>
+                      <input id="comp-grade" type="text" placeholder="e.g. IS 319 Gr 1 / CW614N" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                  </div>
+
+                  <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Dia / Thickness (mm)</label>
+                      <input id="comp-dia" type="number" step="0.01" placeholder="e.g. 12.0" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Cut Length / Blank (mm)</label>
+                      <input id="comp-cut-length" type="number" step="0.01" placeholder="e.g. 32.5" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Blank / Gross Wt (Kg)</label>
+                      <input id="comp-weight" type="number" step="0.0001" placeholder="e.g. 0.0450" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px; font-weight:bold;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Net Finished Wt (Kg)</label>
+                      <input id="comp-fin-weight" type="number" step="0.0001" placeholder="e.g. 0.0380" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                  </div>
+
+                  <div style="margin-top:10px; padding:8px 12px; background:var(--bg-card); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                    <span>♻️ Estimated Scrap Recovery: <strong id="comp-scrap-weight-display" style="color:#d97706;">0.0000 Kg</strong> per piece</span>
+                    <span id="comp-scrap-pct-display" style="color:var(--text-muted); font-size:11px;">Scrap Rate: 0.0%</span>
+                  </div>
+                </fieldset>
+
+                <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0;">
+                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;">🏭 Machining &amp; Production Parameters</legend>
+                  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; margin-bottom:10px;">
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Cycle Time (Min)</label>
+                      <input id="comp-cycle-time" type="number" step="0.01" placeholder="e.g. 0.75" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Machine Type / Cell</label>
+                      <input id="comp-machine-type" type="text" placeholder="e.g. CNC Lathe / Traub" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Drawing Revision No</label>
+                      <input id="comp-drg-rev-no" type="text" placeholder="e.g. Rev 02" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Revision Date</label>
+                      <input id="comp-drg-rev-date" type="date" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                  </div>
+
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Operation Routing Sequence</label>
+                      <input id="comp-op-desc" type="text" placeholder="e.g. Facing -> Turning -> Grooving -> Threading -> Parting" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Tooling / Gauge Inspection Notes</label>
+                      <input id="comp-tooling-notes" type="text" placeholder="e.g. M12x1.5 6g Ring Gauge, 10.00 +/-0.02 Plug Gauge" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                  </div>
+
+                  <div style="margin-top:10px;">
+                    <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Technical Remarks / Notes</label>
+                    <input id="comp-remarks" type="text" placeholder="Any special packaging, ultrasonic washing, deburring, or plating instructions..." style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                  </div>
+                </fieldset>
+
+                <p id="comp-status" style="margin:0; font-size:12px; font-weight:600; min-height:18px;"></p>
+              </div>
+
+              <div class="status-modal-footer" style="padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
+                <button id="comp-save-btn" type="button" style="background:#007aff; color:#fff; border:none; padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">💾 Save Specifications</button>
+                <button id="comp-cancel-btn" type="button" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Close</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item Assign To... Modal (frmItemAssign) -->
+          <div id="item-assign-modal" class="item-modal-overlay" hidden>
+            <div class="status-modal-card" style="width: 840px; max-width: 95vw; max-height: 90vh;">
+              <div class="status-modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
+                <div>
+                  <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                    <span>🔗 Item Party Assignments</span>
+                    <span style="font-size:11px; padding:2px 8px; border-radius:12px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:600;">frmItemAssign</span>
+                  </h2>
+                  <span style="font-size:12px; color:var(--text-muted);">Assign this item to Customers, Vendors (Subcontractors), and Suppliers</span>
+                </div>
+                <button id="item-assign-close-btn" type="button" class="status-close-x" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+              </div>
+
+              <div class="status-modal-body" style="padding:16px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px;">
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Item Code / Part No</span>
+                    <div id="assign-item-code" style="font-size:13px; font-weight:700; color:var(--primary, #007aff); font-family:monospace;">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Item Name</span>
+                    <div id="assign-item-name" style="font-size:13px; font-weight:600; color:var(--text-main);">-</div>
+                  </div>
+                  <div>
+                    <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Drawing No</span>
+                    <div id="assign-item-drg" style="font-size:13px; font-weight:600; color:var(--text-main);">-</div>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:8px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+                  <button id="assign-tab-cust" type="button" class="assign-tab-btn active" style="padding:6px 14px; border-radius:6px; border:1px solid var(--primary, #007aff); background:var(--primary, #007aff); color:#fff; font-weight:600; font-size:12px; cursor:pointer;">🏢 Customers (<span id="assign-cnt-cust">0</span>)</button>
+                  <button id="assign-tab-vend" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">⚙️ Vendors / Job Workers (<span id="assign-cnt-vend">0</span>)</button>
+                  <button id="assign-tab-supp" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">📦 Suppliers (<span id="assign-cnt-supp">0</span>)</button>
+                </div>
+
+                <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0; background:var(--bg-card);">
+                  <legend id="assign-form-legend" style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;">+ Assign New Customer</legend>
+                  <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; align-items:flex-end;">
+                    <div>
+                      <label id="assign-party-label" style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Select Customer</label>
+                      <select id="assign-party-select" style="width:100%; height:28px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                        <option value="">-- Choose Party --</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Party Part / Code</label>
+                      <input id="assign-party-code" type="text" placeholder="e.g. CUST-PART-01" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Party Drg / Notes</label>
+                      <input id="assign-party-desc" type="text" placeholder="e.g. Drg # / Rev" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Agreed Rate (₹)</label>
+                      <input id="assign-party-rate" type="number" step="0.01" placeholder="₹ Rate" style="width:100%; height:28px; box-sizing:border-box; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-main); padding:2px 8px; font-size:12px;">
+                    </div>
+                    <div>
+                      <button id="assign-submit-btn" type="button" style="background:#10b981; color:#fff; border:none; height:28px; padding:0 14px; border-radius:6px; font-weight:600; font-size:12px; cursor:pointer; white-space:nowrap;">+ Assign</button>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <div style="border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+                  <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">
+                    <thead>
+                      <tr style="background:var(--bg-toolbar); border-bottom:1px solid var(--border-color);">
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600;">Party Type</th>
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600;">Party Name</th>
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600;">Party Part #</th>
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600;">Party Drg / Specs</th>
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600; text-align:right;">Rate (₹)</th>
+                        <th style="padding:8px 12px; color:var(--text-muted); font-weight:600; text-align:center;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="assign-table-body">
+                      <tr>
+                        <td colspan="6" style="padding:20px; text-align:center; color:var(--text-muted);">Loading assignments...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p id="assign-status" style="margin:0; font-size:12px; font-weight:600; min-height:18px;"></p>
+              </div>
+
+              <div class="status-modal-footer" style="padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
+                <button id="assign-close-btn" type="button" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Close</button>
+              </div>
+            </div>
+          </div>
           </div>
         </section>
 

@@ -137,7 +137,7 @@ const MENUS = {
     { label: "Enquiry", form: "frmEnquiry" },
     { label: "Purchase Order - Outgoing", form: "frmPurchasePO" },
     { label: "Goods Received Note", form: "frmPurchaseGRN" },
-    { label: "Store Credit Note", form: "frmPurchStoreCrNote" },
+    { label: "Material Inspection & Acceptance (SCN)", form: "frmPurchStoreCrNote" },
     { label: "Invoice Inwards", form: "frmInvoicePurch" }
   ],
   sales: [
@@ -158,9 +158,15 @@ const MENUS = {
     { label: "Work Order - Outwards", form: "frmSubConPO" },
     { label: "DC Outwards", form: "frmDCSubConOut" },
     { label: "Goods Received Note", form: "frmDCSubConIn" },
-    { label: "Store Credit Note", form: "frmDcSubConStoreCrNote" },
+    { label: "SubContract Material Inspection & Acceptance (SCN)", form: "frmDcSubConStoreCrNote" },
     { label: "Invoice Inwards", form: "frmInvoiceSC" }
   ],
+  get subcontract() {
+    return this.contract;
+  },
+  set subcontract(v) {
+    this.contract = v;
+  },
   cash: [
     { label: "Payments", form: "frmPayments" },
     { label: "Receipts", form: "frmReceipts" },
@@ -179,6 +185,7 @@ const MENUS = {
     { label: "Calibration History and Maintenance", form: "frmCalibrate" }
   ],
   inspection: [
+    { label: "Incoming Material (Purchase SCN)", form: "frmPurchStoreCrNote" },
     { label: "Manufacturing & Labour", children: [
       { label: "Random Samples", form: "frmInspection" },
       { label: "Individual Samples", form: "frmInspectionInde" }

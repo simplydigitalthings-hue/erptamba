@@ -690,6 +690,7 @@ section.grn-window h1,
 .dash-header, 
 .banner,
 .grn-titlebar,
+.scnpurch-titlebar,
 #audit-window > div:first-child,
 #traceability-window > div:first-child,
 #gst-reports > div:first-child {
@@ -714,6 +715,7 @@ section.grn-window h1,
 [data-theme="dark"] .invmfg-titlebar, 
 [data-theme="dark"] .mfgpo-titlebar, 
 [data-theme="dark"] .grn-titlebar,
+[data-theme="dark"] .scnpurch-titlebar,
 [data-theme="dark"] #audit-window > div:first-child,
 [data-theme="dark"] #traceability-window > div:first-child,
 [data-theme="dark"] #gst-reports > div:first-child {
@@ -3000,7 +3002,8 @@ tr[style*="background:#e4e2dc"] {
 }
 
 /* Module close button */
-.invmfg-close-btn {
+.invmfg-close-btn,
+.scnpurch-close-btn {
   width: 24px !important;
   height: 24px !important;
   min-width: 24px !important;
@@ -3021,20 +3024,23 @@ tr[style*="background:#e4e2dc"] {
   box-shadow: none !important;
 }
 
-.invmfg-close-btn:hover {
+.invmfg-close-btn:hover,
+.scnpurch-close-btn:hover {
   background: rgba(255, 59, 48, 0.18) !important;
   color: #ff3b30 !important;
   border-color: rgba(255, 59, 48, 0.3) !important;
   transform: scale(1.06) !important;
 }
 
-[data-theme="dark"] .invmfg-close-btn {
+[data-theme="dark"] .invmfg-close-btn,
+[data-theme="dark"] .scnpurch-close-btn {
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
   color: rgba(235, 235, 245, 0.6) !important;
 }
 
-[data-theme="dark"] .invmfg-close-btn:hover {
+[data-theme="dark"] .invmfg-close-btn:hover,
+[data-theme="dark"] .scnpurch-close-btn:hover {
   background: rgba(255, 69, 58, 0.25) !important;
   color: #ff453a !important;
   border-color: rgba(255, 69, 58, 0.4) !important;
@@ -3254,7 +3260,7 @@ body > section:not(#login-window):not(#main-window):not(#status),
   border-color: var(--border-color) !important; border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-md) !important;
 }
-.invmfg-titlebar, .mfgpo-titlebar, .grn-titlebar, #audit-window > div:first-child,
+.invmfg-titlebar, .mfgpo-titlebar, .grn-titlebar, .scnpurch-titlebar, #audit-window > div:first-child,
 #traceability-window > div:first-child, #gst-reports > div:first-child,
 .status-modal-header, .status-modal-footer {
   background: var(--bg-toolbar) !important; color: var(--text-main) !important;

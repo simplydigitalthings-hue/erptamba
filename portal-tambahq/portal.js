@@ -2,7 +2,10 @@
   'use strict';
 
   const STORAGE_KEY = 'tambahq_recent_workspaces';
-  const BASE_DOMAIN = 'tambahq.in';
+  const hostname = (window.location.hostname || '').toLowerCase();
+  const isBeta = hostname.startsWith('beta.') || hostname.includes('beta');
+  let BASE_DOMAIN = isBeta ? 'beta.tambahq.in' : 'tambahq.in';
+  let appVersion = isBeta ? 'v2.0-beta' : '';
 
   const form = document.getElementById('workspace-form');
   const input = document.getElementById('workspace-input');
@@ -12,6 +15,39 @@
   const recentSection = document.getElementById('recent-workspaces-section');
   const recentList = document.getElementById('recent-list');
   const clearRecentBtn = document.getElementById('clear-recent');
+
+  // Display subtle version tag in corner if on beta
+  function setupEnvBadge() {
+    if (!isBeta && !appVersion) return;
+    let badge = document.getElementById('corner-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'corner-badge';
+      badge.className = 'corner-badge';
+      badge.setAttribute('aria-label', 'Environment version');
+      document.body.appendChild(badge);
+    }
+    badge.textContent = appVersion || 'v2.0-beta';
+    badge.style.display = 'block';
+  }
+
+  // Probe server config for environment details
+  fetch('/check.php?action=info', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(info => {
+      if (info && info.base_domain) {
+        BASE_DOMAIN = info.base_domain;
+      }
+      if (info && info.env === 'beta') {
+        appVersion = info.version || 'v2.0-beta';
+        setupEnvBadge();
+      }
+      updatePreview();
+    })
+    .catch(() => {
+      // Offline or direct static preview fallback
+      if (isBeta) setupEnvBadge();
+    });
 
   function cleanSlug(value) {
     return (value || '')

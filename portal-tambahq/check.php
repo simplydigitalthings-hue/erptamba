@@ -2,6 +2,34 @@
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
+// 1. Load environment configuration if available
+$configFile = __DIR__ . '/config.php';
+$config = file_exists($configFile) ? require $configFile : [];
+
+$appEnv = !empty($config['APP_ENV']) ? $config['APP_ENV'] : (getenv('APP_ENV') ?: 'production');
+$appVersion = !empty($config['APP_VERSION']) ? $config['APP_VERSION'] : 'v2.0-beta';
+$baseDomain = !empty($config['BASE_DOMAIN']) ? $config['BASE_DOMAIN'] : ($appEnv === 'beta' ? 'beta.tambahq.in' : 'tambahq.in');
+
+$connStr = !empty($config['NEON_DB_URL'])
+    ? $config['NEON_DB_URL']
+    : (getenv('NEON_DB_URL') ?: "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require");
+
+$endpoint = !empty($config['NEON_ENDPOINT'])
+    ? $config['NEON_ENDPOINT']
+    : (getenv('NEON_ENDPOINT') ?: "https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql");
+
+// 2. Health / Environment metadata probe endpoint
+if (isset($_GET['action']) && $_GET['action'] === 'info') {
+    echo json_encode([
+        'status' => 'ok',
+        'env' => $appEnv,
+        'version' => $appVersion,
+        'base_domain' => $baseDomain
+    ]);
+    exit;
+}
+
+// 3. Validate slug parameter
 $slug = isset($_GET['slug']) ? trim(strtolower($_GET['slug'])) : '';
 $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
 
@@ -11,9 +39,7 @@ if (empty($slug) || strlen($slug) < 2) {
     exit;
 }
 
-$connStr = "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
-$endpoint = "https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql";
-
+// 4. Query Neon SQL endpoint
 $payload = json_encode([
     'query' => "SELECT slug, deployment_url, access_status FROM platform_companies WHERE slug = $1 AND access_status = 'active' LIMIT 1;",
     'params' => [$slug]
@@ -39,11 +65,12 @@ if ($httpCode === 200 && $response) {
     $data = json_decode($response, true);
     if (!empty($data['rows']) && count($data['rows']) > 0) {
         $row = $data['rows'][0];
-        $targetUrl = !empty($row['deployment_url']) ? $row['deployment_url'] : ('https://' . $slug . '.tambahq.in');
+        $targetUrl = !empty($row['deployment_url']) ? $row['deployment_url'] : ('https://' . $slug . '.' . $baseDomain);
         echo json_encode([
             'slug' => $slug,
             'exists' => true,
-            'url' => $targetUrl
+            'url' => $targetUrl,
+            'env' => $appEnv
         ]);
         exit;
     }
@@ -53,5 +80,6 @@ if ($httpCode === 200 && $response) {
 echo json_encode([
     'slug' => $slug,
     'exists' => false,
-    'url' => null
+    'url' => null,
+    'env' => $appEnv
 ]);

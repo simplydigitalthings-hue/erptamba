@@ -18,3 +18,10 @@ tests_backup.zip
 .DS_Store
 Thumbs.db
 brag-output/
+
+# Environment and Secret Configurations
+portal-tambahq/config.php
+.env
+.env.*
+*.local
+

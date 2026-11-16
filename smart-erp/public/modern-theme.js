@@ -26,7 +26,7 @@
     localStorage.setItem(THEME_STORAGE_KEY, theme);
 
     // Update any theme toggle buttons in the UI
-    const btns = document.querySelectorAll(".theme-toggle-btn");
+    const btns = document.querySelectorAll("#btn-toggle-theme, #dash-btn-theme-toggle");
     btns.forEach((btn) => {
       btn.innerHTML = theme === "dark" ? "☀️ Light Theme" : "🌙 Dark Theme";
       btn.setAttribute("title", `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`);

@@ -52,6 +52,8 @@
       hub.hidden = true;
       hub.style.display = 'none';
     }
+    if (typeof closeIssueDialog === 'function') closeIssueDialog();
+    if (typeof closeCalibDialog === 'function') closeCalibDialog();
   };
 
   async function loadGaugeList(selectGaugeId) {
@@ -826,17 +828,36 @@
       });
     }
 
-    // Issue modal buttons
+    // Issue modal buttons & backdrop
     const btnCloseIssue = getEl('gauge-issue-close');
+    const closeXIssue = getEl('gauge-issue-close-x');
     const btnSubmitIssue = getEl('gauge-issue-submit');
+    const modalIssue = getEl('gauge-issue-modal');
     if (btnCloseIssue) btnCloseIssue.addEventListener('click', closeIssueDialog);
+    if (closeXIssue) closeXIssue.addEventListener('click', closeIssueDialog);
     if (btnSubmitIssue) btnSubmitIssue.addEventListener('click', submitIssueForm);
+    if (modalIssue) {
+      modalIssue.addEventListener('click', (e) => {
+        if (e.target === modalIssue) closeIssueDialog();
+      });
+    }
 
-    // Calib modal buttons
+    // Calib modal buttons & backdrop
     const btnCloseCalib = getEl('calib-modal-close');
+    const closeXCalib = getEl('calib-modal-close-x');
     const btnSubmitCalib = getEl('calib-modal-submit');
+    const modalCalib = getEl('gauge-calib-modal');
     if (btnCloseCalib) btnCloseCalib.addEventListener('click', closeCalibDialog);
+    if (closeXCalib) closeXCalib.addEventListener('click', closeCalibDialog);
     if (btnSubmitCalib) btnSubmitCalib.addEventListener('click', submitCalibForm);
+    if (modalCalib) {
+      modalCalib.addEventListener('click', (e) => {
+        if (e.target === modalCalib) closeCalibDialog();
+      });
+    }
   });
+
+  window.closeIssueDialog = closeIssueDialog;
+  window.closeCalibDialog = closeCalibDialog;
 
 })();

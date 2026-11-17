@@ -174,8 +174,10 @@ test('Feature 5: Frontend HTML Modal & Flex Non-Clipping Constraints', () => {
   assert.ok(html.includes('id="gauge-hub"'), 'index.html must have #gauge-hub modal');
   assert.ok(html.includes('id="gauge-detail-container"'), 'Must have #gauge-detail-container');
   assert.ok(html.includes('id="gauge-list-container"'), 'Must have #gauge-list-container');
-  assert.ok(html.includes('id="gauge-issue-modal"'), 'Must have #gauge-issue-modal dialog');
-  assert.ok(html.includes('id="gauge-calib-modal"'), 'Must have #gauge-calib-modal dialog');
+  assert.ok(html.includes('id="gauge-issue-modal" hidden style="position: fixed; inset: 0; z-index: 1080; background: rgba(0,0,0,0.5); display: none;'), 'Must have display: none on #gauge-issue-modal');
+  assert.ok(html.includes('id="gauge-calib-modal" hidden style="position: fixed; inset: 0; z-index: 1080; background: rgba(0,0,0,0.5); display: none;'), 'Must have display: none on #gauge-calib-modal');
+  assert.ok(html.includes('id="calib-modal-close-x"'), 'Must have close ✕ button on calibration dialog');
+  assert.ok(html.includes('id="gauge-issue-close-x"'), 'Must have close ✕ button on issue dialog');
 
   // Verify flex non-clipping rule
   assert.ok(html.includes('id="gauge-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto;'), 'Must have min-height: 0; height: 100%; constraint on detail container');

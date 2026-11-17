@@ -2184,7 +2184,7 @@ License Date   :   01/04/2008</div>
         <!-- Spectrometer Chemical Analysis & EN 10204 3.1 MTC Generator Window -->
         <section id="spectro-hub" class="invmfg-window" hidden style="z-index: 1065; width: 1120px; max-width: 98vw; background: #f8fafc; border: 2px outset #ffffff; box-shadow: 0 10px 35px rgba(0,0,0,0.5); top: 12px; left: 12px; right: 12px; bottom: 12px; overflow: hidden; display: flex; flex-direction: column;">
           <!-- Titlebar -->
-          <div style="background: linear-gradient(90deg, #134e48, #1c625a); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+          <div style="background: linear-gradient(90deg, #134e48, #1c625a); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 16px;">🧪</span>
               <span>Spectrometer Chemical Analysis &amp; EN 10204 3.1 MTC Generator &bull; Metallurgy &amp; RoHS 6(c) Lab</span>
@@ -2193,7 +2193,7 @@ License Date   :   01/04/2008</div>
           </div>
 
           <!-- Controls Header -->
-          <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
                 <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
@@ -2209,18 +2209,18 @@ License Date   :   01/04/2008</div>
           </div>
 
           <!-- Main Split View -->
-          <div style="flex: 1; display: flex; overflow: hidden; background: #f1f5f9;">
+          <div style="flex: 1; min-height: 0; height: 100%; display: flex; overflow: hidden; background: #f1f5f9;">
             <!-- Left List -->
-            <div style="width: 360px; border-right: 1px solid #cbd5e1; background: #fff; display: flex; flex-direction: column;">
-              <div style="padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 11px; font-weight: bold; color: #475569; display: flex; justify-content: space-between;">
+            <div style="width: 360px; min-height: 0; border-right: 1px solid #cbd5e1; background: #fff; display: flex; flex-direction: column;">
+              <div style="padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 11px; font-weight: bold; color: #475569; display: flex; justify-content: space-between; flex-shrink: 0;">
                 <span>Chemical Analyzed Heats</span>
                 <span id="spectro-count-badge">0 heats</span>
               </div>
-              <div id="spectro-list-container" style="flex: 1; overflow-y: auto; padding: 6px;"></div>
+              <div id="spectro-list-container" style="flex: 1; min-height: 0; overflow-y: auto; padding: 6px;"></div>
             </div>
 
             <!-- Right Detail View -->
-            <div id="spectro-detail-container" style="flex: 1; overflow-y: auto; padding: 16px; background: #f8fafc;">
+            <div id="spectro-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
                 <span style="font-size: 36px; margin-bottom: 8px;">🧪</span>
                 <p style="font-size: 14px; font-weight: bold;">Select a Heat Record or Create a New Chemical Analysis</p>

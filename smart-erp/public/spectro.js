@@ -412,6 +412,21 @@
             <label style="display: block; font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 4px;">Metallurgical Remarks &amp; Certification Notes</label>
             <textarea id="spectro-remarks" rows="2" style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px;">${esc(data.remarks || '')}</textarea>
           </div>
+
+          <!-- Section 5: Bottom Action Bar for Easy Access -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0 10px 0; border-top: 1.5px solid #e2e8f0; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 11px; color: #64748b; font-weight: 500;">
+              EN 10204 3.1 &bull; RoHS Exemption 6(c) &bull; Optical Emission Spectrometry
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" id="spectro-btn-print-bottom" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 7px 16px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
+                <span>📄</span> Print MTC 3.1
+              </button>
+              <button type="button" id="spectro-btn-save-bottom" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 7px 18px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
+                <span>💾</span> Save Analysis
+              </button>
+            </div>
+          </div>
         </form>
       </div>
     `;
@@ -613,6 +628,16 @@
           btnSave.innerHTML = `<span>💾</span> Save Analysis`;
         }
       });
+    }
+
+    // Bottom action buttons
+    const btnPrintBottom = document.getElementById("spectro-btn-print-bottom");
+    if (btnPrintBottom && btnPrint) {
+      btnPrintBottom.addEventListener("click", () => btnPrint.click());
+    }
+    const btnSaveBottom = document.getElementById("spectro-btn-save-bottom");
+    if (btnSaveBottom && btnSave) {
+      btnSaveBottom.addEventListener("click", () => btnSave.click());
     }
 
     recalculateChemicalSum();

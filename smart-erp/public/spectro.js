@@ -234,9 +234,9 @@
     const currentPreset = presetsCache[data.alloy_grade] || presetsCache["IS 319 Gr 1"] || {};
 
     detailContainer.innerHTML = `
-      <div style="background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: visible;">
-        <!-- Sticky Card Header with Action Buttons -->
-        <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; position: sticky; top: -16px; z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+      <div style="background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;">
+        <!-- Card Header with Action Buttons -->
+        <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 16px;">🧪</span>
@@ -261,7 +261,7 @@
           </div>
         </div>
 
-        <form id="spectro-form" style="padding: 16px 16px 48px 16px; display: flex; flex-direction: column; gap: 16px;">
+        <form id="spectro-form" style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
           <!-- Section 1: Heat Identification & Specification -->
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
             <div style="font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
@@ -411,21 +411,6 @@
           <div>
             <label style="display: block; font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 4px;">Metallurgical Remarks &amp; Certification Notes</label>
             <textarea id="spectro-remarks" rows="2" style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px;">${esc(data.remarks || '')}</textarea>
-          </div>
-
-          <!-- Section 5: Bottom Action Bar for Quick Access -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0 10px 0; border-top: 1.5px solid #e2e8f0; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
-            <div style="font-size: 11px; color: #64748b; font-weight: 500;">
-              EN 10204 3.1 compliant &bull; RoHS Exemption 6(c) &bull; Optical Emission Spectrometry
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button type="button" id="spectro-btn-print-bottom" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 7px 16px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-                <span>📄</span> Print MTC 3.1
-              </button>
-              <button type="button" id="spectro-btn-save-bottom" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 7px 18px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-                <span>💾</span> Save Analysis
-              </button>
-            </div>
           </div>
         </form>
       </div>
@@ -628,16 +613,6 @@
           btnSave.innerHTML = `<span>💾</span> Save Analysis`;
         }
       });
-    }
-
-    // Bottom action buttons
-    const btnPrintBottom = document.getElementById("spectro-btn-print-bottom");
-    if (btnPrintBottom && btnPrint) {
-      btnPrintBottom.addEventListener("click", () => btnPrint.click());
-    }
-    const btnSaveBottom = document.getElementById("spectro-btn-save-bottom");
-    if (btnSaveBottom && btnSave) {
-      btnSaveBottom.addEventListener("click", () => btnSave.click());
     }
 
     recalculateChemicalSum();

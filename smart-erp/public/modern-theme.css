@@ -2904,9 +2904,7 @@ button[id$="-close"]:hover,
 /* 5. Modal scrims remain confined to the workspace */
 #audit-window,
 #traceability-window,
-#gst-reports,
-#traveler-hub,
-#spectro-hub {
+#gst-reports {
   position: fixed !important;
   top: 50% !important;
   left: calc(var(--nav-width) + (100vw - var(--nav-width)) / 2) !important;
@@ -2925,9 +2923,7 @@ button[id$="-close"]:hover,
 
 #audit-window::before,
 #traceability-window::before,
-#gst-reports::before,
-#traveler-hub::before,
-#spectro-hub::before {
+#gst-reports::before {
   content: "";
   position: fixed;
   top: 0;
@@ -3146,7 +3142,7 @@ h1, h2, h3, h4, h5, h6, .heading, .window-title, .form-title, legend {
   letter-spacing: .13em;
 }
 .stage { min-width: 0; }
-:is(#main-window .stage > section, body > section):where(:not(#main-window, #status, #audit-window, #traceability-window, #gst-reports, #traveler-hub, #spectro-hub)) {
+:is(#main-window .stage > section, body > section):where(:not(#main-window, #status)) {
   overflow: auto !important;
   color: var(--text-main) !important;
   background: var(--bg-surface) !important;
@@ -4263,34 +4259,4 @@ body.theme-dark .item-modal-body-scroll::-webkit-scrollbar-thumb {
 
 .traveler-filter-tab:hover {
   background: #f1f5f9 !important;
-}
-
-/* Ensure internal scroll containers in route card and spectro hubs have bounded height and active scroll */
-#spectro-hub, #traveler-hub {
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-}
-#spectro-hub .invmfg-card, #traveler-hub .invmfg-card {
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-}
-#spectro-detail-container, #traveler-detail-container {
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-  height: 100% !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: #94a3b8 #f1f5f9 !important;
-}
-#spectro-list-container, #traveler-list-container {
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-  height: 100% !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
 }

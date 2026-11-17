@@ -23,9 +23,9 @@ return [
 
     // Neon Database Connection String:
     // Use the Beta branch pooler string for Beta, and the main branch string for Production.
-    'NEON_DB_URL' => 'postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+    'NEON_DB_URL' => 'postgresql://user:password@ep-sample-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
 
     // Neon HTTP SQL API Endpoint:
     // https://<project-endpoint-id>.c-3.ap-southeast-1.aws.neon.tech/sql
-    'NEON_ENDPOINT' => 'https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql',
+    'NEON_ENDPOINT' => 'https://ep-sample.c-3.ap-southeast-1.aws.neon.tech/sql',
 ];

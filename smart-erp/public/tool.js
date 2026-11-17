@@ -58,17 +58,27 @@
     return `${parts[2]}-${parts[1]}-${parts[0]}`;
   }
 
+  function esc(val) {
+    return String(val ?? "").replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[m]);
+  }
+
   function paint() {
     document.querySelector("#tool-asof").textContent = `Materials Issued As On ${asOf(document.querySelector("#tool-date").value)}`;
-    document.querySelector("#tool-store").innerHTML = `<option value=""></option>${data.stores.map((row) => `<option value="${row.id}">${row.name}</option>`).join("")}`;
-    document.querySelector("#tool-category").innerHTML = data.categories.map((row) => `<option value="${row.id}">${row.name}</option>`).join("");
+    document.querySelector("#tool-store").innerHTML = `<option value=""></option>${data.stores.map((row) => `<option value="${esc(row.id)}">${esc(row.name)}</option>`).join("")}`;
+    document.querySelector("#tool-category").innerHTML = data.categories.map((row) => `<option value="${esc(row.id)}">${esc(row.name)}</option>`).join("");
     const items = data.items.length ? [{ id: 0, code: "ALL" }, ...data.items] : [];
-    document.querySelector("#tool-item").innerHTML = items.map((row) => `<option value="${row.id}">${row.code}</option>`).join("");
+    document.querySelector("#tool-item").innerHTML = items.map((row) => `<option value="${esc(row.id)}">${esc(row.code)}</option>`).join("");
     document.querySelector("#tool-stock-grid").innerHTML = `<table><thead><tr><th>Sl.No</th><th>Item</th><th>Qty</th></tr></thead><tbody>${
-      data.stock.map((row) => `<tr data-stock="${row.id}"><td>${row.sl}</td><td>${row.code}</td><td>${row.qty}</td></tr>`).join("")
+      data.stock.map((row) => `<tr data-stock="${esc(row.id)}"><td>${esc(row.sl)}</td><td>${esc(row.code)}</td><td>${esc(row.qty)}</td></tr>`).join("")
     }</tbody></table>`;
     document.querySelector("#tool-open-grid").innerHTML = `<table><thead><tr><th>Sl.No</th><th>Issued To</th><th>Item</th><th>Qty Issued</th><th>Date Issued</th></tr></thead><tbody>${
-      data.open.map((row) => `<tr data-open="${row.entryId}"><td>${row.sl}</td><td>${row.whom}</td><td>${row.code}</td><td>${row.qty}</td><td>${row.date}</td></tr>`).join("")
+      data.open.map((row) => `<tr data-open="${esc(row.entryId)}"><td>${esc(row.sl)}</td><td>${esc(row.whom)}</td><td>${esc(row.code)}</td><td>${esc(row.qty)}</td><td>${esc(row.date)}</td></tr>`).join("")
     }</tbody></table>`;
   }
 

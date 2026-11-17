@@ -8,12 +8,6 @@ $isBetaHost = (strpos($httpHost, 'beta.') === 0) || (strpos($httpHost, 'beta') !
 
 $defaultEnv = $isBetaHost ? 'beta' : 'production';
 $defaultDomain = $isBetaHost ? 'beta.tambahq.in' : 'tambahq.in';
-$defaultConnStr = $isBetaHost
-    ? "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-restless-dawn-az4e43w8-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
-    : "postgresql://neondb_owner:npg_cDAhNC0Y6Epu@ep-holy-union-az9dr80o-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
-$defaultEndpoint = $isBetaHost
-    ? "https://ep-restless-dawn-az4e43w8.c-3.ap-southeast-1.aws.neon.tech/sql"
-    : "https://ep-holy-union-az9dr80o.c-3.ap-southeast-1.aws.neon.tech/sql";
 
 // 2. Load explicit config.php override if available
 $configFile = __DIR__ . '/config.php';
@@ -25,11 +19,11 @@ $baseDomain = !empty($config['BASE_DOMAIN']) ? $config['BASE_DOMAIN'] : (getenv(
 
 $connStr = !empty($config['NEON_DB_URL'])
     ? $config['NEON_DB_URL']
-    : (getenv('NEON_DB_URL') ?: $defaultConnStr);
+    : (getenv('NEON_DB_URL') ?: '');
 
 $endpoint = !empty($config['NEON_ENDPOINT'])
     ? $config['NEON_ENDPOINT']
-    : (getenv('NEON_ENDPOINT') ?: $defaultEndpoint);
+    : (getenv('NEON_ENDPOINT') ?: '');
 
 // 3. Health / Environment metadata probe endpoint
 if (isset($_GET['action']) && $_GET['action'] === 'info') {

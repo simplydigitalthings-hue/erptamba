@@ -95,8 +95,10 @@ function applyButtons() {
 function fillRecord(record) {
   userCode = record ? record.userCode : null;
   userName.value = record ? record.username : "";
-  userPassword.value = record ? record.password : "";
-  userConfirm.value = record ? record.password : "";
+  userPassword.value = "";
+  userPassword.placeholder = record ? "(Leave blank to keep unchanged)" : "";
+  userConfirm.value = "";
+  userConfirm.placeholder = record ? "(Leave blank to keep unchanged)" : "";
   mode = "edit";
   applyButtons();
   const name = record ? record.username : "";
@@ -268,11 +270,11 @@ async function confirmSave() {
     showInfo("Please Enter the user Name.....", () => focusField("name"));
     return;
   }
-  if (password === "") {
+  if (mode === "new" && password === "") {
     showInfo("Please Enter the Password.....", () => focusField("password"));
     return;
   }
-  if (password !== confirm) {
+  if (password !== "" && password !== confirm) {
     showInfo("Your Passwords are not Identical .....", () => focusField("password", true));
     return;
   }

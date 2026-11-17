@@ -280,12 +280,65 @@ async function factoryId() {
   return result.rows[0].id;
 }
 
+// In-memory sliding window rate limiter for brute-force protection
+const loginAttemptsMap = new Map();
+
+function checkLoginRateLimit(ip, username) {
+  const now = Date.now();
+  const maxAttempts = 5;
+  const keys = [`ip:${ip}`, `user:${String(username || "").toLowerCase().trim()}`];
+
+  if (loginAttemptsMap.size > 2000) {
+    for (const [k, v] of loginAttemptsMap.entries()) {
+      if (v.resetAt < now) loginAttemptsMap.delete(k);
+    }
+  }
+
+  for (const key of keys) {
+    const record = loginAttemptsMap.get(key);
+    if (record && record.resetAt > now) {
+      if (record.count >= maxAttempts) {
+        const remainingMinutes = Math.ceil((record.resetAt - now) / 60000);
+        return { limited: true, remainingMinutes };
+      }
+    }
+  }
+  return { limited: false };
+}
+
+function recordLoginFailure(ip, username) {
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000;
+  const keys = [`ip:${ip}`, `user:${String(username || "").toLowerCase().trim()}`];
+  for (const key of keys) {
+    const record = loginAttemptsMap.get(key);
+    if (!record || record.resetAt < now) {
+      loginAttemptsMap.set(key, { count: 1, resetAt: now + windowMs });
+    } else {
+      record.count += 1;
+    }
+  }
+}
+
+function clearLoginFailures(ip, username) {
+  loginAttemptsMap.delete(`ip:${ip}`);
+  loginAttemptsMap.delete(`user:${String(username || "").toLowerCase().trim()}`);
+}
+
 async function handleLogin(req, res) {
   const body = await readBody(req);
   const username = String(body.username ?? "");
   const password = String(body.password ?? "");
   const selected = String(body.yearLabel ?? "");
   const confirmPreviousYear = body.confirmPreviousYear === true;
+
+  const clientIp = req.socket ? req.socket.remoteAddress : "127.0.0.1";
+  const rateLimitStatus = checkLoginRateLimit(clientIp, username);
+  if (rateLimitStatus.limited) {
+    return sendJson(res, 429, {
+      error: `Too many failed login attempts. Please try again in ${rateLimitStatus.remainingMinutes} minute(s).`
+    });
+  }
 
   const fid = await factoryId();
   const years = await pool.query(
@@ -317,6 +370,7 @@ async function handleLogin(req, res) {
     ? await verifyPassword(password, row.password_stored)
     : row.password_stored === encrypDecryp(password));
   if (!row || !isMatch) {
+    recordLoginFailure(clientIp, username);
     await recordAuditLog(pool, {
       factoryId: fid,
       yearLabel: selected,
@@ -330,6 +384,8 @@ async function handleLogin(req, res) {
     });
     return sendJson(res, 401, { error: " Invalid Password ..." });
   }
+
+  clearLoginFailures(clientIp, username);
 
   const id = crypto.randomBytes(24).toString("hex");
   await pool.query(
@@ -576,7 +632,7 @@ function userView(row) {
   return {
     userCode: row.user_code,
     username: row.username,
-    password: isPasswordHash(row.password_stored) ? "" : encrypDecryp(row.password_stored)
+    password: ""
   };
 }
 
@@ -630,10 +686,10 @@ async function handleUsersSave(req, res) {
   if (username === "") {
     return sendJson(res, 200, { ok: false, focus: "name", message: "Please Enter the user Name....." });
   }
-  if (password === "") {
+  if (mode === "new" && password === "") {
     return sendJson(res, 200, { ok: false, focus: "password", message: "Please Enter the Password....." });
   }
-  if (password !== confirm) {
+  if (password !== "" && password !== confirm) {
     return sendJson(res, 200, {
       ok: false,
       focus: "password",
@@ -658,23 +714,13 @@ async function handleUsersSave(req, res) {
     });
   }
 
-  let stored;
-  if (ERP_MODE === "customer") {
-    try { stored = await hashPassword(password); }
-    catch (error) { return sendJson(res, 200, { ok: false, focus: "password", message: error.message }); }
-  } else {
-    // Keep legacy deployments compatible, but never downgrade an invited
-    // administrator's hashed credential if edited through User Details.
-    const prior = mode === "edit" ? await pool.query(
-      "SELECT password_stored FROM users WHERE factory_id=$1 AND year_label=$2 AND user_code=$3",
-      [session.factory_id, session.year_label, userCode]
-    ) : null;
-    if (prior?.rows[0] && isPasswordHash(prior.rows[0].password_stored)) {
-      try { stored = await hashPassword(password); }
-      catch (error) { return sendJson(res, 200, { ok: false, focus: "password", message: error.message }); }
-    } else stored = encrypDecryp(password);
-  }
   if (mode === "new") {
+    let stored;
+    try {
+      stored = await hashPassword(password);
+    } catch (error) {
+      return sendJson(res, 200, { ok: false, focus: "password", message: error.message });
+    }
     await pool.query(
       `INSERT INTO users (factory_id, username, password_stored, year_label, user_code)
        VALUES ($1, $2, $3, $4, $5)`,
@@ -688,12 +734,28 @@ async function handleUsersSave(req, res) {
     return sendJson(res, 200, { ok: true, title: session.factory_name, message: "Records Saved!" });
   }
 
-  const updated = await pool.query(
-    `UPDATE users SET username = $1, password_stored = $2
-     WHERE factory_id = $3 AND year_label = $4 AND user_code = $5`,
-    [username, stored, session.factory_id, session.year_label, userCode]
-  );
-  if (updated.rowCount === 0) return sendJson(res, 200, { ok: false });
+  // Edit mode: if password provided, hash and update; if empty, leave existing password intact
+  if (password !== "") {
+    let stored;
+    try {
+      stored = await hashPassword(password);
+    } catch (error) {
+      return sendJson(res, 200, { ok: false, focus: "password", message: error.message });
+    }
+    const updated = await pool.query(
+      `UPDATE users SET username = $1, password_stored = $2
+       WHERE factory_id = $3 AND year_label = $4 AND user_code = $5`,
+      [username, stored, session.factory_id, session.year_label, userCode]
+    );
+    if (updated.rowCount === 0) return sendJson(res, 200, { ok: false });
+  } else {
+    const updated = await pool.query(
+      `UPDATE users SET username = $1
+       WHERE factory_id = $2 AND year_label = $3 AND user_code = $4`,
+      [username, session.factory_id, session.year_label, userCode]
+    );
+    if (updated.rowCount === 0) return sendJson(res, 200, { ok: false });
+  }
   return sendJson(res, 200, { ok: true, title: session.factory_name, message: "Records Modified!" });
 }
 
@@ -784,6 +846,10 @@ async function handleUserRightsSave(req, res) {
   const body = await readBody(req);
   const userCode = Number(body.userCode);
   if (!Number.isInteger(userCode) || userCode === 1) return sendJson(res, 200, { ok: false });
+  // Privilege Escalation Defense: Users cannot modify their own permissions
+  if (userCode === session.user_code) {
+    return sendJson(res, 403, { ok: false, error: "Users cannot alter their own permission rights." });
+  }
   const own = await loadRights(session);
   if (!own || !(rightsByte(own.mnuUserRight) > 3)) return sendJson(res, 403, { ok: false });
   const header = await pool.query(
@@ -9572,6 +9638,36 @@ async function handleCorresCount(req, res, url) {
   });
 }
 
+function isAllowedUploadBuffer(buffer, filename) {
+  if (!buffer || buffer.length < 4) return false;
+  const lower = String(filename || "").toLowerCase();
+  const blockedExtensions = [
+    ".exe", ".bat", ".cmd", ".sh", ".ps1", ".vbs", ".msi", ".jar",
+    ".html", ".htm", ".xhtml", ".shtml", ".php", ".phtml", ".svg",
+    ".js", ".mjs", ".cgi", ".pl", ".py", ".rb", ".asp", ".aspx"
+  ];
+  if (blockedExtensions.some((ext) => lower.endsWith(ext))) return false;
+
+  // Magic byte checks
+  // PDF: %PDF-
+  if (buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) return true;
+  // PNG: \x89PNG
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return true;
+  // JPEG: 0xFF 0xD8 0xFF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return true;
+  // PK zip-based (XLSX, DOCX, etc.)
+  if (buffer[0] === 0x50 && buffer[1] === 0x4b && buffer[2] === 0x03 && buffer[3] === 0x04) return true;
+  // RIFF (WEBP)
+  if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) return true;
+
+  // Plain text / CSV
+  const sample = buffer.slice(0, Math.min(buffer.length, 512)).toString("utf8");
+  if (!/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(sample) && !/<\s*(script|html|body|svg|object|embed)/i.test(sample)) {
+    if (lower.endsWith(".txt") || lower.endsWith(".csv")) return true;
+  }
+  return false;
+}
+
 async function handleCorresSave(req, res) {
   const session = await openSession(req);
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
@@ -9579,6 +9675,14 @@ async function handleCorresSave(req, res) {
   const name = String(body.name || "").trim();
   const data = Buffer.from(String(body.data || ""), "base64");
   if (!name || !data.length) return sendJson(res, 200, { error: "Choose a file first." });
+
+  // Unrestricted file upload defense: Magic byte header and dangerous extension check
+  if (!isAllowedUploadBuffer(data, name)) {
+    return sendJson(res, 400, {
+      error: "Unsupported or unsafe file type. Only verified PDF, PNG, JPG, WEBP, XLSX, DOCX, and CSV files are permitted."
+    });
+  }
+
   const next = await pool.query(
     "SELECT COALESCE(MAX(id), 0) + 1 AS id FROM file_corres WHERE factory_id = $1 AND year_label = $2",
     [session.factory_id, session.year_label]
@@ -9613,7 +9717,8 @@ async function handleCorresFile(req, res, url) {
   const name = String(row.rows[0].file_name || "file").replace(/["\\\r\n]/g, "");
   res.writeHead(200, {
     "Content-Type": "application/octet-stream",
-    "Content-Disposition": `inline; filename="${name}"`,
+    "Content-Disposition": `attachment; filename="${name}"`,
+    "X-Content-Type-Options": "nosniff",
     "Cache-Control": "no-store"
   });
   res.end(row.rows[0].file_data);
@@ -15494,6 +15599,32 @@ async function handleInvoiceMfgSave(req, res) {
     const igstAmt = Number(body.igstAmt || 0);
     const totalGst = Number(body.totalGst || 0);
     const roundOff = Number(body.roundOff || 0);
+
+    // Business Logic / Price Tampering Defense:
+    // Validate line item amounts from dcinvsub to verify server-side invoice total integrity
+    const lineSubRes = await client.query(
+      `SELECT COALESCE(SUM(COALESCE(amt, qty * rate, 0)), 0) AS goods_total
+       FROM dcinvsub
+       WHERE factory_id = $1 AND year_label = $2 AND dcinvid = ANY($3::int[])`,
+      [session.factory_id, session.year_label, dcIds]
+    );
+    const goodsTotal = Number(lineSubRes.rows[0]?.goods_total || 0);
+    if (goodsTotal > 0) {
+      const expectedTaxable = goodsTotal + packForwardInRs + anyOtherChrg;
+      let expectedGst = 0;
+      if (igstRate > 0) {
+        expectedGst = Math.round(expectedTaxable * (igstRate / 100) * 100) / 100;
+      } else if (cgstRate > 0 || sgstRate > 0) {
+        expectedGst = Math.round(expectedTaxable * ((cgstRate + sgstRate) / 100) * 100) / 100;
+      }
+      const expectedTotal = expectedTaxable + expectedGst + roundOff;
+      if (Math.abs(expectedTotal - totVal) > 10.0) {
+        await client.query("ROLLBACK");
+        return sendJson(res, 400, {
+          error: `Invoice total verification failed: calculated value (₹${expectedTotal.toFixed(2)}) deviates significantly from submitted value (₹${totVal}).`
+        });
+      }
+    }
 
     // Update each DC in dcinv
     for (const dcId of dcIds) {
@@ -24634,6 +24765,30 @@ async function handlePrintRoute(req, res, url) {
     const year = Number(url.searchParams.get("year"));
     const month = Number(url.searchParams.get("month"));
     const staffId = Number(url.searchParams.get("staffId"));
+
+    // BOLA/IDOR Protection: Validate requesting user has HR/Admin rights or is viewing their own payslip
+    const rights = await loadRights(session);
+    const hasHrRights = Boolean(
+      session.user_code === 1 ||
+      session.role_key === "BUSINESS_OWNER" ||
+      session.role_key === "PLANT_MANAGER" ||
+      (rights && ((rights.mnuStaff && (Number(rights.mnuStaff) & 255) > 0) || (rights.mnuSalHead && (Number(rights.mnuSalHead) & 255) > 0)))
+    );
+
+    let isSelf = false;
+    if (!hasHrRights) {
+      const matchStaff = await pool.query(
+        "SELECT 1 FROM staff WHERE factory_id = $1 AND staff_id = $2 AND LOWER(TRIM(staff_name)) = LOWER(TRIM($3))",
+        [session.factory_id, staffId, session.username]
+      );
+      isSelf = matchStaff.rowCount > 0;
+    }
+
+    if (!hasHrRights && !isSelf) {
+      res.writeHead(403, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Access Denied: You do not have permission to view this employee salary record.</h3>");
+      return;
+    }
 
     const compRow = await pool.query(
       `SELECT print_head, print_short_addr FROM misc WHERE factory_id = $1 LIMIT 1`,

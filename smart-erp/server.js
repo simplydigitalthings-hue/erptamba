@@ -45,6 +45,21 @@ const {
   renderCartonLabelHtml,
   renderMasterPackingListHtml
 } = require("./packing-engine");
+const {
+  THREAD_PRESETS,
+  getThreadPresets,
+  calculateWearLife,
+  calculateCalibrationDue,
+  getGaugeList,
+  getGaugeById,
+  saveGauge,
+  logCalibration,
+  issueReturnGauge,
+  incrementGaugeCycles,
+  deleteGauge,
+  generateGaugeStickerHtml,
+  generateMasterGaugeScheduleHtml
+} = require("./gauge-engine");
 const { calculateStockValuation } = require("./valuation-engine");
 const {
   generateInvoicePdf,
@@ -7031,6 +7046,155 @@ async function handlePackingDelete(req, res) {
     return sendJson(res, 200, { ok: success, message: success ? "Packing consignment deleted" : "Consignment not found" });
   } catch (err) {
     console.error("Packing delete error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeList(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const q = url.searchParams.get("q") || "";
+    const status = url.searchParams.get("status") || "";
+    const standard = url.searchParams.get("standard") || "";
+    const limit = url.searchParams.get("limit") || 50;
+    const offset = url.searchParams.get("offset") || 0;
+    const data = await getGaugeList(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      q,
+      status,
+      standard,
+      limit,
+      offset
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Gauge list error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const gaugeId = Number(url.searchParams.get("id") || url.searchParams.get("gauge_id") || 0);
+    const data = await getGaugeById(pool, {
+      factoryId: session.factory_id,
+      gaugeId
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Gauge get error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugePresets(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const presets = getThreadPresets();
+    return sendJson(res, 200, { ok: true, presets });
+  } catch (err) {
+    console.error("Gauge presets error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await saveGauge(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      gaugeData: body,
+      user: session.username || "Metrology Lab"
+    });
+    return sendJson(res, 200, { ok: true, message: "Thread gauge saved successfully", data: saved });
+  } catch (err) {
+    console.error("Gauge save error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeLogCalib(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await logCalibration(pool, {
+      factoryId: session.factory_id,
+      logData: body,
+      user: session.username || "Metrology Lab"
+    });
+    return sendJson(res, 200, { ok: true, message: "Calibration event logged successfully", data: saved });
+  } catch (err) {
+    console.error("Gauge log calib error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeIssue(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await issueReturnGauge(pool, {
+      factoryId: session.factory_id,
+      gaugeId: body.gauge_id,
+      location: body.location,
+      issuedTo: body.issued_to,
+      user: session.username || "Tool Crib"
+    });
+    return sendJson(res, 200, { ok: true, message: "Gauge location / issuance updated", data: saved });
+  } catch (err) {
+    console.error("Gauge issue error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeIncrement(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await incrementGaugeCycles(pool, {
+      factoryId: session.factory_id,
+      gaugeId: body.gauge_id,
+      cycleIncrement: body.increment || 100,
+      user: session.username || "Operator"
+    });
+    return sendJson(res, 200, { ok: true, message: "Cycles updated successfully", data: saved });
+  } catch (err) {
+    console.error("Gauge cycle increment error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleGaugeDelete(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const success = await deleteGauge(pool, {
+      factoryId: session.factory_id,
+      gaugeId: body.id || body.gauge_id
+    });
+    return sendJson(res, 200, { ok: success, message: success ? "Gauge deleted" : "Gauge not found" });
+  } catch (err) {
+    console.error("Gauge delete error:", err);
     return sendJson(res, 500, { ok: false, message: err.message });
   }
 }
@@ -28033,6 +28197,45 @@ async function handlePrintRoute(req, res, url) {
     return;
   }
 
+  if (type === "gauge_label" || type === "gauge_sticker") {
+    const rawId = Number(url.searchParams.get("id") || id || 0);
+    const gauge = await getGaugeById(pool, {
+      factoryId: session.factory_id,
+      gaugeId: rawId
+    });
+    if (!gauge) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Thread Gauge record not found.</h3>");
+      return;
+    }
+    const misc = await pool.query("SELECT print_head, print_short_addr FROM misc WHERE factory_id = $1 AND year_label = $2", [session.factory_id, session.year_label]);
+    const company = {
+      name: (misc.rows[0] && misc.rows[0].print_head) || "BHARANI BRASS INDUSTRIES",
+      address: (misc.rows[0] && misc.rows[0].print_short_addr) || ""
+    };
+    const printHtml = await generateGaugeStickerHtml(gauge, company);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
+  if (type === "gauge_schedule" || type === "gauge_register") {
+    const gauges = await getGaugeList(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      limit: 500
+    });
+    const misc = await pool.query("SELECT print_head, print_short_addr FROM misc WHERE factory_id = $1 AND year_label = $2", [session.factory_id, session.year_label]);
+    const company = {
+      name: (misc.rows[0] && misc.rows[0].print_head) || "BHARANI BRASS INDUSTRIES",
+      address: (misc.rows[0] && misc.rows[0].print_short_addr) || ""
+    };
+    const printHtml = generateMasterGaugeScheduleHtml(gauges, company);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
   if (type === "po" || type === "purch-po") {
     const rawId = Number(url.searchParams.get("id") || id || 0);
     const bundle = await poBundle(session, rawId);
@@ -31351,6 +31554,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/packing/item-apw") return await handlePackingItemApw(req, res, url);
     if (req.method === "POST" && url.pathname === "/api/packing/save") return await handlePackingSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/packing/delete") return await handlePackingDelete(req, res);
+    if (req.method === "GET" && url.pathname === "/api/gauge/list") return await handleGaugeList(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/gauge/get") return await handleGaugeGet(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/gauge/presets") return await handleGaugePresets(req, res);
+    if (req.method === "POST" && url.pathname === "/api/gauge/save") return await handleGaugeSave(req, res);
+    if (req.method === "POST" && url.pathname === "/api/gauge/log-calib") return await handleGaugeLogCalib(req, res);
+    if (req.method === "POST" && url.pathname === "/api/gauge/issue") return await handleGaugeIssue(req, res);
+    if (req.method === "POST" && url.pathname === "/api/gauge/increment") return await handleGaugeIncrement(req, res);
+    if (req.method === "POST" && url.pathname === "/api/gauge/delete") return await handleGaugeDelete(req, res);
     if (req.method === "GET" && url.pathname === "/api/scn") return await handleScnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/save") return await handleScnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/delete") return await handleScnDelete(req, res);

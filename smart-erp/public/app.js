@@ -75,7 +75,8 @@ const FORM_RIGHTS = {
   frmInspectionSC: "mnuInsSubCon",
   frmInspectionIn: "mnuInsCommon",
   frmSpectroMTC: "mnuInsCommon",
-  frmPackingSlip: "mnuSalesDC"
+  frmPackingSlip: "mnuSalesDC",
+  frmGaugeRegister: "mnuCalibrate"
 };
 
 const MENUS = {
@@ -188,7 +189,8 @@ const MENUS = {
     { label: "Maintenance Schedule", form: "frmMaintain" },
     { label: "Maintenance Process", form: "frmMaintainPro" },
     { label: "BreakDown Maintenance", form: "frmBrkDnMaint" },
-    { label: "Calibration History and Maintenance", form: "frmCalibrate" }
+    { label: "Calibration History and Maintenance", form: "frmCalibrate" },
+    { label: "Thread Gauge Calibration & Wear Register", form: "frmGaugeRegister" }
   ],
   inspection: [
     { label: "Incoming Material (Purchase SCN)", form: "frmPurchStoreCrNote" },
@@ -198,7 +200,8 @@ const MENUS = {
     ]},
     { label: "SubContract", form: "frmInspectionSC" },
     { label: "Inspection COMMON", form: "frmInspectionIn" },
-    { label: "Spectro Chemical Analysis & MTC 3.1", form: "frmSpectroMTC" }
+    { label: "Spectro Chemical Analysis & MTC 3.1", form: "frmSpectroMTC" },
+    { label: "Thread Gauge Calibration & Wear Life Register", form: "frmGaugeRegister" }
   ],
   utilities: [
     { label: "Conversion", form: "frmConv" },
@@ -364,6 +367,7 @@ function renderMenu(items, anchor) {
       if (item.form !== "frmRouteTraveler" && window.closeTravelerHub) window.closeTravelerHub();
       if (item.form !== "frmSpectroMTC" && window.closeSpectroHub) window.closeSpectroHub();
       if (item.form !== "frmPackingSlip" && window.closePackingHub) window.closePackingHub();
+      if (item.form !== "frmGaugeRegister" && window.closeGaugeHub) window.closeGaugeHub();
       if (item.form !== "frmAssmReqAnaly" && window.closeAssm) window.closeAssm();
       if (item.form !== "frmMatReqAnaly" && window.closeMat) window.closeMat();
       if (item.form !== "frmPlanY" && window.closePlan) window.closePlan();
@@ -917,6 +921,14 @@ function renderMenu(items, anchor) {
         if (window.closeIwo) window.closeIwo();
         if (window.closeScn) window.closeScn();
         if (window.openPackingHub) window.openPackingHub();
+        return;
+      }
+      if (item.form === "frmGaugeRegister") {
+        if (window.closeCompany) window.closeCompany();
+        if (window.closeProdn) window.closeProdn();
+        if (window.closeIwo) window.closeIwo();
+        if (window.closeScn) window.closeScn();
+        if (window.openGaugeHub) window.openGaugeHub();
         return;
       }
       if (item.form === "frmProdn") {

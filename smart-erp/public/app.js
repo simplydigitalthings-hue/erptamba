@@ -74,7 +74,8 @@ const FORM_RIGHTS = {
   frmInspectionInde: "mnuInsMfgLabIndivi",
   frmInspectionSC: "mnuInsSubCon",
   frmInspectionIn: "mnuInsCommon",
-  frmSpectroMTC: "mnuInsCommon"
+  frmSpectroMTC: "mnuInsCommon",
+  frmPackingSlip: "mnuSalesDC"
 };
 
 const MENUS = {
@@ -118,7 +119,8 @@ const MENUS = {
     { label: "Internal Work Order cum Material Issue", form: "frmProdnWOIssue" },
     { label: "Produced Material - Return", form: "frmProdnWOReturn" },
     { label: "Store Credit Note", form: "frmProdnStoreCrNote" },
-    { label: "Digital Route Card & QR Traveler", form: "frmRouteTraveler" }
+    { label: "Digital Route Card & QR Traveler", form: "frmRouteTraveler" },
+    { label: "Piece-Count Weighing & Box Packing", form: "frmPackingSlip" }
   ],
   planning: [
     { label: "Assembly - Requirement Analysis", form: "frmAssmReqAnaly" },
@@ -148,7 +150,8 @@ const MENUS = {
     { label: "Manufacturing", children: [
       { label: "Purchase Order - Inwards", form: "frmMfgPO" },
       { label: "DC", form: "frmDC" },
-      { label: "Invoice", form: "frmInvoice" }
+      { label: "Invoice", form: "frmInvoice" },
+      { label: "Piece-Count Weighing & Box Packing", form: "frmPackingSlip" }
     ]},
     { label: "Labour", children: [
       { label: "Work Order - Inwards", form: "frmLabourPO" },
@@ -360,6 +363,7 @@ function renderMenu(items, anchor) {
       if (item.form !== "frmProdnStoreCrNote" && window.closeScn) window.closeScn();
       if (item.form !== "frmRouteTraveler" && window.closeTravelerHub) window.closeTravelerHub();
       if (item.form !== "frmSpectroMTC" && window.closeSpectroHub) window.closeSpectroHub();
+      if (item.form !== "frmPackingSlip" && window.closePackingHub) window.closePackingHub();
       if (item.form !== "frmAssmReqAnaly" && window.closeAssm) window.closeAssm();
       if (item.form !== "frmMatReqAnaly" && window.closeMat) window.closeMat();
       if (item.form !== "frmPlanY" && window.closePlan) window.closePlan();
@@ -905,6 +909,14 @@ function renderMenu(items, anchor) {
         if (window.closeIwo) window.closeIwo();
         if (window.closeScn) window.closeScn();
         if (window.openSpectroHub) window.openSpectroHub();
+        return;
+      }
+      if (item.form === "frmPackingSlip") {
+        if (window.closeCompany) window.closeCompany();
+        if (window.closeProdn) window.closeProdn();
+        if (window.closeIwo) window.closeIwo();
+        if (window.closeScn) window.closeScn();
+        if (window.openPackingHub) window.openPackingHub();
         return;
       }
       if (item.form === "frmProdn") {

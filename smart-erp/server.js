@@ -36,6 +36,15 @@ const {
   saveSpectroAnalysis,
   renderMtcPrintHtml
 } = require("./spectro-engine");
+const {
+  getPackingConsignmentList,
+  getPackingConsignmentById,
+  getItemAPW,
+  savePackingConsignment,
+  deletePackingConsignment,
+  renderCartonLabelHtml,
+  renderMasterPackingListHtml
+} = require("./packing-engine");
 const { calculateStockValuation } = require("./valuation-engine");
 const {
   generateInvoicePdf,
@@ -6923,6 +6932,105 @@ async function handleSpectroSave(req, res) {
     return sendJson(res, 200, { ok: true, message: "Spectrometer analysis saved successfully", data: saved });
   } catch (err) {
     console.error("Spectro save error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handlePackingList(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const q = url.searchParams.get("q") || "";
+    const limit = url.searchParams.get("limit") || 50;
+    const offset = url.searchParams.get("offset") || 0;
+    const data = await getPackingConsignmentList(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      q,
+      limit,
+      offset
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Packing list error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handlePackingGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const packingId = url.searchParams.get("id") || "";
+    const packingNo = url.searchParams.get("no") || url.searchParams.get("packing_no") || "";
+    const data = await getPackingConsignmentById(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      packingId: packingId || undefined,
+      packingNo: packingNo || undefined
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Packing get error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handlePackingItemApw(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const partCode = url.searchParams.get("code") || url.searchParams.get("part") || "";
+    const itemId = url.searchParams.get("item_id") || url.searchParams.get("id") || "";
+    const data = await getItemAPW(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      partCode,
+      itemId
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Packing APW error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handlePackingSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await savePackingConsignment(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      data: body,
+      user: session.username || "Packing Station"
+    });
+    return sendJson(res, 200, { ok: true, message: "Packing consignment saved successfully", data: saved });
+  } catch (err) {
+    console.error("Packing save error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handlePackingDelete(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const success = await deletePackingConsignment(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      packingId: body.id || body.packing_id
+    });
+    return sendJson(res, 200, { ok: success, message: success ? "Packing consignment deleted" : "Consignment not found" });
+  } catch (err) {
+    console.error("Packing delete error:", err);
     return sendJson(res, 500, { ok: false, message: err.message });
   }
 }
@@ -27876,6 +27984,55 @@ async function handlePrintRoute(req, res, url) {
     return;
   }
 
+  if (type === "carton_label" || type === "box_label") {
+    const rawId = Number(url.searchParams.get("id") || id || 0);
+    const rawNo = (url.searchParams.get("no") || url.searchParams.get("packing_no") || "").trim();
+    const boxNo = Number(url.searchParams.get("box") || url.searchParams.get("carton") || 1);
+    const consignment = await getPackingConsignmentById(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      packingId: rawId || undefined,
+      packingNo: rawNo || undefined
+    });
+    if (!consignment) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Packing Consignment not found.</h3>");
+      return;
+    }
+    const carton = (consignment.cartons || []).find((c) => c.carton_no === boxNo) || consignment.cartons[0] || {
+      carton_no: 1,
+      carton_barcode: `CTN-${consignment.packing_no}-B01`,
+      gross_weight_kg: consignment.total_gross_weight_kg,
+      tare_weight_kg: consignment.total_tare_weight_kg,
+      net_weight_kg: consignment.total_net_weight_kg,
+      verified_qty: consignment.total_qty_pieces
+    };
+    const printHtml = await renderCartonLabelHtml(consignment, carton);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
+  if (type === "packing_list" || type === "packing_slip" || type === "pkg") {
+    const rawId = Number(url.searchParams.get("id") || id || 0);
+    const rawNo = (url.searchParams.get("no") || url.searchParams.get("packing_no") || "").trim();
+    const consignment = await getPackingConsignmentById(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      packingId: rawId || undefined,
+      packingNo: rawNo || undefined
+    });
+    if (!consignment) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Packing Consignment not found.</h3>");
+      return;
+    }
+    const printHtml = await renderMasterPackingListHtml(consignment, consignment.cartons || []);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
   if (type === "po" || type === "purch-po") {
     const rawId = Number(url.searchParams.get("id") || id || 0);
     const bundle = await poBundle(session, rawId);
@@ -31189,6 +31346,11 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/spectro/get") return await handleSpectroGet(req, res, url);
     if (req.method === "GET" && url.pathname === "/api/spectro/presets") return await handleSpectroPresets(req, res);
     if (req.method === "POST" && url.pathname === "/api/spectro/save") return await handleSpectroSave(req, res);
+    if (req.method === "GET" && url.pathname === "/api/packing/list") return await handlePackingList(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/packing/get") return await handlePackingGet(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/packing/item-apw") return await handlePackingItemApw(req, res, url);
+    if (req.method === "POST" && url.pathname === "/api/packing/save") return await handlePackingSave(req, res);
+    if (req.method === "POST" && url.pathname === "/api/packing/delete") return await handlePackingDelete(req, res);
     if (req.method === "GET" && url.pathname === "/api/scn") return await handleScnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/save") return await handleScnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/delete") return await handleScnDelete(req, res);

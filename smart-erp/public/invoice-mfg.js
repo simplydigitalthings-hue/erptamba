@@ -64,6 +64,7 @@
     btnExpPrint: document.getElementById("invmfg-btn-exp-print"),
     btnGstPortal: document.getElementById("invmfg-btn-gst-portal"),
     btnMtc: document.getElementById("invmfg-btn-mtc"),
+    btnPacking: document.getElementById("invmfg-btn-packing"),
 
     btnNew: document.getElementById("invmfg-btn-new"),
     btnSave: document.getElementById("invmfg-btn-save"),
@@ -1448,6 +1449,27 @@
       if (heat && heat.trim()) {
         window.open(`/api/print?type=mtc&heat_no=${encodeURIComponent(heat.trim())}`, "_blank");
       }
+    });
+  }
+
+  if (dom.btnPacking) {
+    dom.btnPacking.addEventListener("click", () => {
+      if (!currentNote || !currentNote.invNo) {
+        alert("Please select or save an Invoice first.");
+        return;
+      }
+      const firstLine = currentLines && currentLines.length > 0 ? currentLines[0] : {};
+      const prefill = {
+        refDocType: "INVOICE",
+        refDocNo: currentNote.invNo,
+        customerName: currentNote.partyName || "",
+        partCode: firstLine.item_code || firstLine.code || "B1-VALVE-BODY",
+        partName: firstLine.item_name || firstLine.name || "",
+        heatNo: firstLine.heat_no || "HT-BRASS-704",
+        batchNo: firstLine.batch_no || "BT-2026-421",
+        targetQty: Number(firstLine.qty || 1000)
+      };
+      if (window.openPackingHub) window.openPackingHub(prefill);
     });
   }
 

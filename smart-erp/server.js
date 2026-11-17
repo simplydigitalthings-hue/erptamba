@@ -14972,17 +14972,39 @@ async function handleDcSave(req, res) {
         ]
       );
     } else {
+      const oldHead = await client.query(
+        "SELECT storeid FROM dcinv WHERE factory_id = $1 AND year_label = $2 AND dcinvid = $3",
+        [session.factory_id, session.year_label, dcInvId]
+      );
+      const oldStoreId = oldHead.rowCount ? Number(oldHead.rows[0].storeid) : storeId;
+
       const oldLines = await client.query(
         "SELECT itemid, qty FROM dcinvsub WHERE factory_id = $1 AND year_label = $2 AND dcinvid = $3",
         [session.factory_id, session.year_label, dcInvId]
       );
-      if (poId) {
-        for (const ol of oldLines.rows) {
+      for (const ol of oldLines.rows) {
+        if (poId) {
           await client.query(
             "UPDATE mfgposub SET qtytosend = qtytosend + $4, statusc = false WHERE factory_id = $1 AND year_label = $2 AND poid = $3 AND itemid = $5",
             [session.factory_id, session.year_label, poId, Number(ol.qty), Number(ol.itemid)]
           );
         }
+        // [BUG-INV-01] Restore store inventory balance before re-deducting updated quantities
+        const firstBatch = await client.query(
+          `SELECT s.id FROM store_add_sub s
+           JOIN store_add a ON a.factory_id = s.factory_id AND a.year_label = s.year_label AND a.id = s.id
+           WHERE s.factory_id = $1 AND s.year_label = $2 AND a.store_id = $3 AND s.item_id = $4
+           ORDER BY s.id DESC LIMIT 1`,
+          [session.factory_id, session.year_label, oldStoreId, Number(ol.itemid)]
+        );
+        if (firstBatch.rowCount) {
+          await client.query(
+            "UPDATE store_add_sub SET bal_qty = bal_qty + $4 WHERE factory_id = $1 AND year_label = $2 AND id = $3 AND item_id = $5",
+            [session.factory_id, session.year_label, firstBatch.rows[0].id, Number(ol.qty), Number(ol.itemid)]
+          );
+        }
+      }
+      if (poId) {
         await client.query(
           "UPDATE mfgpo SET potally = false WHERE factory_id = $1 AND year_label = $2 AND poid = $3",
           [session.factory_id, session.year_label, poId]
@@ -20389,6 +20411,70 @@ async function handlePaymentsPartyBalance(req, res, url) {
   return sendJson(res, 200, { advanceBalance, pendingBalance });
 }
 
+async function restorePaymentBillBalances(client, session, r) {
+  if (!r.track_bill) return;
+  const tokens = String(r.track_bill).split(",").map(s => s.trim()).filter(Boolean);
+  if (!tokens.length) return;
+
+  for (const token of tokens) {
+    const parts = token.split(":");
+    const billNo = parts[0].trim();
+    if (!billNo) continue;
+    const hasAlloc = parts.length > 1 && !isNaN(Number(parts[1])) && Number(parts[1]) > 0;
+    const alloc = hasAlloc
+      ? Number(parts[1])
+      : (tokens.length === 1 ? Number(r.amount || 0) : Number(r.amount || 0) / tokens.length);
+
+    if (r.code === "Purchase") {
+      await client.query(
+        `UPDATE purchase
+         SET balance = LEAST(totval, balance + $1)
+         WHERE factory_id = $2 AND year_label = $3 AND invno = $4`,
+        [alloc, session.factory_id, session.year_label, billNo]
+      );
+    } else if (r.code === "SubContract") {
+      await client.query(
+        `UPDATE dcsubconincoming
+         SET balance = LEAST(totval, balance + $1)
+         WHERE factory_id = $2 AND year_label = $3 AND invno = $4`,
+        [alloc, session.factory_id, session.year_label, billNo]
+      );
+    }
+  }
+}
+
+async function restoreReceiptBillBalances(client, session, r) {
+  if (!r.track_bill) return;
+  const tokens = String(r.track_bill).split(",").map(s => s.trim()).filter(Boolean);
+  if (!tokens.length) return;
+
+  for (const token of tokens) {
+    const parts = token.split(":");
+    const billNo = parts[0].trim();
+    if (!billNo) continue;
+    const hasAlloc = parts.length > 1 && !isNaN(Number(parts[1])) && Number(parts[1]) > 0;
+    const alloc = hasAlloc
+      ? Number(parts[1])
+      : (tokens.length === 1 ? Number(r.amount || 0) : Number(r.amount || 0) / tokens.length);
+
+    if (r.code === "Sales") {
+      await client.query(
+        `UPDATE dcinv
+         SET balance = LEAST(totval, balance + $1)
+         WHERE factory_id = $2 AND year_label = $3 AND (dcno = $4 OR invno = $4)`,
+        [alloc, session.factory_id, session.year_label, billNo]
+      );
+    } else if (r.code === "Labour") {
+      await client.query(
+        `UPDATE dcoutgoinginv
+         SET balance = LEAST(totval, balance + $1)
+         WHERE factory_id = $2 AND year_label = $3 AND (dcno = $4 OR invno = $4)`,
+        [alloc, session.factory_id, session.year_label, billNo]
+      );
+    }
+  }
+}
+
 async function handlePaymentsSave(req, res) {
   const session = await openSession(req);
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
@@ -20474,6 +20560,11 @@ async function handlePaymentsSave(req, res) {
          WHERE factory_id = $1 AND year_label = $2 AND p_r_a = $3 AND is_expense = true`,
         [session.factory_id, session.year_label, finalPRA]
       );
+      for (const r of oldBillsQ.rows) {
+        if (r.p_r_a_type === "Against Bill" && r.track_bill) {
+          await restorePaymentBillBalances(client, session, r);
+        }
+      }
       // Delete old ledger entries for this voucher
       await client.query(
         `DELETE FROM fund_trans
@@ -20493,7 +20584,7 @@ async function handlePaymentsSave(req, res) {
         const billId = Number(bill.billId || 0);
         const alloc = Number(bill.amountPaid || bill.allocAmt || 0);
         if (alloc > 0 && billId > 0) {
-          billNos.push(bill.billNo);
+          billNos.push(alloc > 0 ? `${bill.billNo}:${alloc}` : bill.billNo);
           if (expenseType === "Purchase") {
             await client.query(
               `UPDATE purchase
@@ -20604,22 +20695,7 @@ async function handlePaymentsDelete(req, res) {
 
     for (const r of ftQ.rows) {
       if (r.p_r_a_type === "Against Bill" && r.track_bill) {
-        const invNos = r.track_bill.split(",").map(s => s.trim()).filter(Boolean);
-        if (r.code === "Purchase") {
-          await client.query(
-            `UPDATE purchase
-             SET balance = LEAST(totval, balance + $1)
-             WHERE factory_id = $2 AND year_label = $3 AND invno = ANY($4::text[])`,
-            [r.amount, session.factory_id, session.year_label, invNos]
-          );
-        } else if (r.code === "SubContract") {
-          await client.query(
-            `UPDATE dcsubconincoming
-             SET balance = LEAST(totval, balance + $1)
-             WHERE factory_id = $2 AND year_label = $3 AND invno = ANY($4::text[])`,
-            [r.amount, session.factory_id, session.year_label, invNos]
-          );
-        }
+        await restorePaymentBillBalances(client, session, r);
       }
     }
 
@@ -20871,43 +20947,53 @@ async function receiptsBundle(session, targetNo = 0) {
 
   const billLines = [];
   if (header.p_r_a_type === "Against Bill" && header.track_bill) {
-    const invNos = header.track_bill.split(",").map(s => s.trim()).filter(Boolean);
+    const rawTokens = header.track_bill.split(",").map(s => s.trim()).filter(Boolean);
+    const invNos = rawTokens.map(s => s.split(":")[0].trim()).filter(Boolean);
+    const allocMap = {};
+    for (const token of rawTokens) {
+      const p = token.split(":");
+      if (p[0] && p[1] && !isNaN(Number(p[1]))) {
+        allocMap[p[0].trim()] = Number(p[1]);
+      }
+    }
     if (header.code === "Sales") {
       const bQ = await pool.query(
-        `SELECT dcinvid AS "billId", dcno AS "billNo", to_char(dcdate, 'YYYY-MM-DD') AS "billDate",
+        `SELECT dcinvid AS "billId", COALESCE(NULLIF(invno, ''), dcno) AS "billNo", to_char(COALESCE(invdate, dcdate), 'YYYY-MM-DD') AS "billDate",
                 totval AS "billAmount", balance AS "pendingBalance"
          FROM dcinv
-         WHERE factory_id = $1 AND year_label = $2 AND custid = $3 AND dcno = ANY($4::text[])
+         WHERE factory_id = $1 AND year_label = $2 AND custid = $3 AND (dcno = ANY($4::text[]) OR invno = ANY($4::text[]))
          ORDER BY dcinvid ASC`,
         [session.factory_id, session.year_label, header.exp_inc_id, invNos]
       );
       for (const row of bQ.rows) {
+        const itemAlloc = allocMap[row.billNo] !== undefined ? allocMap[row.billNo] : (bQ.rows.length === 1 ? header.amount : header.amount / bQ.rows.length);
         billLines.push({
           billId: row.billId,
           billNo: row.billNo,
           billDate: row.billDate,
           billAmount: row.billAmount,
           pendingBalance: row.pendingBalance,
-          amountReceived: header.amount
+          amountReceived: itemAlloc
         });
       }
     } else if (header.code === "Labour") {
       const bQ = await pool.query(
-        `SELECT id AS "billId", dcno AS "billNo", to_char(dcdate, 'YYYY-MM-DD') AS "billDate",
+        `SELECT id AS "billId", COALESCE(NULLIF(invno, ''), dcno) AS "billNo", to_char(COALESCE(invdate, dcdate), 'YYYY-MM-DD') AS "billDate",
                 totval AS "billAmount", balance AS "pendingBalance"
          FROM dcoutgoinginv
-         WHERE factory_id = $1 AND year_label = $2 AND custid = $3 AND dcno = ANY($4::text[])
+         WHERE factory_id = $1 AND year_label = $2 AND custid = $3 AND (dcno = ANY($4::text[]) OR invno = ANY($4::text[]))
          ORDER BY id ASC`,
         [session.factory_id, session.year_label, header.exp_inc_id, invNos]
       );
       for (const row of bQ.rows) {
+        const itemAlloc = allocMap[row.billNo] !== undefined ? allocMap[row.billNo] : (bQ.rows.length === 1 ? header.amount : header.amount / bQ.rows.length);
         billLines.push({
           billId: row.billId,
           billNo: row.billNo,
           billDate: row.billDate,
           billAmount: row.billAmount,
           pendingBalance: row.pendingBalance,
-          amountReceived: header.amount
+          amountReceived: itemAlloc
         });
       }
     }
@@ -21166,22 +21252,7 @@ async function handleReceiptsSave(req, res) {
       );
       for (const r of existingFt.rows) {
         if (r.p_r_a_type === "Against Bill" && r.track_bill) {
-          const invNos = r.track_bill.split(",").map(s => s.trim()).filter(Boolean);
-          if (r.code === "Sales") {
-            await client.query(
-              `UPDATE dcinv
-               SET balance = LEAST(totval, balance + $1)
-               WHERE factory_id = $2 AND year_label = $3 AND dcno = ANY($4::text[])`,
-              [r.amount, session.factory_id, session.year_label, invNos]
-            );
-          } else if (r.code === "Labour") {
-            await client.query(
-              `UPDATE dcoutgoinginv
-               SET balance = LEAST(totval, balance + $1)
-               WHERE factory_id = $2 AND year_label = $3 AND dcno = ANY($4::text[])`,
-              [r.amount, session.factory_id, session.year_label, invNos]
-            );
-          }
+          await restoreReceiptBillBalances(client, session, r);
         }
       }
       await client.query(
@@ -21210,7 +21281,7 @@ async function handleReceiptsSave(req, res) {
         const billId = Number(bill.billId || 0);
         const alloc = Number(bill.amountReceived || bill.allocAmt || bill.amountPaid || 0);
         if (alloc > 0 && billId > 0) {
-          billNos.push(bill.billNo);
+          billNos.push(alloc > 0 ? `${bill.billNo}:${alloc}` : bill.billNo);
           if (incomeType === "Sales") {
             await client.query(
               `UPDATE dcinv
@@ -21321,22 +21392,7 @@ async function handleReceiptsDelete(req, res) {
 
     for (const r of ftQ.rows) {
       if (r.p_r_a_type === "Against Bill" && r.track_bill) {
-        const invNos = r.track_bill.split(",").map(s => s.trim()).filter(Boolean);
-        if (r.code === "Sales") {
-          await client.query(
-            `UPDATE dcinv
-             SET balance = LEAST(totval, balance + $1)
-             WHERE factory_id = $2 AND year_label = $3 AND dcno = ANY($4::text[])`,
-            [r.amount, session.factory_id, session.year_label, invNos]
-          );
-        } else if (r.code === "Labour") {
-          await client.query(
-            `UPDATE dcoutgoinginv
-             SET balance = LEAST(totval, balance + $1)
-             WHERE factory_id = $2 AND year_label = $3 AND dcno = ANY($4::text[])`,
-            [r.amount, session.factory_id, session.year_label, invNos]
-          );
-        }
+        await restoreReceiptBillBalances(client, session, r);
       }
     }
 

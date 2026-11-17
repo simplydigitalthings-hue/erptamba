@@ -4260,3 +4260,26 @@ body.theme-dark .item-modal-body-scroll::-webkit-scrollbar-thumb {
 .traveler-filter-tab:hover {
   background: #f1f5f9 !important;
 }
+
+#traveler-detail-container {
+  scrollbar-width: thin !important;
+  scrollbar-color: #1c625a #e2e8f0 !important;
+  scroll-behavior: smooth !important;
+}
+
+#traveler-detail-container::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+#traveler-detail-container::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+#traveler-detail-container::-webkit-scrollbar-thumb {
+  background: #94a3b8 !important;
+  border-radius: 4px !important;
+}
+
+#traveler-detail-container::-webkit-scrollbar-thumb:hover {
+  background: #1c625a !important;
+}

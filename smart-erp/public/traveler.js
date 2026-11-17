@@ -349,7 +349,7 @@
       ${actionBoxHtml}
 
       <!-- Stages Timeline -->
-      <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+      <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 48px;">
         <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 12px;">
           Operation Sequence &amp; Shopfloor Routing Checklist
         </div>

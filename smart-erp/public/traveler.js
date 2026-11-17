@@ -251,12 +251,18 @@
             <input type="text" id="action-qc-notes" placeholder="e.g. Dimensional tolerance +/- 0.02mm verified, finish Ra 0.8" style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; box-sizing: border-box;">
           </div>
 
-          <div style="display: flex; justify-content: flex-end; gap: 10px; align-items: center;">
-            <button type="button" id="btn-traveler-gauge" style="
-              background: #0f766e; color: #fff; font-weight: bold; padding: 8px 14px; border: none;
-              border-radius: 4px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 6px;
+          <div style="display: flex; justify-content: flex-end; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button type="button" id="btn-traveler-recipe" style="
+              background: #334155; color: #fff; font-weight: bold; padding: 8px 12px; border: none;
+              border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 5px;
             ">
-              <span>📏 Thread Gauge Register</span>
+              <span>🛠️ Tooling Setup</span>
+            </button>
+            <button type="button" id="btn-traveler-gauge" style="
+              background: #0f766e; color: #fff; font-weight: bold; padding: 8px 12px; border: none;
+              border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 5px;
+            ">
+              <span>📏 Thread Gauge</span>
             </button>
             <button type="button" id="btn-advance-stage" style="
               background: #1c625a; color: #fff; font-weight: bold; padding: 8px 18px; border: none;
@@ -368,9 +374,15 @@
     // Wire Advance Stage Action
     const btnAdv = document.getElementById("btn-advance-stage");
     const btnGauge = document.getElementById("btn-traveler-gauge");
+    const btnRecipe = document.getElementById("btn-traveler-recipe");
     if (btnGauge) {
       btnGauge.addEventListener("click", () => {
         if (window.openGaugeHub) window.openGaugeHub();
+      });
+    }
+    if (btnRecipe) {
+      btnRecipe.addEventListener("click", () => {
+        if (window.openRecipeHub) window.openRecipeHub();
       });
     }
     if (btnAdv && activeStage) {

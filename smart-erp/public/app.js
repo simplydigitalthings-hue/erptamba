@@ -76,7 +76,8 @@ const FORM_RIGHTS = {
   frmInspectionIn: "mnuInsCommon",
   frmSpectroMTC: "mnuInsCommon",
   frmPackingSlip: "mnuSalesDC",
-  frmGaugeRegister: "mnuCalibrate"
+  frmGaugeRegister: "mnuCalibrate",
+  frmMachineRecipe: "frmMachine"
 };
 
 const MENUS = {
@@ -94,6 +95,7 @@ const MENUS = {
     ]},
     { label: "General", children: [
       { label: "Machine", form: "frmMachine" },
+      { label: "Machine Setup & Tooling Recipe", form: "frmMachineRecipe" },
       { label: "Customer (Sales/Labour)", form: "frmCustomer" },
       { label: "Supplier (SubContract)", form: "frmSupplier" },
       { label: "Vendor (Purchase)", form: "frmVendor" }
@@ -121,7 +123,8 @@ const MENUS = {
     { label: "Produced Material - Return", form: "frmProdnWOReturn" },
     { label: "Store Credit Note", form: "frmProdnStoreCrNote" },
     { label: "Digital Route Card & QR Traveler", form: "frmRouteTraveler" },
-    { label: "Piece-Count Weighing & Box Packing", form: "frmPackingSlip" }
+    { label: "Piece-Count Weighing & Box Packing", form: "frmPackingSlip" },
+    { label: "Machine Setup & Tooling Recipe", form: "frmMachineRecipe" }
   ],
   planning: [
     { label: "Assembly - Requirement Analysis", form: "frmAssmReqAnaly" },
@@ -368,6 +371,7 @@ function renderMenu(items, anchor) {
       if (item.form !== "frmSpectroMTC" && window.closeSpectroHub) window.closeSpectroHub();
       if (item.form !== "frmPackingSlip" && window.closePackingHub) window.closePackingHub();
       if (item.form !== "frmGaugeRegister" && window.closeGaugeHub) window.closeGaugeHub();
+      if (item.form !== "frmMachineRecipe" && window.closeRecipeHub) window.closeRecipeHub();
       if (item.form !== "frmAssmReqAnaly" && window.closeAssm) window.closeAssm();
       if (item.form !== "frmMatReqAnaly" && window.closeMat) window.closeMat();
       if (item.form !== "frmPlanY" && window.closePlan) window.closePlan();
@@ -929,6 +933,14 @@ function renderMenu(items, anchor) {
         if (window.closeIwo) window.closeIwo();
         if (window.closeScn) window.closeScn();
         if (window.openGaugeHub) window.openGaugeHub();
+        return;
+      }
+      if (item.form === "frmMachineRecipe") {
+        if (window.closeCompany) window.closeCompany();
+        if (window.closeProdn) window.closeProdn();
+        if (window.closeIwo) window.closeIwo();
+        if (window.closeScn) window.closeScn();
+        if (window.openRecipeHub) window.openRecipeHub();
         return;
       }
       if (item.form === "frmProdn") {

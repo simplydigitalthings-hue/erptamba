@@ -60,6 +60,14 @@ const {
   generateGaugeStickerHtml,
   generateMasterGaugeScheduleHtml
 } = require("./gauge-engine");
+const {
+  getRecipeList,
+  getRecipeById,
+  saveRecipe,
+  deleteRecipe,
+  TOOLING_PRESETS,
+  generateSetupSheetHtml
+} = require("./setup-recipe-engine");
 const { calculateStockValuation } = require("./valuation-engine");
 const {
   generateInvoicePdf,
@@ -7195,6 +7203,119 @@ async function handleGaugeDelete(req, res) {
     return sendJson(res, 200, { ok: success, message: success ? "Gauge deleted" : "Gauge not found" });
   } catch (err) {
     console.error("Gauge delete error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipeList(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const q = url.searchParams.get("q") || "";
+    const category = url.searchParams.get("category") || "";
+    const limit = url.searchParams.get("limit") || 50;
+    const offset = url.searchParams.get("offset") || 0;
+    const data = await getRecipeList(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      q,
+      category,
+      limit,
+      offset
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Recipe list error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipeGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const recipeId = Number(url.searchParams.get("id") || url.searchParams.get("recipe_id") || 0);
+    const data = await getRecipeById(pool, {
+      factoryId: session.factory_id,
+      recipeId
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Recipe get error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipePresets(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    return sendJson(res, 200, { ok: true, presets: TOOLING_PRESETS });
+  } catch (err) {
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipeSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await saveRecipe(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      recipeData: body
+    });
+    return sendJson(res, 200, { ok: true, message: "Recipe saved successfully", data: saved });
+  } catch (err) {
+    console.error("Recipe save error:", err);
+    return sendJson(res, 400, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipeDelete(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const result = await deleteRecipe(pool, {
+      factoryId: session.factory_id,
+      recipeId: body.id || body.recipe_id
+    });
+    return sendJson(res, 200, { ok: true, message: "Recipe deleted" });
+  } catch (err) {
+    console.error("Recipe delete error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleRecipeItems(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const sql = `
+      SELECT item_id, item_code, item_name, drg_no, measure_unit, cycle_time
+      FROM item
+      WHERE factory_id = $1 AND (hide IS NULL OR hide = false)
+      ORDER BY item_code ASC
+      LIMIT 200;
+    `;
+    const resItems = await pool.query(sql, [session.factory_id]);
+    const machSql = `
+      SELECT mach_id, mach_name, mach_model
+      FROM machine
+      WHERE factory_id = $1
+      ORDER BY mach_name ASC;
+    `;
+    const resMach = await pool.query(machSql, [session.factory_id]);
+    return sendJson(res, 200, { ok: true, items: resItems.rows, machines: resMach.rows });
+  } catch (err) {
     return sendJson(res, 500, { ok: false, message: err.message });
   }
 }
@@ -28236,6 +28357,28 @@ async function handlePrintRoute(req, res, url) {
     return;
   }
 
+  if (type === "setup_sheet" || type === "recipe_sheet") {
+    const rawId = Number(url.searchParams.get("id") || id || 0);
+    const recipe = await getRecipeById(pool, {
+      factoryId: session.factory_id,
+      recipeId: rawId
+    });
+    if (!recipe) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Machine Setup Recipe not found.</h3>");
+      return;
+    }
+    const misc = await pool.query("SELECT print_head, print_short_addr FROM misc WHERE factory_id = $1 AND year_label = $2", [session.factory_id, session.year_label]);
+    const company = {
+      comp_name: (misc.rows[0] && misc.rows[0].print_head) || "BHARANI BRASS INDUSTRIES",
+      address: (misc.rows[0] && misc.rows[0].print_short_addr) || ""
+    };
+    const printHtml = await generateSetupSheetHtml(recipe, company);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
   if (type === "po" || type === "purch-po") {
     const rawId = Number(url.searchParams.get("id") || id || 0);
     const bundle = await poBundle(session, rawId);
@@ -31562,6 +31705,12 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/api/gauge/issue") return await handleGaugeIssue(req, res);
     if (req.method === "POST" && url.pathname === "/api/gauge/increment") return await handleGaugeIncrement(req, res);
     if (req.method === "POST" && url.pathname === "/api/gauge/delete") return await handleGaugeDelete(req, res);
+    if (req.method === "GET" && url.pathname === "/api/recipe/list") return await handleRecipeList(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/recipe/get") return await handleRecipeGet(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/recipe/presets") return await handleRecipePresets(req, res);
+    if (req.method === "GET" && url.pathname === "/api/recipe/items") return await handleRecipeItems(req, res);
+    if (req.method === "POST" && url.pathname === "/api/recipe/save") return await handleRecipeSave(req, res);
+    if (req.method === "POST" && url.pathname === "/api/recipe/delete") return await handleRecipeDelete(req, res);
     if (req.method === "GET" && url.pathname === "/api/scn") return await handleScnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/save") return await handleScnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/delete") return await handleScnDelete(req, res);

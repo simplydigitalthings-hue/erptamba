@@ -230,6 +230,7 @@ function calculateInvoiceGST({
 
 /**
  * GSTR-1 Outward Supplies (Sales) Summary Generator
+ * Includes both Manufacturing (dcinv) and Labour Work (dcoutgoinginv) invoices
  */
 async function generateGSTR1Summary(pool, { factoryId, yearLabel, fromDate, toDate }) {
   let dateFilter = "";
@@ -237,30 +238,49 @@ async function generateGSTR1Summary(pool, { factoryId, yearLabel, fromDate, toDa
   let paramIdx = 3;
 
   if (fromDate) {
-    dateFilter += ` AND i.invdate >= $${paramIdx++}`;
+    dateFilter += ` AND inv.invdate >= $${paramIdx++}`;
     params.push(fromDate);
   }
   if (toDate) {
-    dateFilter += ` AND i.invdate <= $${paramIdx++}`;
+    dateFilter += ` AND inv.invdate <= $${paramIdx++}`;
     params.push(toDate);
   }
 
   const query = `
     SELECT 
-      i.dcinvid, i.invno, i.invdate, i.custid,
+      inv.dcinvid, inv.invno, inv.invdate, inv.custid,
       c.cust_name, c.gstin AS customer_gstin, c.state_code AS customer_state,
-      COALESCE(i.taxable_amt, 0) AS taxable_amt,
-      COALESCE(i.cgst_amt, 0) AS cgst_amt,
-      COALESCE(i.sgst_amt, 0) AS sgst_amt,
-      COALESCE(i.igst_amt, 0) AS igst_amt,
-      COALESCE(i.total_gst, 0) AS total_gst,
-      COALESCE(i.round_off, 0) AS round_off,
-      COALESCE(i.totval, 0) AS total_inv_val
-    FROM dcinv i
-    LEFT JOIN customer c ON c.factory_id = i.factory_id AND c.cust_id = i.custid
-    WHERE i.factory_id = $1 AND i.year_label = $2
-      AND i.invno IS NOT NULL AND TRIM(i.invno) <> '' ${dateFilter}
-    ORDER BY i.invdate, i.dcinvid
+      inv.taxable_amt, inv.cgst_amt, inv.sgst_amt, inv.igst_amt, inv.total_gst,
+      inv.round_off, inv.total_inv_val, inv.inv_type
+    FROM (
+      SELECT 
+        dcinvid, invno, invdate, custid, factory_id, year_label,
+        COALESCE(taxable_amt, 0) AS taxable_amt,
+        COALESCE(cgst_amt, 0) AS cgst_amt,
+        COALESCE(sgst_amt, 0) AS sgst_amt,
+        COALESCE(igst_amt, 0) AS igst_amt,
+        COALESCE(total_gst, 0) AS total_gst,
+        COALESCE(round_off, 0) AS round_off,
+        COALESCE(totval, 0) AS total_inv_val,
+        'MFG' AS inv_type
+      FROM dcinv
+      UNION ALL
+      SELECT 
+        id AS dcinvid, invno, invdate, custid, factory_id, year_label,
+        COALESCE(taxable_amt, 0) AS taxable_amt,
+        COALESCE(cgst_amt, 0) AS cgst_amt,
+        COALESCE(sgst_amt, 0) AS sgst_amt,
+        COALESCE(igst_amt, 0) AS igst_amt,
+        COALESCE(total_gst, 0) AS total_gst,
+        COALESCE(round_off, 0) AS round_off,
+        COALESCE(totval, 0) AS total_inv_val,
+        'LABOUR' AS inv_type
+      FROM dcoutgoinginv
+    ) inv
+    LEFT JOIN customer c ON c.factory_id = inv.factory_id AND c.cust_id = inv.custid
+    WHERE inv.factory_id = $1 AND inv.year_label = $2
+      AND inv.invno IS NOT NULL AND TRIM(inv.invno) <> '' ${dateFilter}
+    ORDER BY inv.invdate, inv.dcinvid
   `;
 
   const res = await pool.query(query, params);
@@ -316,7 +336,9 @@ async function generateGSTR3BSummary(pool, { factoryId, yearLabel, fromDate, toD
   const query = `
     SELECT 
       p.purchid, p.invno, p.invdate, p.vendorcode,
-      v.supp_name AS vendor_name, v.gstin AS vendor_gstin, v.state_code AS vendor_state,
+      COALESCE(v.vendor_name, s.supp_name, 'Unknown Vendor') AS vendor_name,
+      COALESCE(v.gstin, s.gstin, '') AS vendor_gstin,
+      COALESCE(v.state_code, s.state_code, '29') AS vendor_state,
       COALESCE(p.taxable_amt, 0) AS taxable_amt,
       COALESCE(p.cgst_amt, 0) AS cgst_amt,
       COALESCE(p.sgst_amt, 0) AS sgst_amt,
@@ -324,7 +346,8 @@ async function generateGSTR3BSummary(pool, { factoryId, yearLabel, fromDate, toD
       COALESCE(p.total_gst, 0) AS total_gst,
       COALESCE(p.totval, 0) AS total_purch_val
     FROM purchase p
-    LEFT JOIN supplier v ON v.factory_id = p.factory_id AND (v.supp_id = p.vendorcode OR v.cust_code = p.vendorcode::text)
+    LEFT JOIN vendor v ON v.factory_id = p.factory_id AND (v.vendor_code = p.vendorcode OR v.cust_code = p.vendorcode::text)
+    LEFT JOIN supplier s ON s.factory_id = p.factory_id AND (s.supp_id = p.vendorcode OR s.cust_code = p.vendorcode::text)
     WHERE p.factory_id = $1 AND p.year_label = $2
       AND p.invno IS NOT NULL AND TRIM(p.invno) <> '' ${dateFilter}
     ORDER BY p.invdate, p.purchid

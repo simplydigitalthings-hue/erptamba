@@ -4734,20 +4734,32 @@ async function handleBomSave(req, res) {
   if (problem) return sendJson(res, 200, { ok: false, message: problem });
   if (body.confirmed !== true) return sendJson(res, 200, { ok: true, ready: true });
   if (!assembly) return sendJson(res, 200, { ok: false, message: " AssemblyName is invalid ..." });
-  await pool.query(
-    "DELETE FROM assmbly_def WHERE factory_id = $1 AND year_label = $2 AND assmbly_id = $3",
-    [session.factory_id, session.year_label, assembly.id]
-  );
-  for (const line of lines) {
-    if (!(itemNumber(line.qty) > 0)) continue;
-    const part = catalog.find((row) => row.code.toUpperCase() === String(line.code).trim().toUpperCase());
-    await pool.query(
-      `INSERT INTO assmbly_def (factory_id, year_label, assmbly_id, sl_no, item_id, util_qty, is_obsolete)
-       VALUES ($1,$2,$3,$4,$5,$6::double precision,$7)`,
-      [session.factory_id, session.year_label, assembly.id, line.slNo, part.id, itemNumber(line.qty), body.obsolete === true]
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      "DELETE FROM assmbly_def WHERE factory_id = $1 AND year_label = $2 AND assmbly_id = $3",
+      [session.factory_id, session.year_label, assembly.id]
     );
+    for (const line of lines) {
+      if (!(itemNumber(line.qty) > 0)) continue;
+      const part = catalog.find((row) => row.code.toUpperCase() === String(line.code).trim().toUpperCase());
+      await client.query(
+        `INSERT INTO assmbly_def (factory_id, year_label, assmbly_id, sl_no, item_id, util_qty, is_obsolete)
+         VALUES ($1,$2,$3,$4,$5,$6::double precision,$7)`,
+        [session.factory_id, session.year_label, assembly.id, line.slNo, part.id, itemNumber(line.qty), body.obsolete === true]
+      );
+    }
+    await client.query("COMMIT");
+    return sendJson(res, 200, { ok: true, message: mode === "edit" ? "Record Modified ." : "Record Saved ." });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("handleBomSave error:", err);
+    return sendJson(res, 500, { error: err.message || "Failed to save BOM." });
+  } finally {
+    client.release();
   }
-  return sendJson(res, 200, { ok: true, message: mode === "edit" ? "Record Modified ." : "Record Saved ." });
 }
 
 async function handleBomCopy(req, res) {
@@ -6170,13 +6182,27 @@ function computeLog(input) {
   return { hours, hoursLabel: hoursLabel(hours), cycleLabel, full, targ, bonus, work };
 }
 
-function timingsOverlap(from, to, oldFrom, oldTo) {
+function toIntervalSegments(from, to) {
   const start = clockMinutes(from);
   const end = clockMinutes(to);
-  const oldStart = clockMinutes(oldFrom);
-  const oldEnd = clockMinutes(oldTo);
-  const inside = (start > oldStart && start < oldEnd) || (end > oldStart && end < oldEnd);
-  return inside || (start === oldStart && end === oldEnd);
+  if (start === end) return [];
+  if (start < end) {
+    return [[start, end]];
+  }
+  return [[start, 1440], [0, end]];
+}
+
+function timingsOverlap(from, to, oldFrom, oldTo) {
+  const segsA = toIntervalSegments(from, to);
+  const segsB = toIntervalSegments(oldFrom, oldTo);
+  for (const [s1, e1] of segsA) {
+    for (const [s2, e2] of segsB) {
+      if (Math.max(s1, s2) < Math.min(e1, e2)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function timeText(value) {
@@ -6685,6 +6711,7 @@ async function handleIwoSave(req, res) {
   try {
     await client.query("BEGIN");
     let dcId = currentId;
+    let issueId = 0;
     if (body.mode === "modify") {
       await client.query(
         `UPDATE prodn_iwo_iss SET dc_no = $4, dc_date = $5, to_whom = $6, dc_rem = $7, cost_cntr_id = $8,
@@ -6694,6 +6721,64 @@ async function handleIwoSave(req, res) {
           machineText(body.remarks).trim() || " ", Number(body.costId), storeId, Number(body.customerId) || null,
           machineText(body.poNo).trim(), body.poDate || null]
       );
+
+      // Lookup linked store_iss_id
+      const iwoRow = await client.query(
+        "SELECT store_iss_id FROM prodn_iwo_iss WHERE factory_id = $1 AND year_label = $2 AND dc_id = $3",
+        [session.factory_id, session.year_label, dcId]
+      );
+      issueId = Number(iwoRow.rows[0]?.store_iss_id) || 0;
+
+      if (issueId > 0) {
+        // Restore previously deducted store inventory
+        const issSubs = await client.query(
+          "SELECT item_id, trak FROM store_iss_sub WHERE factory_id = $1 AND year_label = $2 AND id = $3",
+          [session.factory_id, session.year_label, issueId]
+        );
+        for (const line of issSubs.rows) {
+          if (!line.trak) continue;
+          const tokens = String(line.trak).split(",").map(t => t.trim()).filter(Boolean);
+          for (let t = 0; t < tokens.length; t += 2) {
+            const storeAddId = Number(tokens[t]);
+            const qtyRed = Number(tokens[t + 1] || 0);
+            if (storeAddId && qtyRed > 0) {
+              await client.query(
+                `UPDATE store_add_sub
+                 SET bal_qty = bal_qty + $1
+                 WHERE factory_id = $2 AND year_label = $3 AND id = $4 AND item_id = $5`,
+                [qtyRed, session.factory_id, session.year_label, storeAddId, line.item_id]
+              );
+            }
+          }
+        }
+        await client.query(
+          "DELETE FROM store_iss_sub WHERE factory_id = $1 AND year_label = $2 AND id = $3",
+          [session.factory_id, session.year_label, issueId]
+        );
+        await client.query(
+          `UPDATE store_iss SET doi = $4, cost_cntr_id = $5, store_id = $6, to_whom = $7, rem_any = $8
+           WHERE factory_id = $1 AND year_label = $2 AND id = $3`,
+          [session.factory_id, session.year_label, issueId, body.date || null, Number(body.costId), storeId,
+            machineText(body.whom).trim() || " ", machineText(body.remarks).trim() || " "]
+        );
+      } else {
+        const issueNext = await client.query(
+          "SELECT COALESCE(MAX(id), 0) + 1 AS id FROM store_iss WHERE factory_id = $1 AND year_label = $2",
+          [session.factory_id, session.year_label]
+        );
+        issueId = Number(issueNext.rows[0].id);
+        await client.query(
+          `INSERT INTO store_iss (factory_id, year_label, id, doi, ti, cost_cntr_id, store_id, to_whom, rem_any)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [session.factory_id, session.year_label, issueId, body.date || null, "", Number(body.costId), storeId,
+            machineText(body.whom).trim() || " ", machineText(body.remarks).trim() || " "]
+        );
+        await client.query(
+          "UPDATE prodn_iwo_iss SET store_iss_id = $4 WHERE factory_id = $1 AND year_label = $2 AND dc_id = $3",
+          [session.factory_id, session.year_label, dcId, issueId]
+        );
+      }
+
       await client.query(
         "DELETE FROM prodn_iwo_iss_sub WHERE factory_id = $1 AND year_label = $2 AND dc_id = $3",
         [session.factory_id, session.year_label, dcId]
@@ -6708,7 +6793,7 @@ async function handleIwoSave(req, res) {
         "SELECT COALESCE(MAX(id), 0) + 1 AS id FROM store_iss WHERE factory_id = $1 AND year_label = $2",
         [session.factory_id, session.year_label]
       );
-      const issueId = Number(issueNext.rows[0].id);
+      issueId = Number(issueNext.rows[0].id);
       await client.query(
         `INSERT INTO store_iss (factory_id, year_label, id, doi, ti, cost_cntr_id, store_id, to_whom, rem_any)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
@@ -6722,36 +6807,37 @@ async function handleIwoSave(req, res) {
           machineText(body.remarks).trim() || " ", Number(body.costId), storeId, Number(body.customerId) || null,
           machineText(body.poNo).trim(), body.poDate || null, issueId]
       );
-      for (const line of prepared) {
-        let issueTrak = "";
-        let remaining = line.qtyOut;
-        const receipts = await client.query(
-          `SELECT s.id, s.bal_qty, s.trak
-           FROM store_add_sub s
-           WHERE s.factory_id = $1 AND s.year_label = $2 AND s.item_id = $3 AND s.bal_qty > 0
-             AND s.id IN (SELECT id FROM store_add WHERE factory_id = $1 AND year_label = $2 AND store_id = $4)
-           ORDER BY s.id FOR UPDATE`,
-          [session.factory_id, session.year_label, line.outId, storeId]
-        );
-        for (const receipt of receipts.rows) {
-          if (!(remaining > 0)) break;
-          const bal = Number(receipt.bal_qty);
-          const taken = remaining > bal ? bal : remaining;
-          issueTrak += receipt.id + "," + taken + ",";
-          const trak = receipt.trak ? receipt.trak + "," + issueId + "," + taken : issueId + "," + taken;
-          await client.query(
-            "UPDATE store_add_sub SET bal_qty = $4, trak = $5 WHERE factory_id = $1 AND year_label = $2 AND id = $3 AND item_id = $6",
-            [session.factory_id, session.year_label, receipt.id, bal - taken, trak, line.outId]
-          );
-          remaining -= taken;
-          if (!(remaining > 0)) break;
-        }
+    }
+
+    for (const line of prepared) {
+      let issueTrak = "";
+      let remaining = line.qtyOut;
+      const receipts = await client.query(
+        `SELECT s.id, s.bal_qty, s.trak
+         FROM store_add_sub s
+         WHERE s.factory_id = $1 AND s.year_label = $2 AND s.item_id = $3 AND s.bal_qty > 0
+           AND s.id IN (SELECT id FROM store_add WHERE factory_id = $1 AND year_label = $2 AND store_id = $4)
+         ORDER BY s.id FOR UPDATE`,
+        [session.factory_id, session.year_label, line.outId, storeId]
+      );
+      for (const receipt of receipts.rows) {
+        if (!(remaining > 0)) break;
+        const bal = Number(receipt.bal_qty);
+        const taken = remaining > bal ? bal : remaining;
+        issueTrak += receipt.id + "," + taken + ",";
+        const trak = receipt.trak ? receipt.trak + "," + issueId + "," + taken : issueId + "," + taken;
         await client.query(
-          `INSERT INTO store_iss_sub (factory_id, year_label, id, slno, item_id, iss_qty, trak)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [session.factory_id, session.year_label, issueId, line.slno, line.outId, line.qtyOut, issueTrak.slice(0, -1)]
+          "UPDATE store_add_sub SET bal_qty = $4, trak = $5 WHERE factory_id = $1 AND year_label = $2 AND id = $3 AND item_id = $6",
+          [session.factory_id, session.year_label, receipt.id, bal - taken, trak, line.outId]
         );
+        remaining -= taken;
+        if (!(remaining > 0)) break;
       }
+      await client.query(
+        `INSERT INTO store_iss_sub (factory_id, year_label, id, slno, item_id, iss_qty, trak)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [session.factory_id, session.year_label, issueId, line.slno, line.outId, line.qtyOut, issueTrak.slice(0, -1)]
+      );
     }
     for (const line of prepared) {
       await client.query(
@@ -12000,8 +12086,57 @@ async function handleInvPurchSave(req, res) {
     const totalGst = Number(body.totalGst || 0);
     const roundOff = Number(body.roundOff || 0);
 
+    // Validate invoice mathematical consistency under GST (BUG-PURCH-01)
+    if (taxRegime === "GST" && taxableAmt > 0) {
+      const calcTot = taxableAmt + totalGst + roundOff + packForwd + insurance + anyOtherChrg;
+      if (Math.abs(calcTot - totVal) > 2.0) {
+        await client.query("ROLLBACK");
+        return sendJson(res, 200, {
+          error: `Total Invoice Value (₹${totVal.toFixed(2)}) must match Taxable Amount + GST + Charges (₹${calcTot.toFixed(2)}) within ₹2.`
+        });
+      }
+    }
+
+    // Compute per-purchId breakdown if multiple DCs are batched into one invoice
+    const purchIdShares = {};
+    if (purchIds.length > 1 && lines.length > 0) {
+      for (const l of lines) {
+        const pid = Number(l.purchId);
+        if (!pid) continue;
+        if (!purchIdShares[pid]) purchIdShares[pid] = { lineTot: 0, taxable: 0, cgst: 0, sgst: 0, igst: 0 };
+        const lTaxable = Number(l.taxableAmt || l.amount || 0);
+        const lGst = Number(l.gstRate || 0);
+        const lCgst = Number(l.cgstAmt || (lTaxable * lGst / 200) || 0);
+        const lSgst = Number(l.sgstAmt || (lTaxable * lGst / 200) || 0);
+        const lIgst = Number(l.igstAmt || 0);
+        purchIdShares[pid].taxable += lTaxable;
+        purchIdShares[pid].cgst += lCgst;
+        purchIdShares[pid].sgst += lSgst;
+        purchIdShares[pid].igst += lIgst;
+        purchIdShares[pid].lineTot += (lTaxable + lCgst + lSgst + lIgst);
+      }
+    }
+
     // Update headers for all selected DCs
     for (const pid of purchIds) {
+      let pTotVal = totVal;
+      let pTaxable = taxableAmt;
+      let pCgst = cgstAmt;
+      let pSgst = sgstAmt;
+      let pIgst = igstAmt;
+      let pTotGst = totalGst;
+      let pRoundOff = roundOff;
+
+      if (purchIds.length > 1 && purchIdShares[pid]) {
+        pTotVal = Math.round(purchIdShares[pid].lineTot * 100) / 100;
+        pTaxable = Math.round(purchIdShares[pid].taxable * 100) / 100;
+        pCgst = Math.round(purchIdShares[pid].cgst * 100) / 100;
+        pSgst = Math.round(purchIdShares[pid].sgst * 100) / 100;
+        pIgst = Math.round(purchIdShares[pid].igst * 100) / 100;
+        pTotGst = Math.round((pCgst + pSgst + pIgst) * 100) / 100;
+        pRoundOff = 0;
+      }
+
       await client.query(
         `UPDATE purchase
          SET invno = $1, invdate = $2, invdatet = $3, altvendorcode = $4,
@@ -12014,9 +12149,9 @@ async function handleInvPurchSave(req, res) {
         [
           invNo, invDate, invDateT, altVendorCode,
           packForwd, insurance, anyOtherChrg, payTerm || " ",
-          vatrCst, currId, rateToday, totVal,
+          vatrCst, currId, rateToday, pTotVal,
           remarks || " ",
-          taxRegime, taxableAmt, cgstAmt, sgstAmt, igstAmt, totalGst, roundOff,
+          taxRegime, pTaxable, pCgst, pSgst, pIgst, pTotGst, pRoundOff,
           session.factory_id, session.year_label, pid
         ]
       );
@@ -14884,7 +15019,7 @@ async function handleDcSave(req, res) {
     const sl = readyLines.length + 1;
     const qty = Number(l.qty || 0);
     if (qty <= 0 || !Number.isFinite(qty)) {
-      return sendJson(res, 200, { error: `In Row: ${sl} , Qty should not be greater than 0` });
+      return sendJson(res, 200, { error: `In Row: ${sl} , Qty should be greater than 0` });
     }
 
     const itemQ = await pool.query(
@@ -22227,6 +22362,77 @@ async function handleAdvAdjustGet(req, res, url) {
   return sendJson(res, 200, await advAdjustBundle(session, targetId));
 }
 
+async function restoreAdvanceBalances(client, { factoryId, yearLabel, isExpense, partyName, expIncId, amountToRestore }) {
+  let remToRestore = Number(amountToRestore || 0);
+  if (remToRestore <= 0) return;
+
+  const advQ = await client.query(
+    `SELECT id, amount, COALESCE(NULLIF(adv_amount, 0), amount) AS orig_adv,
+            COALESCE(adv_balance, 0) AS cur_adv_bal, COALESCE(amt_bal, 0) AS cur_amt_bal
+     FROM fund_trans
+     WHERE factory_id = $1 AND year_label = $2 AND is_expense = $3
+       AND (party_name = $4 OR (exp_inc_id = $5 AND exp_inc_id > 0))
+       AND p_r_a_type = 'Advance'
+     ORDER BY dates DESC, fund_trans_id DESC FOR UPDATE`,
+    [factoryId, yearLabel, isExpense, partyName, expIncId || 0]
+  );
+
+  for (const adv of advQ.rows) {
+    if (remToRestore <= 0) break;
+    const maxCapacity = Number(adv.orig_adv || adv.amount || 0);
+    const curBal = Math.max(Number(adv.cur_adv_bal), Number(adv.cur_amt_bal));
+    const headroom = Math.max(0, maxCapacity - curBal);
+    if (headroom <= 0) continue;
+
+    const restore = Math.min(headroom, remToRestore);
+    await client.query(
+      `UPDATE fund_trans
+       SET amt_bal = LEAST($1::float8, amt_bal + $2),
+           adv_balance = LEAST($1::float8, COALESCE(adv_balance, amt_bal) + $2)
+       WHERE id = $3`,
+      [maxCapacity, restore, adv.id]
+    );
+    remToRestore -= restore;
+  }
+}
+
+async function restoreAdvanceBillBalances(client, { factoryId, yearLabel, trackBill, isExpense, type }) {
+  if (!trackBill || typeof trackBill !== "string" || !trackBill.trim()) return;
+  const tokens = trackBill.split(",").map(t => t.trim()).filter(Boolean);
+  for (const tok of tokens) {
+    const parts = tok.split(":");
+    const billNo = parts[0].trim();
+    const alloc = parts[1] ? Number(parts[1]) : 0;
+    if (!billNo) continue;
+
+    if (!isExpense) {
+      if (alloc > 0) {
+        await client.query(
+          `UPDATE dcinv SET balance = LEAST(totval, balance + $1)
+           WHERE factory_id = $2 AND year_label = $3 AND (invno = $4 OR dcno = $4)`,
+          [alloc, factoryId, yearLabel, billNo]
+        );
+      }
+    } else if (type === "Purchase") {
+      if (alloc > 0) {
+        await client.query(
+          `UPDATE purchase SET balance = LEAST(totval, balance + $1)
+           WHERE factory_id = $2 AND year_label = $3 AND (invno = $4 OR dcno = $4)`,
+          [alloc, factoryId, yearLabel, billNo]
+        );
+      }
+    } else if (type === "SubContract") {
+      if (alloc > 0) {
+        await client.query(
+          `UPDATE dcsubconincoming SET balance = LEAST(totval, balance + $1)
+           WHERE factory_id = $2 AND year_label = $3 AND (dcno = $4 OR invno = $4)`,
+          [alloc, factoryId, yearLabel, billNo]
+        );
+      }
+    }
+  }
+}
+
 async function handleAdvAdjustSave(req, res) {
   const session = await openSession(req);
   if (!session) return sendJson(res, 401, { error: "Sign in first." });
@@ -22300,13 +22506,26 @@ async function handleAdvAdjustSave(req, res) {
         const oldAmt = Number(oldRec.rows[0].amount || 0);
         const oldParty = oldRec.rows[0].party_name;
         const oldIsExp = oldRec.rows[0].is_expense;
+        const oldExpIncId = oldRec.rows[0].exp_inc_id;
+        const oldTrackBill = oldRec.rows[0].track_bill;
+        const oldCode = oldRec.rows[0].code;
 
-        await client.query(
-          `UPDATE fund_trans
-           SET amt_bal = amt_bal + $1, adv_balance = adv_balance + $1
-           WHERE factory_id = $2 AND year_label = $3 AND is_expense = $4 AND party_name = $5 AND p_r_a_type = 'Advance'`,
-          [oldAmt, session.factory_id, session.year_label, oldIsExp, oldParty]
-        );
+        await restoreAdvanceBalances(client, {
+          factoryId: session.factory_id,
+          yearLabel: session.year_label,
+          isExpense: oldIsExp,
+          partyName: oldParty,
+          expIncId: oldExpIncId,
+          amountToRestore: oldAmt
+        });
+
+        await restoreAdvanceBillBalances(client, {
+          factoryId: session.factory_id,
+          yearLabel: session.year_label,
+          trackBill: oldTrackBill,
+          isExpense: oldIsExp,
+          type: oldCode
+        });
 
         await client.query(
           `DELETE FROM fund_trans WHERE factory_id = $1 AND year_label = $2 AND p_r_a = 4 AND fund_trans_id = $3`,
@@ -22370,7 +22589,7 @@ async function handleAdvAdjustSave(req, res) {
             `UPDATE dcinv SET balance = GREATEST(0, balance - $1) WHERE invid = $2`,
             [alloc, bill.invid]
           );
-          settledNos.push(bill.invno);
+          settledNos.push(bill.invno + ":" + alloc);
           remBillAlloc -= alloc;
         }
         trackBillStr = settledNos.join(", ");
@@ -22389,7 +22608,7 @@ async function handleAdvAdjustSave(req, res) {
             `UPDATE purchase SET balance = GREATEST(0, balance - $1) WHERE purchid = $2`,
             [alloc, bill.purchid]
           );
-          settledNos.push(bill.inv_no);
+          settledNos.push(bill.inv_no + ":" + alloc);
           remBillAlloc -= alloc;
         }
         trackBillStr = settledNos.join(", ");
@@ -22416,7 +22635,7 @@ async function handleAdvAdjustSave(req, res) {
               [bAlloc, bId]
             );
           }
-          settledNos.push(sb.billNo);
+          settledNos.push(sb.billNo + ":" + bAlloc);
         }
       }
       trackBillStr = settledNos.join(", ");
@@ -22515,12 +22734,22 @@ async function handleAdvAdjustDelete(req, res) {
     const row = recQ.rows[0];
     const amount = Number(row.amount || 0);
 
-    await client.query(
-      `UPDATE fund_trans
-       SET amt_bal = amt_bal + $1, adv_balance = adv_balance + $1
-       WHERE factory_id = $2 AND year_label = $3 AND is_expense = $4 AND party_name = $5 AND p_r_a_type = 'Advance'`,
-      [amount, session.factory_id, session.year_label, row.is_expense, row.party_name]
-    );
+    await restoreAdvanceBalances(client, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      isExpense: row.is_expense,
+      partyName: row.party_name,
+      expIncId: row.exp_inc_id,
+      amountToRestore: amount
+    });
+
+    await restoreAdvanceBillBalances(client, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      trackBill: row.track_bill,
+      isExpense: row.is_expense,
+      type: row.code
+    });
 
     await client.query(
       `DELETE FROM fund_trans WHERE factory_id = $1 AND year_label = $2 AND p_r_a = 4 AND fund_trans_id = $3`,
@@ -29393,7 +29622,7 @@ async function handleIstSave(req, res) {
       );
       if (!current.rowCount) {
         await client.query("ROLLBACK");
-        return sendJson(res, 400, { error: "Are You Sure To Modify?" });
+        return sendJson(res, 400, { error: "Inter-store transfer record not found for modification." });
       }
       if (await scnStockTouched(client, session, Number(current.rows[0].store_add_id) || 0)) {
         await client.query("ROLLBACK");
@@ -30340,11 +30569,8 @@ async function handleBreakdownGet(req, res, url) {
 
   const rowsQ = await pool.query(query, params);
 
-  // Also get machines for dropdown
-  let machQ = await pool.query("SELECT mach_id, mach_name FROM machine WHERE factory_id = $1 ORDER BY mach_name", [session.factory_id]);
-  if (machQ.rowCount === 0) {
-    machQ = await pool.query("SELECT mach_id, mach_name FROM machine ORDER BY mach_name");
-  }
+  // Also get machines for dropdown (scoped strictly to factory - BUG-SEC-01)
+  const machQ = await pool.query("SELECT mach_id, mach_name FROM machine WHERE factory_id = $1 ORDER BY mach_name", [session.factory_id]);
 
   return sendJson(res, 200, {
     records: rowsQ.rows,
@@ -30969,9 +31195,9 @@ async function handleSalarySave(req, res) {
 
     await client.query(q, params);
 
-    // Update staff payoldbal
+    // Update staff payoldbal (factory isolated - BUG-HR-01)
     const newBal = Number(body.balance || 0);
-    await client.query("UPDATE staff SET payoldbal = $1 WHERE staff_id = $2", [newBal, staffId]);
+    await client.query("UPDATE staff SET payoldbal = $1 WHERE staff_id = $2 AND factory_id = $3", [newBal, staffId, session.factory_id]);
 
     // Handle loan deduction tracking
     const loanAmtDed = Number(body.loanamtded || 0);
@@ -31038,10 +31264,10 @@ async function handleSalaryDelete(req, res) {
       [session.factory_id, year, month, staffId]
     );
 
-    // Restore staff payoldbal to previous oldbal
+    // Restore staff payoldbal to previous oldbal (factory isolated - BUG-HR-01)
     await client.query(
-      `UPDATE staff SET payoldbal = $1 WHERE staff_id = $2`,
-      [Number(r.oldbal || 0), staffId]
+      `UPDATE staff SET payoldbal = $1 WHERE staff_id = $2 AND factory_id = $3`,
+      [Number(r.oldbal || 0), staffId, session.factory_id]
     );
 
     // If loan was deducted, restore loan balance

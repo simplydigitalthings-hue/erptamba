@@ -63,6 +63,7 @@
     btnExcPrint: document.getElementById("invmfg-btn-exc-print"),
     btnExpPrint: document.getElementById("invmfg-btn-exp-print"),
     btnGstPortal: document.getElementById("invmfg-btn-gst-portal"),
+    btnMtc: document.getElementById("invmfg-btn-mtc"),
 
     btnNew: document.getElementById("invmfg-btn-new"),
     btnSave: document.getElementById("invmfg-btn-save"),
@@ -1427,6 +1428,25 @@
           vehicleNo: currentNote.vehicleNo,
           transporter: currentNote.transport
         });
+      }
+    });
+  }
+
+  if (dom.btnMtc) {
+    dom.btnMtc.addEventListener("click", () => {
+      if (!currentNote || !currentNote.invNo) {
+        alert("Please select or save an Invoice first.");
+        return;
+      }
+      let heat = "";
+      if (lines && lines.length > 0) {
+        heat = lines[0].heat_no || lines[0].heat || "";
+      }
+      if (!heat) {
+        heat = prompt("Enter Heat Number for MTC 3.1 Certificate:", "HT-BRASS-701");
+      }
+      if (heat && heat.trim()) {
+        window.open(`/api/print?type=mtc&heat_no=${encodeURIComponent(heat.trim())}`, "_blank");
       }
     });
   }

@@ -58,7 +58,8 @@
     btnNext: document.getElementById("dc-btn-next"),
     btnLast: document.getElementById("dc-btn-last"),
     btnPrint: document.getElementById("dc-btn-print"),
-    btnEway: document.getElementById("dc-btn-eway")
+    btnEway: document.getElementById("dc-btn-eway"),
+    btnMtc: document.getElementById("dc-btn-mtc")
   };
 
   function fmt2(n) {
@@ -993,6 +994,25 @@
           vehicleNo: currentNote.vehicleNo,
           transporter: currentNote.transport
         });
+      }
+    });
+  }
+
+  if (dom.btnMtc) {
+    dom.btnMtc.addEventListener("click", () => {
+      if (!currentNote || !currentNote.dcNo) {
+        alert("Please select or save a Delivery Challan first.");
+        return;
+      }
+      let heat = "";
+      if (currentLines && currentLines.length > 0) {
+        heat = currentLines[0].heat_no || currentLines[0].heat || "";
+      }
+      if (!heat) {
+        heat = prompt("Enter Heat Number for MTC 3.1 Certificate:", "HT-BRASS-701");
+      }
+      if (heat && heat.trim()) {
+        window.open(`/api/print?type=mtc&heat_no=${encodeURIComponent(heat.trim())}`, "_blank");
       }
     });
   }

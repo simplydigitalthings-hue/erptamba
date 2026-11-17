@@ -417,6 +417,16 @@
     });
   }
 
+  const btnSpectro = document.getElementById("trace-btn-spectro");
+  if (btnSpectro) {
+    btnSpectro.addEventListener("click", () => {
+      const q = currentTraceData?.heatNo || (inputQuery ? inputQuery.value : "");
+      if (window.openSpectroHub) {
+        window.openSpectroHub(q);
+      }
+    });
+  }
+
   if (btnClose) {
     btnClose.addEventListener("click", () => window.closeTraceability());
   }

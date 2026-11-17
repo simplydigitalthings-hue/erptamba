@@ -29,6 +29,13 @@ const {
   updateStageProgress,
   renderTravelerPrintHtml
 } = require("./traveler-engine");
+const {
+  ALLOY_PRESETS,
+  getSpectroList,
+  getSpectroByHeatNo,
+  saveSpectroAnalysis,
+  renderMtcPrintHtml
+} = require("./spectro-engine");
 const { calculateStockValuation } = require("./valuation-engine");
 const {
   generateInvoicePdf,
@@ -6848,6 +6855,74 @@ async function handleTravelerStageUpdate(req, res) {
     return sendJson(res, 200, { ok: true, message: "Stage progress logged successfully", data: updated });
   } catch (err) {
     console.error("Traveler stage update error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleSpectroList(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const q = url.searchParams.get("q") || "";
+    const limit = url.searchParams.get("limit") || 50;
+    const offset = url.searchParams.get("offset") || 0;
+    const data = await getSpectroList(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      q,
+      limit,
+      offset
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Spectro list error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleSpectroGet(req, res, url) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const heatNo = url.searchParams.get("heat_no") || url.searchParams.get("heat") || "";
+    const analysisId = url.searchParams.get("id") || "";
+    const data = await getSpectroByHeatNo(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      heatNo,
+      analysisId
+    });
+    return sendJson(res, 200, { ok: true, data });
+  } catch (err) {
+    console.error("Spectro get error:", err);
+    return sendJson(res, 500, { ok: false, message: err.message });
+  }
+}
+
+async function handleSpectroPresets(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  return sendJson(res, 200, { ok: true, data: ALLOY_PRESETS });
+}
+
+async function handleSpectroSave(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  try {
+    const body = await readBody(req);
+    const saved = await saveSpectroAnalysis(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      data: body,
+      user: session.username || "Quality Metallurgist"
+    });
+    return sendJson(res, 200, { ok: true, message: "Spectrometer analysis saved successfully", data: saved });
+  } catch (err) {
+    console.error("Spectro save error:", err);
     return sendJson(res, 500, { ok: false, message: err.message });
   }
 }
@@ -27772,6 +27847,35 @@ async function handlePrintRoute(req, res, url) {
     return;
   }
 
+  if (type === "mtc" || type === "mill-test-cert" || type === "spectro") {
+    const rawHeat = (url.searchParams.get("heat_no") || url.searchParams.get("heat") || url.searchParams.get("no") || "").trim();
+    const rawId = Number(url.searchParams.get("id") || id || 0);
+    const analysis = await getSpectroByHeatNo(pool, {
+      factoryId: session.factory_id,
+      yearLabel: session.year_label,
+      heatNo: rawHeat || undefined,
+      analysisId: rawId || undefined
+    });
+    if (!analysis) {
+      res.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+      res.end("<h3>Spectrometer Heat Analysis / MTC 3.1 record not found.</h3>");
+      return;
+    }
+    const misc = await pool.query(
+      "SELECT print_head, print_short_addr, (SELECT gstin FROM factories WHERE id = $1) AS gstin FROM misc WHERE factory_id = $1 AND year_label = $2",
+      [session.factory_id, session.year_label]
+    );
+    const origin = req.headers.host ? `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}` : "https://sandbox.tambahq.in";
+    const printHtml = await renderMtcPrintHtml({
+      analysis,
+      companyInfo: misc.rows[0] || {},
+      origin
+    });
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(printHtml);
+    return;
+  }
+
   if (type === "po" || type === "purch-po") {
     const rawId = Number(url.searchParams.get("id") || id || 0);
     const bundle = await poBundle(session, rawId);
@@ -31081,6 +31185,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/traveler/get") return await handleTravelerGet(req, res, url);
     if (req.method === "POST" && url.pathname === "/api/traveler/create") return await handleTravelerCreate(req, res);
     if (req.method === "POST" && url.pathname === "/api/traveler/stage/update") return await handleTravelerStageUpdate(req, res);
+    if (req.method === "GET" && url.pathname === "/api/spectro/list") return await handleSpectroList(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/spectro/get") return await handleSpectroGet(req, res, url);
+    if (req.method === "GET" && url.pathname === "/api/spectro/presets") return await handleSpectroPresets(req, res);
+    if (req.method === "POST" && url.pathname === "/api/spectro/save") return await handleSpectroSave(req, res);
     if (req.method === "GET" && url.pathname === "/api/scn") return await handleScnGet(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/save") return await handleScnSave(req, res);
     if (req.method === "POST" && url.pathname === "/api/scn/delete") return await handleScnDelete(req, res);

@@ -73,7 +73,8 @@ const FORM_RIGHTS = {
   frmInspection: "mnuInsMfgLabRand",
   frmInspectionInde: "mnuInsMfgLabIndivi",
   frmInspectionSC: "mnuInsSubCon",
-  frmInspectionIn: "mnuInsCommon"
+  frmInspectionIn: "mnuInsCommon",
+  frmSpectroMTC: "mnuInsCommon"
 };
 
 const MENUS = {
@@ -193,7 +194,8 @@ const MENUS = {
       { label: "Individual Samples", form: "frmInspectionInde" }
     ]},
     { label: "SubContract", form: "frmInspectionSC" },
-    { label: "Inspection COMMON", form: "frmInspectionIn" }
+    { label: "Inspection COMMON", form: "frmInspectionIn" },
+    { label: "Spectro Chemical Analysis & MTC 3.1", form: "frmSpectroMTC" }
   ],
   utilities: [
     { label: "Conversion", form: "frmConv" },
@@ -357,6 +359,7 @@ function renderMenu(items, anchor) {
       if (item.form !== "frmProdnWOReturn" && window.closeIwoReturn) window.closeIwoReturn();
       if (item.form !== "frmProdnStoreCrNote" && window.closeScn) window.closeScn();
       if (item.form !== "frmRouteTraveler" && window.closeTravelerHub) window.closeTravelerHub();
+      if (item.form !== "frmSpectroMTC" && window.closeSpectroHub) window.closeSpectroHub();
       if (item.form !== "frmAssmReqAnaly" && window.closeAssm) window.closeAssm();
       if (item.form !== "frmMatReqAnaly" && window.closeMat) window.closeMat();
       if (item.form !== "frmPlanY" && window.closePlan) window.closePlan();
@@ -894,6 +897,14 @@ function renderMenu(items, anchor) {
         if (window.closeIwo) window.closeIwo();
         if (window.closeScn) window.closeScn();
         if (window.openTravelerHub) window.openTravelerHub();
+        return;
+      }
+      if (item.form === "frmSpectroMTC") {
+        if (window.closeCompany) window.closeCompany();
+        if (window.closeProdn) window.closeProdn();
+        if (window.closeIwo) window.closeIwo();
+        if (window.closeScn) window.closeScn();
+        if (window.openSpectroHub) window.openSpectroHub();
         return;
       }
       if (item.form === "frmProdn") {

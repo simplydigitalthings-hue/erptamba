@@ -5039,17 +5039,22 @@ body.dark-theme .user-guide-body {
 }
 
 [data-theme="dark"] .user-guide-window .guide-action-btn,
-body.dark-theme .user-guide-window .guide-action-btn {
-  background: var(--primary, #2d887d) !important;
+body.dark-theme .user-guide-window .guide-action-btn,
+[data-theme="dark"] .user-guide-window #guide-btn-next,
+body.dark-theme .user-guide-window #guide-btn-next {
+  background: #1c625a !important;
   color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: #2d8276 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme="dark"] .user-guide-window .guide-action-btn:hover,
-body.dark-theme .user-guide-window .guide-action-btn:hover {
-  background: var(--primary-hover, #36a396) !important;
+body.dark-theme .user-guide-window .guide-action-btn:hover,
+[data-theme="dark"] .user-guide-window #guide-btn-next:hover,
+body.dark-theme .user-guide-window #guide-btn-next:hover {
+  background: #23786e !important;
   color: #ffffff !important;
+  border-color: #399c8f !important;
 }
 
 [data-theme="dark"] .user-guide-sidebar,

@@ -1,6 +1,7 @@
 /**
  * Tamba ERP — In-App User Guide & Interactive Knowledge Base
  * Built for complete beginners & industrial enterprise staff.
+ * Designed in accordance with the Tamba ERP UI/UX Design System.
  */
 
 (function () {
@@ -100,41 +101,46 @@
         <div class="guide-intro-hero">
           <h3>Welcome to Tamba ERP! 👋</h3>
           <p class="guide-lead">
-            If you've never used an ERP (Enterprise Resource Planning) system before, don't worry! This guide is written in plain, human English. Think of Tamba ERP as your factory's <b>central nervous system</b> — connecting metal raw materials, CNC machines, workers, quality inspectors, sales dispatch, and the bank ledger into one seamless workflow.
+            If you've never used an ERP (Enterprise Resource Planning) system before, don't worry! This guide is written in plain, human English. Think of Tamba ERP as your factory's <b>central nervous system</b> — connecting metal raw materials, CNC machines, operators, quality inspectors, sales dispatch, and the bank ledger into one seamless workflow.
           </p>
         </div>
 
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">The Master Factory Highway in Tamba ERP:</div>
           <div class="guide-flow-steps">
-            <span class="flow-pill">1. Master Setup</span> ➔ 
-            <span class="flow-pill">2. Buy Metal (Inward)</span> ➔ 
-            <span class="flow-pill">3. Machine Parts (Production)</span> ➔ 
-            <span class="flow-pill">4. Test & Inspect (Quality)</span> ➔ 
-            <span class="flow-pill">5. Ship to Client (Outward)</span> ➔ 
-            <span class="flow-pill">6. Collect Payment (Accounts)</span>
+            <span class="flow-pill">01. Master Setup</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">02. Buy Metal (Inward)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">03. Machine Parts (Production)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">04. Test & Inspect (Quality)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">05. Ship to Client (Outward)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">06. Collect Payment (Accounts)</span>
           </div>
         </div>
 
         <h4>4 Golden Rules for Beginners</h4>
         <div class="guide-cards-grid">
           <div class="guide-card">
-            <div class="guide-card-icon">1️⃣</div>
+            <div class="guide-card-icon">01</div>
             <div class="guide-card-title">Delivery Challan (DC) ≠ Invoice</div>
             <p>A <b>DC</b> is a transport document that physically moves items between locations (or out of your warehouse). An <b>Invoice</b> is the financial bill that demands money and reports to GST.</p>
           </div>
           <div class="guide-card">
-            <div class="guide-card-icon">2️⃣</div>
+            <div class="guide-card-icon">02</div>
             <div class="guide-card-title">GRN vs. SCN (Quarantine)</div>
             <p>When a truck unloads, you make a <b>GRN</b> (Goods Received Note). But stock is NOT usable yet! It sits in quarantine until Quality approves it with an <b>SCN</b> (Store Credit Note). Only SCN adds to active inventory.</p>
           </div>
           <div class="guide-card">
-            <div class="guide-card-icon">3️⃣</div>
+            <div class="guide-card-icon">03</div>
             <div class="guide-card-title">Everything Starts with an Item Code</div>
             <p>Never type a freeform name for parts. Every metal rod, turned pin, screw, or packing carton must have an Item Code created once in the Item Master.</p>
           </div>
           <div class="guide-card">
-            <div class="guide-card-icon">4️⃣</div>
+            <div class="guide-card-icon">04</div>
             <div class="guide-card-title">Locking & Cashflow Protection</div>
             <p>If a customer pays even ₹1 against a bill, or a batch has been consumed in production, the ERP locks the original document from accidental changes to protect accounting integrity.</p>
           </div>
@@ -143,53 +149,57 @@
         <h4>Day 1 Role Quickstart Checklists</h4>
         <p>Pick your job role below to see your essential 5-step daily operating checklist:</p>
 
-        <div class="guide-role-checklist-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px;">
-          <div class="guide-card" style="border-top: 3px solid #0284c7;">
-            <div style="font-weight: 700; color: #0284c7; margin-bottom: 6px;">📦 Storekeeper & Inward Logistics</div>
-            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+        <div class="guide-cards-grid">
+          <div class="guide-card">
+            <div class="guide-card-icon">📦</div>
+            <div class="guide-card-title">Storekeeper & Inward Logistics</div>
+            <ol style="margin: 0 0 10px; padding-left: 18px; font-size: 11.5px; line-height: 1.55;">
               <li>Log truck arrivals on <b>Purchase GRN</b>.</li>
               <li>Wait for QC inspection approval.</li>
               <li>Post approved quantity to stores via <b>SCN</b>.</li>
               <li>Issue raw material to machines via <b>IWO Issue</b>.</li>
               <li>Monitor store balances in <b>Stock Position</b>.</li>
             </ol>
-            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('grn');">🚀 Open GRN Screen</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('grn');">🚀 Open GRN Screen</button>
           </div>
 
-          <div class="guide-card" style="border-top: 3px solid #16a34a;">
-            <div style="font-weight: 700; color: #16a34a; margin-bottom: 6px;">⚙️ CNC Machinist & Supervisor</div>
-            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+          <div class="guide-card">
+            <div class="guide-card-icon">⚙️</div>
+            <div class="guide-card-title">CNC Machinist & Supervisor</div>
+            <ol style="margin: 0 0 10px; padding-left: 18px; font-size: 11.5px; line-height: 1.55;">
               <li>Review cutting parameters in <b>Tooling Recipes</b>.</li>
               <li>Accept issued metal rods under <b>IWO Issue</b>.</li>
               <li>Log output & downtime in <b>Production Log</b>.</li>
               <li>Print & scan tote bin <b>QR Route Travelers</b>.</li>
               <li>Weigh & verify carton counts in <b>Box Packing</b>.</li>
             </ol>
-            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('prodn');">🚀 Open Production Log</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('prodn');">🚀 Open Production Log</button>
           </div>
 
-          <div class="guide-card" style="border-top: 3px solid #9333ea;">
-            <div style="font-weight: 700; color: #9333ea; margin-bottom: 6px;">🔬 Quality & Metrology Inspector</div>
-            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+          <div class="guide-card">
+            <div class="guide-card-icon">🔬</div>
+            <div class="guide-card-title">Quality & Metrology Inspector</div>
+            <ol style="margin: 0 0 10px; padding-left: 18px; font-size: 11.5px; line-height: 1.55;">
               <li>Perform inward inspection on <b>Material SCN</b>.</li>
               <li>Run optical spectrometer chemical tests.</li>
               <li>Generate certified <b>EN 10204 3.1 MTCs</b> with QR.</li>
               <li>Calibrate Go/No-Go plug gauges in <b>Gauge Register</b>.</li>
               <li>Verify backward/forward <b>360° Traceability</b>.</li>
             </ol>
-            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('spectro');">🚀 Open Spectro Hub</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('spectro');">🚀 Open Spectro Hub</button>
           </div>
 
-          <div class="guide-card" style="border-top: 3px solid #d97706;">
-            <div style="font-weight: 700; color: #d97706; margin-bottom: 6px;">💼 Accounts & Finance Specialist</div>
-            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+          <div class="guide-card">
+            <div class="guide-card-icon">💼</div>
+            <div class="guide-card-title">Accounts & Finance Specialist</div>
+            <ol style="margin: 0 0 10px; padding-left: 18px; font-size: 11.5px; line-height: 1.55;">
               <li>Match vendor bills to SCNs in <b>Inward Invoice</b>.</li>
               <li>Generate <b>Sales Tax Invoices</b> from DCs.</li>
               <li>Record vendor payments & customer receipts.</li>
               <li>Perform safe FIFO <b>Advance Adjustments</b>.</li>
               <li>Check GSTR-1 & GSTR-3B monthly tax summaries.</li>
             </ol>
-            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('cashflow');">🚀 Open Cash Flow Hub</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('cashflow');">🚀 Open Cash Flow Hub</button>
           </div>
         </div>
 
@@ -296,10 +306,13 @@
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">The 4-Step Procurement Chain:</div>
           <div class="guide-flow-steps">
-            <span class="flow-pill">1. Purchase PO</span> ➔ 
-            <span class="flow-pill">2. Gate GRN</span> ➔ 
-            <span class="flow-pill">3. QC Inspection (SCN)</span> ➔ 
-            <span class="flow-pill">4. Inward Invoice</span>
+            <span class="flow-pill">01. Purchase PO</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">02. Gate GRN</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">03. QC Inspection (SCN)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">04. Inward Invoice</span>
           </div>
         </div>
 
@@ -318,7 +331,7 @@
             <h4>Receive the Truck with a GRN</h4>
             <p>When goods arrive at the factory gate, open <b>Purchase ➔ Goods Received Note</b>. Reference the vendor's DC number, vehicle number, and link it to your original PO. Enter the gross weight or received quantity.</p>
             <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('grn');">🚀 Open Goods Received Note (GRN)</button>
-            <div class="guide-callout warn" style="margin-top: 8px;">
+            <div class="guide-callout warn">
               <strong>Notice:</strong> At this stage, stock balance in the warehouse is still zero! The material is placed in a "Temporary Inspection Store" until verified.
             </div>
           </div>
@@ -363,10 +376,13 @@
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">Shopfloor Production Lifecycle:</div>
           <div class="guide-flow-steps">
-            <span class="flow-pill">1. IWO Material Issue</span> ➔ 
-            <span class="flow-pill">2. Shift Production Log</span> ➔ 
-            <span class="flow-pill">3. QR Route Traveler</span> ➔ 
-            <span class="flow-pill">4. Box Packing & Weighing</span>
+            <span class="flow-pill">01. IWO Material Issue</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">02. Shift Production Log</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">03. QR Route Traveler</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">04. Box Packing & Weighing</span>
           </div>
         </div>
 
@@ -494,14 +510,14 @@
 
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">Manufacturing Sales vs. Labour Job Work:</div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
-            <div style="background: var(--surface-bg, #fff); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color, #c0d0e0);">
-              <b>Manufacturing (You supply metal):</b><br>
-              Quotation ➔ Inward PO ➔ Delivery Challan (DC) ➔ Tax Invoice (HSN Goods)
+          <div class="guide-cards-grid" style="margin-top: 8px;">
+            <div class="guide-card">
+              <div class="guide-card-title">Manufacturing (You supply metal)</div>
+              <p>Quotation ➔ Inward PO ➔ Delivery Challan (DC) ➔ Tax Invoice (HSN Goods)</p>
             </div>
-            <div style="background: var(--surface-bg, #fff); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color, #c0d0e0);">
-              <b>Labour Work (Customer supplies metal):</b><br>
-              DC Inward ➔ Machining ➔ DC Outward ➔ Labour Tax Invoice (SAC 9988 Service)
+            <div class="guide-card">
+              <div class="guide-card-title">Labour Work (Customer supplies metal)</div>
+              <p>DC Inward ➔ Machining ➔ DC Outward ➔ Labour Tax Invoice (SAC 9988 Service)</p>
             </div>
           </div>
         </div>
@@ -577,11 +593,15 @@
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">Subcontract Flow:</div>
           <div class="guide-flow-steps">
-            <span class="flow-pill">1. Work Order</span> ➔ 
-            <span class="flow-pill">2. SubCon DC Out (Annexure II)</span> ➔ 
-            <span class="flow-pill">3. SubCon GRN In</span> ➔ 
-            <span class="flow-pill">4. SubCon SCN</span> ➔ 
-            <span class="flow-pill">5. Service Bill</span>
+            <span class="flow-pill">01. Work Order</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">02. SubCon DC Out (Annex II)</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">03. SubCon GRN In</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">04. SubCon SCN</span>
+            <span class="guide-flow-arrow">➔</span>
+            <span class="flow-pill">05. Service Bill</span>
           </div>
         </div>
 
@@ -842,8 +862,17 @@
     const roleChips = document.querySelectorAll(".guide-chip");
     const closeBtn = document.getElementById("guide-btn-close");
     const printCheatBtn = document.getElementById("guide-btn-print-cheat");
+    const mobileNavBtn = document.getElementById("guide-btn-mobile-nav");
+    const sidebar = document.querySelector(".user-guide-sidebar");
 
     if (!listContainer || !contentDisplay) return;
+
+    // Mobile drawer toggle
+    if (mobileNavBtn && sidebar) {
+      mobileNavBtn.addEventListener("click", function () {
+        sidebar.classList.toggle("mobile-open");
+      });
+    }
 
     // Render Chapters List
     renderChapterList();
@@ -879,6 +908,7 @@
 
   function renderChapterList() {
     const listContainer = document.getElementById("guide-chapters-list");
+    const sidebar = document.querySelector(".user-guide-sidebar");
     if (!listContainer) return;
 
     const filterFn = ROLE_MAP[activeRoleFilter] || (() => true);
@@ -917,8 +947,11 @@
     listContainer.querySelectorAll(".guide-nav-item").forEach(btn => {
       btn.addEventListener("click", function () {
         activeChapterId = this.dataset.id;
+        if (sidebar) sidebar.classList.remove("mobile-open");
         renderChapterList();
         renderActiveChapter();
+        const display = document.getElementById("guide-content-display");
+        if (display) display.scrollTop = 0;
       });
     });
   }
@@ -1009,19 +1042,19 @@
         <title>Tamba ERP — Quick Reference SOP Desk Cheat Sheet</title>
         <style>
           @page { size: A4 portrait; margin: 10mm; }
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 10.5px; color: #111; line-height: 1.35; padding: 0; margin: 0; background: #fff; }
-          .header { text-align: center; border-bottom: 2px solid #003366; padding-bottom: 6px; margin-bottom: 8px; }
-          .header h1 { margin: 0; font-size: 16px; color: #003366; text-transform: uppercase; letter-spacing: 0.5px; }
-          .header p { margin: 2px 0 0; font-size: 9px; color: #555; }
+          body { font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 10px; color: #192625; line-height: 1.35; padding: 0; margin: 0; background: #fff; }
+          .header { text-align: center; border-bottom: 2px solid #1c625a; padding-bottom: 6px; margin-bottom: 8px; }
+          .header h1 { margin: 0; font-size: 16px; color: #1c625a; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+          .header p { margin: 2px 0 0; font-size: 9px; color: #586b65; }
           .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-          .section-card { border: 1px solid #7799bb; border-radius: 4px; padding: 6px 8px; background: #fdfdfd; page-break-inside: avoid; }
-          .section-title { font-size: 11px; font-weight: bold; color: #003366; border-bottom: 1px solid #c0d0e0; padding-bottom: 3px; margin-bottom: 4px; display: flex; justify-content: space-between; }
-          .flow-line { background: #eaf1f8; padding: 3px 6px; border-radius: 3px; font-weight: bold; color: #002244; font-size: 9.5px; margin-bottom: 4px; border-left: 3px solid #005a9e; }
+          .section-card { border: 1px solid #b4c4bc; border-radius: 4px; padding: 6px 8px; background: #fdfdfd; page-break-inside: avoid; }
+          .section-title { font-size: 10.5px; font-weight: 700; color: #1c625a; border-bottom: 1px solid #d5dfd9; padding-bottom: 3px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+          .flow-line { background: #e1eee8; padding: 3px 6px; border-radius: 3px; font-weight: 600; color: #1c625a; font-size: 9px; margin-bottom: 4px; border-left: 3px solid #1c625a; font-family: "DM Mono", monospace; }
           ul { margin: 0; padding-left: 14px; }
           li { margin-bottom: 2px; }
-          .badge { font-size: 8px; background: #003366; color: #fff; padding: 1px 4px; border-radius: 2px; }
-          .rule-box { background: #fff8e6; border: 1px solid #ffd166; padding: 4px 6px; border-radius: 3px; font-size: 9px; margin-top: 4px; }
-          .footer { text-align: center; font-size: 8px; color: #777; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 4px; }
+          .badge { font-size: 8px; background: #1c625a; color: #fff; padding: 1px 4px; border-radius: 2px; font-family: "DM Mono", monospace; }
+          .rule-box { background: #f4ecdd; border: 1px solid #d6bd91; padding: 4px 6px; border-radius: 3px; font-size: 9px; margin-top: 4px; color: #704315; }
+          .footer { text-align: center; font-size: 8px; color: #71807d; margin-top: 8px; border-top: 1px solid #d5dfd9; padding-top: 4px; font-family: "DM Mono", monospace; }
         </style>
       </head>
       <body>

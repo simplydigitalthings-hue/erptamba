@@ -116,7 +116,7 @@
       // Cash in Hand card
       bHtml += `
         <div class="cf-bank-card cash-card">
-          <div class="cf-bank-name">💵 Cash in Hand / Petty Cash</div>
+          <div class="cf-bank-name">Cash in Hand / Petty Cash</div>
           <div class="cf-bank-bal" style="color: ${ov.cashBalance >= 0 ? 'var(--primary)' : 'var(--danger)'};">₹${formatCurrency(ov.cashBalance)}</div>
           <div class="cf-bank-meta">Factory petty cash drawer</div>
         </div>
@@ -125,7 +125,7 @@
       for (const b of (ov.banks || [])) {
         bHtml += `
           <div class="cf-bank-card">
-            <div class="cf-bank-name">🏦 ${escapeHtml(b.bankName)}</div>
+            <div class="cf-bank-name">${escapeHtml(b.bankName)}</div>
             <div class="cf-bank-bal">₹${formatCurrency(b.balance)}</div>
             <div class="cf-bank-meta">Credit Limit: ₹${formatCurrency(b.creditLimit)}</div>
           </div>

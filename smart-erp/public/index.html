@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=20261108_1">
-  <link rel="stylesheet" href="/modern-theme.css?v=20261119_topclose">
+  <link rel="stylesheet" href="/modern-theme.css?v=20261119_clean">
   <link rel="stylesheet" href="/premium-login.css?v=20261109_1">
   <link rel="stylesheet" href="/workspace-layout.css?v=20261110_1">
   <link rel="stylesheet" href="/onboarding.css?v=20261110_1">
@@ -125,10 +125,10 @@ License Date   :   01/04/2008</div>
       <button id="chevron" type="button" class="chevron">&gt;&gt;</button>
       <span class="app-brand">Tamba <span>ERP</span></span>
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button id="btn-toggle-theme" type="button" class="theme-toggle-btn" title="Switch between Dark and Light theme">🌙 Dark Theme</button>
+        <button id="btn-toggle-theme" type="button" class="theme-toggle-btn" title="Switch between Dark and Light theme"><svg class="icon-svg icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Dark Theme</button>
         <button id="dash-btn-refresh" type="button" class="theme-toggle-btn" title="Refresh real-time data">↻ Refresh</button>
         <button id="btn-toggle-dashboard" type="button" class="theme-toggle-btn" title="Toggle Operations Dashboard">Live Dashboard</button>
-        <button id="topbar-btn-guide" type="button" class="theme-toggle-btn" title="Open Beginner's User Guide &amp; Knowledge Base" onclick="if(window.openUserGuide) window.openUserGuide();">📖 Guide</button>
+        <button id="topbar-btn-guide" type="button" class="theme-toggle-btn" title="Open Beginner's User Guide &amp; Knowledge Base" onclick="if(window.openUserGuide) window.openUserGuide();">Guide</button>
       </div>
     </header>
     <div class="workspace">
@@ -145,7 +145,7 @@ License Date   :   01/04/2008</div>
         <button type="button" data-menu="maintenance">Maintenance</button>
         <button type="button" data-menu="inspection">Inspection</button>
         <button type="button" data-menu="utilities">Utilities</button>
-        <button type="button" data-menu="guide" id="btn-menu-guide" style="font-weight: 700; color: #005a9e;">📖 User Guide</button>
+        <button type="button" data-menu="guide" id="btn-menu-guide" style="font-weight: 700; color: #005a9e;">User Guide</button>
         <button id="exit" type="button" class="exit">Exit</button>
         <p id="who" class="who"></p>
       </nav>
@@ -158,7 +158,7 @@ License Date   :   01/04/2008</div>
           <!-- Dynamic Role-Tailored Cockpit Body (Populated by dashboard.js) -->
           <div id="dash-dynamic-content">
             <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; font-weight: 600;">
-              ⚡ Loading enterprise cockpit...
+              Loading enterprise cockpit...
             </div>
           </div>
         </div>
@@ -808,7 +808,7 @@ License Date   :   01/04/2008</div>
             <button id="item-last" type="button">&gt;&gt;|</button>
             <span class="action-gap"></span>
             <button id="item-upload" type="button">Upload</button>
-            <button id="item-btn-barcode" type="button" style="background:#6b21a8; color:#fff; font-weight:bold; cursor:pointer;">🏷️ Barcode Label</button>
+            <button id="item-btn-barcode" type="button" style="background:#6b21a8; color:#fff; font-weight:bold; cursor:pointer;">Barcode Label</button>
             <button id="item-close" type="button">CLOSE</button>
           </div>
           <p id="item-status" class="company-status" role="status"></p>
@@ -832,7 +832,7 @@ License Date   :   01/04/2008</div>
               <div class="status-modal-header" style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
                 <div>
                   <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                    <span>⚙️ Component Master &amp; Technical Specifications</span>
+                    <span>Component Master &amp; Technical Specifications</span>
                     <span style="font-size:11px; padding:2px 8px; border-radius:12px; background:rgba(0,122,255,0.12); color:var(--primary, #007aff); font-weight:600;">frmCompMaster</span>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Define raw material cut geometry, weights, tolerances, cycle time &amp; routing</span>
@@ -857,7 +857,7 @@ License Date   :   01/04/2008</div>
                 </div>
 
                 <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0;">
-                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;">📐 Raw Material &amp; Cutting Geometry</legend>
+                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;"> Raw Material &amp; Cutting Geometry</legend>
                   <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; margin-bottom:10px;">
                     <div>
                       <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Linked Raw Material (from Catalog)</label>
@@ -902,13 +902,13 @@ License Date   :   01/04/2008</div>
                   </div>
 
                   <div style="margin-top:10px; padding:8px 12px; background:var(--bg-card); border-radius:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
-                    <span>♻️ Estimated Scrap Recovery: <strong id="comp-scrap-weight-display" style="color:#d97706;">0.0000 Kg</strong> per piece</span>
+                    <span>Estimated Scrap Recovery: <strong id="comp-scrap-weight-display" style="color:#d97706;">0.0000 Kg</strong> per piece</span>
                     <span id="comp-scrap-pct-display" style="color:var(--text-muted); font-size:11px;">Scrap Rate: 0.0%</span>
                   </div>
                 </fieldset>
 
                 <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0;">
-                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;">🏭 Machining &amp; Production Parameters</legend>
+                  <legend style="font-size:12px; font-weight:700; color:var(--primary, #007aff); padding:0 6px;"> Machining &amp; Production Parameters</legend>
                   <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; margin-bottom:10px;">
                     <div>
                       <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px;">Cycle Time (Min)</label>
@@ -949,7 +949,7 @@ License Date   :   01/04/2008</div>
               </div>
 
               <div class="status-modal-footer" style="flex-shrink:0; padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-toolbar);">
-                <button id="comp-save-btn" type="button" style="background:#007aff; color:#fff; border:none; padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">💾 Save Specifications</button>
+                <button id="comp-save-btn" type="button" style="background:#007aff; color:#fff; border:none; padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Save Specifications</button>
                 <button id="comp-cancel-btn" type="button" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:7px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Close</button>
               </div>
             </div>
@@ -961,7 +961,7 @@ License Date   :   01/04/2008</div>
               <div class="status-modal-header" style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border-color);">
                 <div>
                   <h2 style="margin:0; font-size:16px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                    <span>🔗 Item Party Assignments</span>
+                    <span>Item Party Assignments</span>
                     <span style="font-size:11px; padding:2px 8px; border-radius:12px; background:rgba(16,185,129,0.12); color:#10b981; font-weight:600;">frmItemAssign</span>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Assign this item to Customers, Vendors (Subcontractors), and Suppliers</span>
@@ -986,9 +986,9 @@ License Date   :   01/04/2008</div>
                 </div>
 
                 <div style="display:flex; gap:8px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-                  <button id="assign-tab-cust" type="button" class="assign-tab-btn active" style="padding:6px 14px; border-radius:6px; border:1px solid var(--primary, #007aff); background:var(--primary, #007aff); color:#fff; font-weight:600; font-size:12px; cursor:pointer;">🏢 Customers (<span id="assign-cnt-cust">0</span>)</button>
-                  <button id="assign-tab-vend" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">⚙️ Vendors / Job Workers (<span id="assign-cnt-vend">0</span>)</button>
-                  <button id="assign-tab-supp" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">📦 Suppliers (<span id="assign-cnt-supp">0</span>)</button>
+                  <button id="assign-tab-cust" type="button" class="assign-tab-btn active" style="padding:6px 14px; border-radius:6px; border:1px solid var(--primary, #007aff); background:var(--primary, #007aff); color:#fff; font-weight:600; font-size:12px; cursor:pointer;">Customers (<span id="assign-cnt-cust">0</span>)</button>
+                  <button id="assign-tab-vend" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">️ Vendors / Job Workers (<span id="assign-cnt-vend">0</span>)</button>
+                  <button id="assign-tab-supp" type="button" class="assign-tab-btn" style="padding:6px 14px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main); font-weight:600; font-size:12px; cursor:pointer;">Suppliers (<span id="assign-cnt-supp">0</span>)</button>
                 </div>
 
                 <fieldset style="border:1px solid var(--border-color); border-radius:8px; padding:12px 14px; margin:0; background:var(--bg-card);">
@@ -1658,7 +1658,7 @@ License Date   :   01/04/2008</div>
             <button id="iwo-next" type="button">&gt;</button>
             <button id="iwo-last" type="button">&gt;|</button>
             <button id="iwo-print" type="button">Printer</button>
-            <button id="iwo-route-card" type="button" style="background: #1c625a; color: #fff; font-weight: bold; border: 1px solid #134e48; cursor: pointer;">📋 Route Traveler</button>
+            <button id="iwo-route-card" type="button" style="background: #1c625a; color: #fff; font-weight: bold; border: 1px solid #134e48; cursor: pointer;">Route Traveler</button>
             <button id="iwo-close" type="button">Close</button>
           </div>
         </section>
@@ -2027,7 +2027,7 @@ License Date   :   01/04/2008</div>
                 <span class="badge" style="background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; padding: 2px 6px;">Normal: <span id="val-norm">Rs. 0</span></span>
                 <span class="badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 2px 6px;">Slow: <span id="val-slow">Rs. 0</span></span>
                 <span class="badge" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 2px 6px;">Dead: <span id="val-dead">Rs. 0</span></span>
-                <button type="button" id="btn-open-traceability-from-stock" class="invmfg-btn" style="background: #003366; color: #fff; font-weight: bold; padding: 2px 8px; font-size: 11px; cursor: pointer;">🔍 Material Traceability</button>
+                <button type="button" id="btn-open-traceability-from-stock" class="invmfg-btn" style="background: #003366; color: #fff; font-weight: bold; padding: 2px 8px; font-size: 11px; cursor: pointer;">Material Traceability</button>
               </div>
             </div>
 
@@ -2065,9 +2065,9 @@ License Date   :   01/04/2008</div>
                 <span style="margin-left: 30px;">Total Stock Value: Rs. <span id="stock-tot-val" style="color: #28a745;">0.00</span></span>
               </div>
               <div class="actions" style="display: flex; gap: 8px;">
-                <button id="stock-export-xlsx" type="button" class="invmfg-btn" style="min-width: 110px; padding: 4px 12px; font-weight: bold; cursor: pointer; background: #107c41; color: #fff;">📊 Export .xlsx</button>
+                <button id="stock-export-xlsx" type="button" class="invmfg-btn" style="min-width: 110px; padding: 4px 12px; font-weight: bold; cursor: pointer; background: #107c41; color: #fff;">Export .xlsx</button>
                 <button id="stock-export-csv" type="button" class="invmfg-btn" style="min-width: 85px; padding: 4px 10px; font-weight: bold; cursor: pointer; background: #217346; color: #fff;">Export CSV</button>
-                <button id="stock-btn-barcode" type="button" class="invmfg-btn" style="min-width: 125px; padding: 4px 12px; font-weight: bold; cursor: pointer; background: #6b21a8; color: #fff;">🏷️ Barcode Labels</button>
+                <button id="stock-btn-barcode" type="button" class="invmfg-btn" style="min-width: 125px; padding: 4px 12px; font-weight: bold; cursor: pointer; background: #6b21a8; color: #fff;">Barcode Labels</button>
                 <button id="stock-print" type="button" class="invmfg-btn" style="min-width: 75px; padding: 4px 12px; font-weight: bold; cursor: pointer;">Print</button>
                 <button id="stock-close" type="button" class="invmfg-btn" style="min-width: 75px; padding: 4px 12px; font-weight: bold; cursor: pointer;">Close</button>
               </div>
@@ -2080,7 +2080,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #103b60, #2c6e9e); color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 15px;">🔍</span>
+              <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <span>Material Batch &amp; Heat Number Traceability [EN 10204 Type 3.1 Standard]</span>
             </div>
             <button type="button" id="trace-btn-close-x" style="background: transparent; border: none; color: #fff; font-size: 18px; line-height: 1; font-weight: bold; cursor: pointer;">×</button>
@@ -2112,11 +2112,11 @@ License Date   :   01/04/2008</div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <button type="button" id="trace-btn-print" class="invmfg-btn" style="background: #006600; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Print EN 10204 3.1 Dossier</button>
-              <button type="button" id="trace-btn-pdf" class="invmfg-btn" style="background: #800000; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">📄 Download Vector PDF</button>
-              <button type="button" id="trace-btn-heat-qr" class="invmfg-btn" style="background: #6b21a8; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">🏷️ Print Heat QR Label</button>
-              <button type="button" id="trace-btn-traveler" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">📋 View Route Traveler</button>
-              <button type="button" id="trace-btn-spectro" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">🧪 Spectro MTC 3.1</button>
-              <button type="button" id="trace-btn-packing" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">📦 Packing Slips</button>
+              <button type="button" id="trace-btn-pdf" class="invmfg-btn" style="background: #800000; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Download Vector PDF</button>
+              <button type="button" id="trace-btn-heat-qr" class="invmfg-btn" style="background: #6b21a8; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Print Heat QR Label</button>
+              <button type="button" id="trace-btn-traveler" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">View Route Traveler</button>
+              <button type="button" id="trace-btn-spectro" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Spectro MTC 3.1</button>
+              <button type="button" id="trace-btn-packing" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Packing Slips</button>
               <button type="button" id="trace-btn-close" class="invmfg-btn" style="background: #d4d0c8; font-weight: bold; padding: 3px 12px; font-size: 11px; cursor: pointer;">Close</button>
             </div>
           </div>
@@ -2133,7 +2133,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #134e48, #1c625a); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">📋</span>
+              
               <span>Shopfloor Route Card &amp; Digital QR Traveler Hub &bull; Floor-Level Traceability (EN 10204 3.1)</span>
             </div>
             <button type="button" id="traveler-hub-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>
@@ -2143,7 +2143,7 @@ License Date   :   01/04/2008</div>
           <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
+                <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="traveler-search-input" placeholder="Scan Barcode / Search Traveler #, Heat #, WO #..." style="padding: 6px 10px 6px 28px; width: 320px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-family: monospace;">
               </div>
               <button type="button" id="traveler-btn-search" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px;">Search</button>
@@ -2156,7 +2156,7 @@ License Date   :   01/04/2008</div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" id="traveler-btn-camera-scan" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">📷 Open Camera Scanner</button>
+              <button type="button" id="traveler-btn-camera-scan" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Open Camera Scanner</button>
               <button type="button" id="traveler-btn-new" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">+ New Traveler</button>
               <button type="button" id="traveler-btn-close" class="invmfg-btn" style="background: #e2e8f0; color: #334155; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Close</button>
             </div>
@@ -2176,7 +2176,7 @@ License Date   :   01/04/2008</div>
             <!-- Right Detail View -->
             <div id="traveler-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-                <span style="font-size: 36px; margin-bottom: 8px;">📋</span>
+                <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
                 <p style="font-size: 14px; font-weight: bold;">Select a Route Traveler or Scan a Barcode / QR Code</p>
                 <p style="font-size: 12px; color: #94a3b8;">Use your USB Barcode scanner gun or camera to track batch progression.</p>
               </div>
@@ -2189,7 +2189,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #134e48, #1c625a); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">🧪</span>
+              
               <span>Spectrometer Chemical Analysis &amp; EN 10204 3.1 MTC Generator &bull; Metallurgy &amp; RoHS 6(c) Lab</span>
             </div>
             <button type="button" id="spectro-hub-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>
@@ -2199,7 +2199,7 @@ License Date   :   01/04/2008</div>
           <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
+                <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="spectro-search-input" placeholder="Search Heat #, Batch #, Alloy Grade..." style="padding: 6px 10px 6px 28px; width: 320px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-family: monospace;">
               </div>
               <button type="button" id="spectro-btn-search" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px;">Search</button>
@@ -2225,7 +2225,7 @@ License Date   :   01/04/2008</div>
             <!-- Right Detail View -->
             <div id="spectro-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-                <span style="font-size: 36px; margin-bottom: 8px;">🧪</span>
+                <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><path d="M10 2v7.31L4.62 18.5A2 2 0 0 0 6.36 21h11.28a2 2 0 0 0 1.74-2.5L14 9.31V2"></path><line x1="8.5" y1="2" x2="15.5" y2="2"></line><line x1="14" y1="9.31" x2="10" y2="9.31"></line></svg>
                 <p style="font-size: 14px; font-weight: bold;">Select a Heat Record or Create a New Chemical Analysis</p>
                 <p style="font-size: 12px; color: #94a3b8;">Record Optical Emission Spectrometer (OES) assays and issue EN 10204 3.1 Mill Test Certificates.</p>
               </div>
@@ -2238,7 +2238,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #134e48, #1c625a); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">⚖️</span>
+              
               <span>Piece-Count Weighing Scale &amp; Box Packing Slip Hub &bull; Master Carton Barcode Labeling</span>
             </div>
             <button type="button" id="packing-hub-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>
@@ -2248,7 +2248,7 @@ License Date   :   01/04/2008</div>
           <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
+                <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="packing-search-input" placeholder="Search Packing #, Part, PO/DC #, Customer..." style="padding: 6px 10px 6px 28px; width: 320px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-family: monospace;">
               </div>
               <button type="button" id="packing-btn-search" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px;">Search</button>
@@ -2261,7 +2261,7 @@ License Date   :   01/04/2008</div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" id="packing-btn-serial" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">⚖️ Connect USB Scale</button>
+              <button type="button" id="packing-btn-serial" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">️ Connect USB Scale</button>
               <button type="button" id="packing-btn-new" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">+ New Consignment</button>
               <button type="button" id="packing-btn-close" class="invmfg-btn" style="background: #e2e8f0; color: #334155; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Close</button>
             </div>
@@ -2281,7 +2281,7 @@ License Date   :   01/04/2008</div>
             <!-- Right Detail View -->
             <div id="packing-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-                <span style="font-size: 36px; margin-bottom: 8px;">⚖️</span>
+                <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><line x1="12" y1="3" x2="12" y2="21"></line><polyline points="4 7 12 5 20 7"></polyline><path d="M4 7l-2 7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2L8 7"></path><path d="M16 7l-2 7a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l-2-7"></path></svg>
                 <p style="font-size: 14px; font-weight: bold;">Select a Consignment or Weigh New Cartons</p>
                 <p style="font-size: 12px; color: #94a3b8;">Calibrate Piece-Count Scales, tare cartons, and issue OEM Barcode Labels &amp; Master Packing Lists.</p>
               </div>
@@ -2294,7 +2294,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #0f766e, #115e59); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">📏</span>
+              
               <span>Thread Go/No-Go Gauge Calibration &amp; Wear Life Register &bull; Metrology &amp; Tool Crib</span>
             </div>
             <button type="button" id="gauge-hub-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>
@@ -2304,7 +2304,7 @@ License Date   :   01/04/2008</div>
           <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
+                <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="gauge-search-input" placeholder="Search Gauge Ctrl #, Size (M16, G1/2, NPT), Location, Brand..." style="padding: 6px 10px 6px 28px; width: 320px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-family: monospace;">
               </div>
               <button type="button" id="gauge-btn-search" class="invmfg-btn" style="background: #0f766e; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px;">Search</button>
@@ -2325,7 +2325,7 @@ License Date   :   01/04/2008</div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" id="gauge-btn-master-schedule" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">📄 Master Schedule Report</button>
+              <button type="button" id="gauge-btn-master-schedule" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Master Schedule Report</button>
               <button type="button" id="gauge-btn-new" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">+ New Gauge</button>
               <button type="button" id="gauge-btn-close" class="invmfg-btn" style="background: #e2e8f0; color: #334155; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Close</button>
             </div>
@@ -2345,7 +2345,7 @@ License Date   :   01/04/2008</div>
             <!-- Right Detail View -->
             <div id="gauge-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-                <span style="font-size: 36px; margin-bottom: 8px;">📏</span>
+                <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><path d="M2 12h20M2 6h20M2 18h20M6 6v12M18 6v12M12 6v6"></path></svg>
                 <p style="font-size: 14px; font-weight: bold;">Select a Thread Gauge or Register New Tooling</p>
                 <p style="font-size: 12px; color: #94a3b8;">Track shopfloor strike cycles, wear limits, calibration intervals, and direct thermal QR stickers.</p>
               </div>
@@ -2357,7 +2357,7 @@ License Date   :   01/04/2008</div>
         <div id="gauge-issue-modal" hidden style="position: fixed; inset: 0; z-index: 1080; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center;">
           <div style="background: #fff; width: 440px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden;">
             <div style="background: #0284c7; color: #fff; padding: 10px 14px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
-              <span>📍 Tool Crib Issue / Machine Transfer</span>
+              <span>Tool Crib Issue / Machine Transfer</span>
                 <button type="button" class="invmfg-close-btn window-close-btn-top" id="gauge-issue-btn-close-top" data-close-target="#gauge-issue-cancel" title="Close [Esc]" aria-label="Close">✕</button>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span id="gauge-issue-ctrl-no" style="font-family: monospace; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 11px;">-</span>
@@ -2453,7 +2453,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #1e293b, #334155); color: #fff; padding: 7px 14px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">🛠️</span>
+              
               <span>CNC &amp; Traub Machine Setup Recipe Card &bull; Repeat Order Tooling Master</span>
             </div>
             <button type="button" id="recipe-hub-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px;">✕</button>
@@ -2463,7 +2463,7 @@ License Date   :   01/04/2008</div>
           <div style="padding: 10px 14px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <div style="position: relative; display: flex; align-items: center;">
-                <span style="position: absolute; left: 8px; color: #64748b; font-size: 13px;">🔍</span>
+                <svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="recipe-search-input" placeholder="Search Recipe Code, Part #, Machine (CNC, Traub), Collet..." style="padding: 6px 10px 6px 28px; width: 330px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-family: monospace;">
               </div>
               <button type="button" id="recipe-btn-search" class="invmfg-btn" style="background: #334155; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px;">Search</button>
@@ -2496,7 +2496,7 @@ License Date   :   01/04/2008</div>
             <!-- Right Detail View -->
             <div id="recipe-detail-container" style="flex: 1; min-height: 0; height: 100%; overflow-y: auto; padding: 16px 16px 40px 16px; background: #f8fafc;">
               <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-                <span style="font-size: 36px; margin-bottom: 8px;">🛠️</span>
+                <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                 <p style="font-size: 14px; font-weight: bold;">Select a Machine Setup Recipe or Create New</p>
                 <p style="font-size: 12px; color: #94a3b8;">Store repeatable collets, CNC programs, tooling stations, Traub cams, and generate printable setup sheets.</p>
               </div>
@@ -2816,7 +2816,7 @@ License Date   :   01/04/2008</div>
             <div class="issue-end">
               <button id="po-print" type="button">Printer</button>
               <button id="po-pdf" type="button" style="background: #800000; color: #fff; font-weight: bold; cursor: pointer;">Download PDF</button>
-              <button id="po-notify" type="button" style="background: #075e54; color: #fff; font-weight: bold; cursor: pointer;">📲 WhatsApp / Email</button>
+              <button id="po-notify" type="button" style="background: #075e54; color: #fff; font-weight: bold; cursor: pointer;">WhatsApp / Email</button>
               <button id="po-close" type="button">Close</button>
             </div>
           </div>
@@ -3704,10 +3704,10 @@ License Date   :   01/04/2008</div>
                   <div class="dc-btn-group">
                     <button type="button" class="btn" id="dc-btn-print">Printer</button>
                     <button type="button" class="btn" id="dc-btn-pdf" style="background:#800000;color:#fff;font-weight:bold;cursor:pointer;">Download PDF</button>
-                    <button type="button" class="btn" id="dc-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;cursor:pointer;">📲 WhatsApp / Email</button>
+                    <button type="button" class="btn" id="dc-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;cursor:pointer;">WhatsApp / Email</button>
                     <button type="button" class="btn" id="dc-btn-eway" style="background:#0a4b78;color:#fff;font-weight:bold;">E-Way Bill</button>
-                    <button type="button" class="btn" id="dc-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;" title="Print EN 10204 3.1 Mill Test Certificate">📄 MTC 3.1</button>
-                    <button type="button" class="btn" id="dc-btn-packing" style="background:#1c625a;color:#fff;font-weight:bold;" title="Piece-Count Weighing & Box Packing Slip">📦 Packing Slip</button>
+                    <button type="button" class="btn" id="dc-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;" title="Print EN 10204 3.1 Mill Test Certificate">MTC 3.1</button>
+                    <button type="button" class="btn" id="dc-btn-packing" style="background:#1c625a;color:#fff;font-weight:bold;" title="Piece-Count Weighing & Box Packing Slip">Packing Slip</button>
                     <button type="button" class="btn" id="dc-btn-close">Close</button>
                   </div>
                 </div>
@@ -3898,12 +3898,12 @@ License Date   :   01/04/2008</div>
                   <div class="invmfg-printers">
                     <button type="button" class="btn" id="invmfg-btn-tax-print">Tax Invoice Printer</button>
                     <button type="button" class="btn" id="invmfg-btn-pdf" style="background:#800000;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">Download PDF</button>
-                    <button type="button" class="btn" id="invmfg-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">📲 WhatsApp / Email</button>
+                    <button type="button" class="btn" id="invmfg-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">WhatsApp / Email</button>
                     <button type="button" class="btn" id="invmfg-btn-exc-print" style="display:none;">Exc. Invoice Printer</button>
                     <button type="button" class="btn" id="invmfg-btn-exp-print">Exp. Invoice Printer</button>
                     <button type="button" class="btn" id="invmfg-btn-gst-portal" style="background:#0a4b78;color:#fff;font-weight:bold;margin-left:4px;">E-Way / E-Inv</button>
-                    <button type="button" class="btn" id="invmfg-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;margin-left:4px;" title="Print EN 10204 3.1 Mill Test Certificate">📄 MTC 3.1</button>
-                    <button type="button" class="btn" id="invmfg-btn-packing" style="background:#1c625a;color:#fff;font-weight:bold;margin-left:4px;" title="Piece-Count Weighing & Box Packing Slip">📦 Packing Slip</button>
+                    <button type="button" class="btn" id="invmfg-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;margin-left:4px;" title="Print EN 10204 3.1 Mill Test Certificate">MTC 3.1</button>
+                    <button type="button" class="btn" id="invmfg-btn-packing" style="background:#1c625a;color:#fff;font-weight:bold;margin-left:4px;" title="Piece-Count Weighing & Box Packing Slip">Packing Slip</button>
                   </div>
                 </div>
 
@@ -4546,7 +4546,7 @@ License Date   :   01/04/2008</div>
                 </div>
                 <div class="mfgpo-action-misc">
                   <button type="button" class="btn" id="dcout-btn-print">Print</button>
-                  <button type="button" class="btn" id="dcout-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;" title="Print EN 10204 3.1 Mill Test Certificate">📄 MTC 3.1</button>
+                  <button type="button" class="btn" id="dcout-btn-mtc" style="background:#0284c7;color:#fff;font-weight:bold;" title="Print EN 10204 3.1 Mill Test Certificate">MTC 3.1</button>
                   <button type="button" class="btn" id="dcout-btn-close">Close</button>
                 </div>
               </div>
@@ -4732,7 +4732,7 @@ License Date   :   01/04/2008</div>
                   <div class="invmfg-printers">
                     <button type="button" class="btn" id="invlab-btn-tax-print">Tax Invoice Printer</button>
                     <button type="button" class="btn" id="invlab-btn-pdf" style="background:#800000;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">Download PDF</button>
-                    <button type="button" class="btn" id="invlab-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">📲 WhatsApp / Email</button>
+                    <button type="button" class="btn" id="invlab-btn-notify" style="background:#075e54;color:#fff;font-weight:bold;margin-left:4px;cursor:pointer;">WhatsApp / Email</button>
                     <button type="button" class="btn" id="invlab-btn-exc-print" style="display:none;">Exc. Invoice Printer</button>
                     <button type="button" class="btn" id="invlab-btn-exp-print">Exp. Invoice Printer</button>
                     <button type="button" class="btn" id="invlab-btn-gst-portal" style="background:#0a4b78;color:#fff;font-weight:bold;margin-left:4px;">E-Way / E-Inv</button>
@@ -4952,7 +4952,7 @@ License Date   :   01/04/2008</div>
           <div class="ask-box" style="width: 680px; max-width: 95vw; background: #ece9d8; border: 2px outset #ffffff; padding: 12px; font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif; font-size: 11px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #107c41, #1e5c36); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 12px -12px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">📑 Modern Document Generation &amp; Export Center (PDF &amp; Excel)</span>
+              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">Document Generation &amp; Export Center (PDF &amp; Excel)</span>
               <button type="button" id="exp-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#exp-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
@@ -4960,7 +4960,7 @@ License Date   :   01/04/2008</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
               <!-- Left Column: Pure-JS Excel / CSV Binary Workbooks -->
               <fieldset style="border: 1px solid #7f9db9; padding: 10px; background: #fff; border-radius: 4px;">
-                <legend style="font-weight: bold; color: #107c41; font-size: 11px;">📊 One-Click Excel / CSV Exports</legend>
+                <legend style="font-weight: bold; color: #107c41; font-size: 11px;">One-Click Excel / CSV Exports</legend>
                 <div style="font-size: 10px; color: #666; margin-bottom: 8px;">Direct OpenXML (.xlsx) and CSV generation — zero EXCEL.EXE dependency.</div>
                 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -5004,7 +5004,7 @@ License Date   :   01/04/2008</div>
 
               <!-- Right Column: Vector PDF Generation -->
               <fieldset style="border: 1px solid #7f9db9; padding: 10px; background: #fff; border-radius: 4px;">
-                <legend style="font-weight: bold; color: #800000; font-size: 11px;">📄 Professional Vector PDFs (Print-Ready)</legend>
+                <legend style="font-weight: bold; color: #800000; font-size: 11px;">Professional Vector PDFs (Print-Ready)</legend>
                 <div style="font-size: 10px; color: #666; margin-bottom: 8px;">Razor-sharp vector typography, company branding &amp; statutory sign blocks.</div>
 
                 <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -5057,7 +5057,7 @@ License Date   :   01/04/2008</div>
 
             <!-- Footer -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d4d0c8; padding-top: 8px;">
-              <button type="button" id="exp-btn-open-notify" class="btn" style="background:#075e54;color:#fff;font-weight:bold;padding:4px 12px;cursor:pointer;">📲 Open WhatsApp &amp; Email Dispatch Hub</button>
+              <button type="button" id="exp-btn-open-notify" class="btn" style="background:#075e54;color:#fff;font-weight:bold;padding:4px 12px;cursor:pointer;">Open WhatsApp &amp; Email Dispatch Hub</button>
               <button type="button" id="exp-modal-btn-close" class="btn" style="min-width: 80px; padding: 4px 12px; cursor: pointer;">Close</button>
             </div>
           </div>
@@ -5068,15 +5068,15 @@ License Date   :   01/04/2008</div>
           <div class="ask-box" style="width: 760px; max-width: 96vw; background: #ece9d8; border: 2px outset #ffffff; padding: 12px; font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif; font-size: 11px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #075e54, #128c7e); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">📲 Automated WhatsApp &amp; Email Dispatch Hub</span>
+              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">WhatsApp &amp; Email Dispatch Hub</span>
               <button type="button" id="notify-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#notify-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Tabs: Send Dispatch, Outbox History, Gateway Settings -->
             <div style="display: flex; gap: 4px; border-bottom: 2px solid #075e54; margin-bottom: 12px;">
-              <button type="button" id="notify-tab-btn-send" class="btn" style="background: #075e54; color: #fff; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">✉️ Send Dispatch</button>
-              <button type="button" id="notify-tab-btn-outbox" class="btn" style="background: #d4d0c8; color: #333; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">📋 Outbox History (<span id="notify-outbox-badge">0</span>)</button>
-              <button type="button" id="notify-tab-btn-settings" class="btn" style="background: #d4d0c8; color: #333; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">⚙️ Gateway Settings</button>
+              <button type="button" id="notify-tab-btn-send" class="btn" style="background: #075e54; color: #fff; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">️ Send Dispatch</button>
+              <button type="button" id="notify-tab-btn-outbox" class="btn" style="background: #d4d0c8; color: #333; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">Outbox History (<span id="notify-outbox-badge">0</span>)</button>
+              <button type="button" id="notify-tab-btn-settings" class="btn" style="background: #d4d0c8; color: #333; font-weight: bold; padding: 5px 12px; border: none; border-radius: 4px 4px 0 0; cursor: pointer;">Gateway Settings</button>
             </div>
 
             <!-- Tab 1: Send Dispatch View -->
@@ -5100,7 +5100,7 @@ License Date   :   01/04/2008</div>
                 <span style="font-weight: bold; color: #333;">Dispatch Channel:</span>
                 <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
                   <input type="radio" name="notify_channel" value="BOTH" checked>
-                  <span style="color: #075e54; font-weight: bold;">💬 WhatsApp &amp; 📧 Email</span>
+                  <span style="color: #075e54; font-weight: bold;">WhatsApp &amp; Email</span>
                 </label>
                 <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
                   <input type="radio" name="notify_channel" value="WHATSAPP">
@@ -5139,19 +5139,19 @@ License Date   :   01/04/2008</div>
               <div style="background: #fff; border: 1px dashed #7f9db9; border-radius: 4px; padding: 6px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
                 <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; color: #800000;">
                   <input type="checkbox" id="notify-check-attach-pdf" checked>
-                  <span>📎 Attach Official Print-Ready Vector PDF (<span id="notify-attachment-name">Tax_Invoice_MFG_7047.pdf</span>)</span>
+                  <span>Attach Official Print-Ready Vector PDF (<span id="notify-attachment-name">Tax_Invoice_MFG_7047.pdf</span>)</span>
                 </label>
-                <button type="button" id="notify-btn-preview-pdf" class="btn" style="font-size: 10px; padding: 2px 8px; cursor: pointer;">🔍 Preview PDF</button>
+                <button type="button" id="notify-btn-preview-pdf" class="btn" style="font-size: 10px; padding: 2px 8px; cursor: pointer;">Preview PDF</button>
               </div>
 
               <!-- Dispatch Buttons -->
               <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d4d0c8; padding-top: 10px;">
                 <div style="display: flex; gap: 8px;">
                   <button type="button" id="notify-btn-open-wa-web" class="btn" style="background: #25d366; color: #fff; font-weight: bold; padding: 5px 14px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 6px;">
-                    <span>💬 Open in WhatsApp Web</span>
+                    <span>Open in WhatsApp Web</span>
                   </button>
                   <button type="button" id="notify-btn-send-server" class="btn" style="background: #003366; color: #fff; font-weight: bold; padding: 5px 16px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 6px;">
-                    <span>🚀 Send Automated Dispatch</span>
+                    <span>Send Automated Dispatch</span>
                   </button>
                 </div>
                 <button type="button" id="notify-btn-close" class="btn" style="min-width: 70px; padding: 4px 12px; cursor: pointer;">Close</button>
@@ -5199,7 +5199,7 @@ License Date   :   01/04/2008</div>
             <div id="notify-view-settings" hidden>
               <div style="background: #fff; border: 1px solid #7f9db9; border-radius: 4px; padding: 12px; margin-bottom: 12px;">
                 <fieldset style="border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 12px; border-radius: 4px;">
-                  <legend style="font-weight: bold; color: #003366;">📧 SMTP Email Configuration</legend>
+                  <legend style="font-weight: bold; color: #003366;">SMTP Email Configuration</legend>
                   <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
                     <div>
                       <label style="display:block; margin-bottom:2px;">SMTP Host Server:</label>
@@ -5233,7 +5233,7 @@ License Date   :   01/04/2008</div>
                 </fieldset>
 
                 <fieldset style="border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 12px; border-radius: 4px;">
-                  <legend style="font-weight: bold; color: #075e54;">💬 WhatsApp Business Gateway</legend>
+                  <legend style="font-weight: bold; color: #075e54;">WhatsApp Business Gateway</legend>
                   <div style="margin-bottom: 6px;">
                     <label style="display:block; margin-bottom:2px;">Dispatch Mode:</label>
                     <select id="notify-set-wa-provider" style="width: 100%; box-sizing: border-box; padding: 3px;">
@@ -5260,7 +5260,7 @@ License Date   :   01/04/2008</div>
           <div class="ask-box" style="width: 820px; max-width: 96vw; background: #ece9d8; border: 2px outset #ffffff; padding: 12px; font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif; font-size: 11px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #4a044e, #701a75, #6b21a8); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">🏷️ Industrial Barcode &amp; QR Label Generation Center (ZPL / Direct Print)</span>
+              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">Industrial Barcode &amp; QR Label Generation Center (ZPL / Direct Print)</span>
               <button type="button" id="barcode-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#barcode-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
@@ -5339,7 +5339,7 @@ License Date   :   01/04/2008</div>
                   <label style="font-size: 10px; cursor: pointer; display: flex; align-items: center; gap: 3px;">
                     <input type="checkbox" id="barcode-chk-2d" checked> <b>QR Trace (2D)</b>
                   </label>
-                  <button type="button" id="barcode-btn-refresh-preview" class="btn" style="padding: 2px 8px; font-size: 10px; cursor: pointer; margin-left: auto;">🔄 Refresh</button>
+                  <button type="button" id="barcode-btn-refresh-preview" class="btn" style="padding: 2px 8px; font-size: 10px; cursor: pointer; margin-left: auto;">Refresh</button>
                 </div>
               </div>
             </fieldset>
@@ -5355,15 +5355,15 @@ License Date   :   01/04/2008</div>
             <!-- Action Buttons Footer -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d4d0c8; padding-top: 8px;">
               <div style="font-size: 10px; color: #475569; display: flex; align-items: center; gap: 8px;">
-                <span id="barcode-status-indicator">✅ Ready to generate</span>
+                <span id="barcode-status-indicator">Ready to generate</span>
                 <span style="color: #cbd5e1;">|</span>
                 <span>Supports: Zebra, TSC, TVS, Citizen &amp; Laser/Inkjet</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button type="button" id="barcode-btn-print" class="btn" style="background: #2563eb; color: #fff; font-weight: bold; padding: 5px 14px; cursor: pointer;">🖨️ Print Labels</button>
-                <button type="button" id="barcode-btn-open-tab" class="btn" style="background: #003366; color: #fff; font-weight: bold; padding: 5px 12px; cursor: pointer;">📄 Open in Tab</button>
-                <button type="button" id="barcode-btn-download-zpl" class="btn" style="background: #581c87; color: #fff; font-weight: bold; padding: 5px 12px; cursor: pointer;">📥 Download .ZPL</button>
-                <button type="button" id="barcode-btn-copy-zpl" class="btn" style="background: #334155; color: #fff; font-weight: bold; padding: 5px 10px; cursor: pointer;">📋 Copy ZPL</button>
+                <button type="button" id="barcode-btn-print" class="btn" style="background: #2563eb; color: #fff; font-weight: bold; padding: 5px 14px; cursor: pointer;">Print Labels</button>
+                <button type="button" id="barcode-btn-open-tab" class="btn" style="background: #003366; color: #fff; font-weight: bold; padding: 5px 12px; cursor: pointer;">Open in Tab</button>
+                <button type="button" id="barcode-btn-download-zpl" class="btn" style="background: #581c87; color: #fff; font-weight: bold; padding: 5px 12px; cursor: pointer;">Download .ZPL</button>
+                <button type="button" id="barcode-btn-copy-zpl" class="btn" style="background: #334155; color: #fff; font-weight: bold; padding: 5px 10px; cursor: pointer;">Copy ZPL</button>
                 <button type="button" id="barcode-btn-close" class="btn" style="background: #d4d0c8; padding: 5px 12px; cursor: pointer;">Close</button>
               </div>
             </div>
@@ -5375,7 +5375,7 @@ License Date   :   01/04/2008</div>
           <div class="ask-box" style="width: 720px; max-width: 96vw; background: #ece9d8; border: 2px outset #ffffff; padding: 12px; font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif; font-size: 11px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #b45309, #d97706); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">🪙 Set Today's Mandi &amp; Factory Metal Rates</span>
+              <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">Today's Mandi &amp; Factory Metal Rates</span>
               <button type="button" id="metal-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#metal-rate-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
@@ -5412,11 +5412,11 @@ License Date   :   01/04/2008</div>
             <!-- Footer -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d4d0c8; padding-top: 8px;">
               <div style="font-size: 10px; color: #64748b;" id="metal-modal-status-text">
-                💡 Tip: Changes broadcast live across all client dashboards.
+                Tip: Changes broadcast live across all client dashboards.
               </div>
               <div style="display: flex; gap: 8px;">
                 <button type="button" id="metal-modal-btn-reset-default" class="btn" style="background: #f1f5f9; color: #334155; padding: 5px 12px; cursor: pointer;">↺ Restore Benchmarks</button>
-                <button type="button" id="metal-modal-btn-save" class="btn" style="background: #b45309; color: #fff; font-weight: bold; padding: 5px 16px; cursor: pointer;">💾 Save &amp; Broadcast Rates</button>
+                <button type="button" id="metal-modal-btn-save" class="btn" style="background: #b45309; color: #fff; font-weight: bold; padding: 5px 16px; cursor: pointer;">Save &amp; Broadcast Rates</button>
                 <button type="button" id="metal-modal-btn-close" class="btn" style="background: #d4d0c8; padding: 5px 12px; cursor: pointer;">Close</button>
               </div>
             </div>
@@ -6295,7 +6295,7 @@ License Date   :   01/04/2008</div>
             <!-- Header Bar -->
             <div class="cf-header">
               <div class="cf-title-group">
-                <h2><span>💼</span> Cash Flow &amp; Treasury Command Center</h2>
+                <h2><span></span> Cash Flow &amp; Treasury Command Center</h2>
                 <p>Real-Time Liquidity Cockpit, Daily Passbook Register &amp; Rapid Batch Vouchers</p>
               </div>
               <div class="cf-header-actions">
@@ -6303,18 +6303,18 @@ License Date   :   01/04/2008</div>
                   <span>Liquid Funds:</span>
                   <span id="cf-total-liquid-val">₹0.00</span>
                 </div>
-                <button type="button" class="cf-btn" id="cf-btn-refresh" title="Refresh Live Balances">🔄 Refresh</button>
+                <button type="button" class="cf-btn" id="cf-btn-refresh" title="Refresh Live Balances">Refresh</button>
                 <button type="button" class="cf-btn" id="cf-btn-close" style="font-size: 16px; font-weight: bold;" title="Close Hub">×</button>
               </div>
             </div>
 
             <!-- Tab Navigation Rail -->
             <div class="cf-tabs">
-              <button type="button" class="cf-tab-btn active" data-tab="overview" id="cf-tabnav-overview">📊 1. Overview &amp; Liquidity Cockpit</button>
-              <button type="button" class="cf-tab-btn" data-tab="book" id="cf-tabnav-book">📖 2. Daily Cash &amp; Bank Book</button>
-              <button type="button" class="cf-tab-btn" data-tab="batch" id="cf-tabnav-batch">⚡ 3. Batch Spreadsheet Entry (Fast Grid)</button>
-              <button type="button" class="cf-tab-btn" data-tab="voucher" id="cf-tabnav-voucher">📝 4. Single Voucher Studio</button>
-              <button type="button" class="cf-tab-btn" data-tab="advadjust" id="cf-tabnav-advadjust">⚖️ 5. Advance Adjustments</button>
+              <button type="button" class="cf-tab-btn active" data-tab="overview" id="cf-tabnav-overview">1. Overview &amp; Liquidity Cockpit</button>
+              <button type="button" class="cf-tab-btn" data-tab="book" id="cf-tabnav-book"> 2. Daily Cash &amp; Bank Book</button>
+              <button type="button" class="cf-tab-btn" data-tab="batch" id="cf-tabnav-batch">3. Batch Spreadsheet Entry (Fast Grid)</button>
+              <button type="button" class="cf-tab-btn" data-tab="voucher" id="cf-tabnav-voucher">4. Single Voucher Studio</button>
+              <button type="button" class="cf-tab-btn" data-tab="advadjust" id="cf-tabnav-advadjust">️ 5. Advance Adjustments</button>
             </div>
 
             <!-- TAB 1: OVERVIEW & LIQUIDITY COCKPIT -->
@@ -6344,7 +6344,7 @@ License Date   :   01/04/2008</div>
               </div>
 
               <!-- Bank Accounts & Cash in Hand Grid -->
-              <h3 style="font-size: 13.5px; margin: 0 0 10px 0; color: var(--text-main); font-weight: 700;">🏦 Account Balances Breakdown</h3>
+              <h3 style="font-size: 13.5px; margin: 0 0 10px 0; color: var(--text-main); font-weight: 700;">Account Balances Breakdown</h3>
               <div class="cf-bank-grid" id="cf-bank-cards-container">
                 <!-- Dynamically populated bank cards -->
               </div>
@@ -6354,7 +6354,7 @@ License Date   :   01/04/2008</div>
                 <!-- Monthly Trend Card -->
                 <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-xs);">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">📈 Inflows vs Outflows (Past 6 Months)</h4>
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">Inflows vs Outflows (Past 6 Months)</h4>
                     <span style="font-size: 11px; color: var(--text-muted);">Collections vs Payouts</span>
                   </div>
                   <div id="cf-monthly-chart-container" style="height: 180px; width: 100%; display: flex; align-items: flex-end; gap: 12px; padding-top: 10px; box-sizing: border-box; border-bottom: 1px solid var(--border-color);">
@@ -6368,7 +6368,7 @@ License Date   :   01/04/2008</div>
                 <!-- 30-Day Aging Forecast & Expense Categories -->
                 <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-xs);">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">⏳ 30-Day Liquidity Projections</h4>
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--text-main);">30-Day Liquidity Projections</h4>
                     <span style="font-size: 11px; color: var(--text-muted);">Receivables vs Payables Aging</span>
                   </div>
                   <div id="cf-forecast-buckets-container" style="display: flex; flex-direction: column; gap: 8px;">
@@ -6398,8 +6398,8 @@ License Date   :   01/04/2008</div>
                   <button type="button" class="cf-btn cf-btn-primary" id="cf-book-btn-filter">Search</button>
                 </div>
                 <div class="cf-filter-group">
-                  <button type="button" class="cf-btn" id="cf-btn-export-excel">📥 Export Excel/CSV</button>
-                  <button type="button" class="cf-btn" id="cf-btn-print-book">🖨️ Print Passbook</button>
+                  <button type="button" class="cf-btn" id="cf-btn-export-excel">Export Excel/CSV</button>
+                  <button type="button" class="cf-btn" id="cf-btn-print-book">Print Passbook</button>
                 </div>
               </div>
 
@@ -6441,14 +6441,14 @@ License Date   :   01/04/2008</div>
               <div class="cf-toolbar">
                 <div class="cf-filter-group">
                   <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">
-                    ⚡ <b>Rapid Entry Mode:</b> Press <code>Tab</code> / <code>Enter</code> to navigate cells. Click <b>"Match Bills"</b> or press <code>F4</code> to hand-pick invoices.
+                    <b>Rapid Entry Mode:</b> Press <code>Tab</code> / <code>Enter</code> to navigate cells. Click <b>"Match Bills"</b> or press <code>F4</code> to hand-pick invoices.
                   </span>
                 </div>
                 <div class="cf-filter-group">
                   <span style="font-size: 12px; font-weight: 700;">Total Batch: <span id="cf-batch-total-val" style="font-family: var(--font-mono); color: var(--primary);">₹0.00</span></span>
                   <button type="button" class="cf-btn" id="cf-btn-add-batch-row">+ Add Row (Enter)</button>
                   <button type="button" class="cf-btn" id="cf-btn-clear-batch">Clear All</button>
-                  <button type="button" class="cf-btn cf-btn-success" id="cf-btn-save-batch">💾 Save All Vouchers (Ctrl+S)</button>
+                  <button type="button" class="cf-btn cf-btn-success" id="cf-btn-save-batch">Save All Vouchers (Ctrl+S)</button>
                 </div>
               </div>
 
@@ -6547,8 +6547,8 @@ License Date   :   01/04/2008</div>
                     </label>
                   </div>
                   <div style="display: flex; gap: 10px;">
-                    <button type="button" class="cf-btn cf-btn-success" id="cf-sv-btn-save" style="flex: 1;">💾 Save &amp; Print Voucher</button>
-                    <button type="button" class="cf-btn" id="cf-sv-btn-preview" style="flex: 1;">👁️ Preview Voucher</button>
+                    <button type="button" class="cf-btn cf-btn-success" id="cf-sv-btn-save" style="flex: 1;">Save &amp; Print Voucher</button>
+                    <button type="button" class="cf-btn" id="cf-sv-btn-preview" style="flex: 1;">Preview Voucher</button>
                   </div>
                 </div>
 
@@ -6643,7 +6643,7 @@ License Date   :   01/04/2008</div>
               </div>
 
               <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" class="cf-btn cf-btn-success" id="cf-aa-btn-commit">⚖️ Settle Selected Adjustments</button>
+                <button type="button" class="cf-btn cf-btn-success" id="cf-aa-btn-commit">Settle Selected Adjustments</button>
               </div>
             </div>
 
@@ -6654,7 +6654,7 @@ License Date   :   01/04/2008</div>
             <div id="cf-bill-matcher-drawer" class="cf-drawer-overlay" style="display: none;">
               <div class="cf-drawer">
                 <div class="cf-drawer-header">
-                  <h3>📑 Bill-by-Bill Allocation</h3>
+                  <h3>Bill-by-Bill Allocation</h3>
                   <button type="button" class="cf-btn" id="cf-drawer-btn-close">×</button>
                 </div>
                 <div class="cf-drawer-body">
@@ -8913,13 +8913,13 @@ License Date   :   01/04/2008</div>
           <!-- Role-Based Access Control (RBAC) Preset Strip -->
           <div style="background: #eef3f8; border: 1px solid #7a98af; padding: 6px 12px; margin-bottom: 8px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-weight: bold; color: #003366; font-size: 11px;">👑 Enterprise Role Preset:</span>
+              <span style="font-weight: bold; color: #003366; font-size: 11px;">Enterprise Role Preset:</span>
               <select id="rights-role-select" style="font-size: 11px; padding: 2px 6px; font-weight: bold; color: #000080; border: 1px solid #7a98af; background: #fff;"></select>
               <button type="button" id="rights-btn-apply-role" class="invmfg-btn" style="background: #003366; color: #fff; font-weight: bold; padding: 2px 10px; font-size: 11px; cursor: pointer;">Apply Preset</button>
               <span id="rights-role-badge" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">Plant Manager</span>
             </div>
             <div style="display: flex; align-items: center; gap: 6px;">
-              <button type="button" id="rights-btn-open-audit" class="invmfg-btn" style="background: #660066; color: #fff; font-weight: bold; padding: 2px 10px; font-size: 11px; cursor: pointer;">🛡️ View Security &amp; Audit Trail</button>
+              <button type="button" id="rights-btn-open-audit" class="invmfg-btn" style="background: #660066; color: #fff; font-weight: bold; padding: 2px 10px; font-size: 11px; cursor: pointer;">View Security &amp; Audit Trail</button>
             </div>
           </div>
 
@@ -8955,7 +8955,7 @@ License Date   :   01/04/2008</div>
           <!-- Titlebar -->
           <div style="background: linear-gradient(90deg, #4a154b, #6b2d5c); color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; user-select: none; flex-shrink: 0;">
             <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 15px;">🛡️</span>
+              <span style="font-size: 15px;"></span>
               <span>Immutable Security &amp; Compliance Audit Trail [Cryptographic SHA-256 HMAC Chain]</span>
             </div>
             <button type="button" id="audit-btn-close-x" style="background: transparent; border: none; color: #fff; font-size: 18px; line-height: 1; font-weight: bold; cursor: pointer;">×</button>
@@ -8965,13 +8965,13 @@ License Date   :   01/04/2008</div>
           <div style="padding: 8px 14px; background: #fff; border-bottom: 1px solid #d8e2ec; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span id="audit-chain-badge" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 3px 10px; border-radius: 3px; font-weight: bold; font-size: 11px; display: flex; align-items: center; gap: 6px;">
-                <span>🔒</span> <span id="audit-chain-status-text">Cryptographically Verified &amp; Immutable</span>
+                <span></span> <span id="audit-chain-status-text">Cryptographically Verified &amp; Immutable</span>
               </span>
               <span id="audit-block-count-badge" style="font-size: 11px; color: #555; font-weight: bold;">Loading chain...</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" id="audit-btn-verify" class="invmfg-btn" style="background: #006600; color: #fff; font-weight: bold; padding: 4px 12px; font-size: 11px; cursor: pointer;">🔍 Re-Verify Chain Integrity</button>
-              <button type="button" id="audit-btn-export-xlsx" class="invmfg-btn" style="background: #107c41; color: #fff; font-weight: bold; padding: 4px 12px; font-size: 11px; cursor: pointer;">📊 Export .xlsx</button>
+              <button type="button" id="audit-btn-verify" class="invmfg-btn" style="background: #006600; color: #fff; font-weight: bold; padding: 4px 12px; font-size: 11px; cursor: pointer;">Re-Verify Chain Integrity</button>
+              <button type="button" id="audit-btn-export-xlsx" class="invmfg-btn" style="background: #107c41; color: #fff; font-weight: bold; padding: 4px 12px; font-size: 11px; cursor: pointer;">Export .xlsx</button>
               <button type="button" id="audit-btn-export-csv" class="invmfg-btn" style="background: #217346; color: #fff; font-weight: bold; padding: 4px 10px; font-size: 11px; cursor: pointer;">Export CSV</button>
             </div>
           </div>
@@ -9176,7 +9176,7 @@ License Date   :   01/04/2008</div>
   <section id="gst-reports" class="invmfg-window" hidden style="z-index: 1000; width: 980px; max-width: 96vw; margin: 20px auto; background: #ece9d8; border: 2px outset #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.35);">
     <div style="background: linear-gradient(90deg, #1b4d3e, #4c8c74); color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; user-select: none;">
       <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 16px;">📊</span>
+        
         <span>GST Returns &amp; Tax Compliance Center (GSTR-1 / GSTR-3B)</span>
       </div>
       <button type="button" id="gst-reports-btn-x" style="background: transparent; border: none; color: #fff; font-size: 18px; line-height: 1; font-weight: bold; cursor: pointer;">×</button>
@@ -9204,8 +9204,8 @@ License Date   :   01/04/2008</div>
       <div id="gst-2b-bar" style="display: none; justify-content: space-between; align-items: center; background: #eef3f8; padding: 6px 10px; border: 1px solid #7f9db9; border-radius: 3px; font-size: 11px; flex-wrap: wrap; gap: 6px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <input type="file" id="gst-file-2b" accept=".json" style="display: none;">
-          <button type="button" id="gst-btn-upload-2b" class="btn" style="background: #005a9e; color: #fff; font-weight: bold; padding: 3px 10px; cursor: pointer;" title="Upload GSTR-2B JSON downloaded from GST portal">📁 Upload Portal 2B JSON</button>
-          <button type="button" id="gst-btn-sample-2b" class="btn" style="background: #4a6572; color: #fff; padding: 3px 10px; cursor: pointer;" title="Load simulated GSTR-2B portal data for current inward bills">⚡ Load Portal Simulation</button>
+          <button type="button" id="gst-btn-upload-2b" class="btn" style="background: #005a9e; color: #fff; font-weight: bold; padding: 3px 10px; cursor: pointer;" title="Upload GSTR-2B JSON downloaded from GST portal">Upload Portal 2B JSON</button>
+          <button type="button" id="gst-btn-sample-2b" class="btn" style="background: #4a6572; color: #fff; padding: 3px 10px; cursor: pointer;" title="Load simulated GSTR-2B portal data for current inward bills">Load Portal Simulation</button>
           <span id="gst-2b-file-label" style="color: #666; font-style: italic;">No file chosen</span>
         </div>
         <div style="display: flex; align-items: center; gap: 4px;">
@@ -9279,7 +9279,7 @@ License Date   :   01/04/2008</div>
       <!-- Titlebar / Action Bar -->
       <div style="background: linear-gradient(90deg, #0a246a, #a6caf0); color: #fff; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; user-select: none;">
         <div style="font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 15px;">🖨️</span>
+          <span style="font-size: 15px;"></span>
           <span id="print-preview-title">Print Preview</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -9301,15 +9301,15 @@ License Date   :   01/04/2008</div>
   <section id="user-guide-window" class="user-guide-window" hidden aria-label="User Guide & Knowledge Base">
     <div class="user-guide-header">
       <div class="user-guide-header-left">
-        <button type="button" id="guide-btn-mobile-nav" class="guide-mobile-nav-btn" aria-label="Toggle Table of Contents" title="Show Topics">📑 Topics</button>
-        <span class="user-guide-header-icon">📖</span>
+        <button type="button" id="guide-btn-mobile-nav" class="guide-mobile-nav-btn" aria-label="Toggle Table of Contents" title="Show Topics">Topics</button>
+        
         <div class="user-guide-header-text">
           <span class="user-guide-title">Tamba ERP — Beginner's End-to-End Operating Guide</span>
           <span class="guide-badge-pill">Zero-Jargon • Step-by-Step</span>
         </div>
       </div>
       <div class="user-guide-header-actions">
-        <button type="button" id="guide-btn-print-cheat" class="btn btn-secondary guide-print-btn" title="Print 2-Page A4 Desk Reference Card">🖨️ Print Desk Cheat Sheet</button>
+        <button type="button" id="guide-btn-print-cheat" class="btn btn-secondary guide-print-btn" title="Print 2-Page A4 Desk Reference Card">Print Desk Cheat Sheet</button>
         <button type="button" id="guide-btn-close" class="user-guide-close-btn" title="Close Guide">×</button>
       </div>
     </div>
@@ -9317,7 +9317,7 @@ License Date   :   01/04/2008</div>
       <!-- Left Navigation Pane -->
       <aside class="user-guide-sidebar">
         <div class="guide-search-wrapper">
-          <input type="search" id="guide-search-input" placeholder="🔍 Search workflows, screens, errors..." aria-label="Search User Guide">
+          <input type="search" id="guide-search-input" placeholder="Search workflows, screens, errors..." aria-label="Search User Guide">
         </div>
         <div class="guide-role-filter">
           <span class="guide-role-label">Role Filter:</span>
@@ -9343,7 +9343,7 @@ License Date   :   01/04/2008</div>
 
   <script src="/print.js?v=8"></script>
   <script src="/onboarding.js?v=20261110_1"></script>
-  <script src="/app.js?v=20261119_topclose"></script>
+  <script src="/app.js?v=20261119_clean"></script>
   <script src="/menu-layout.js?v=20261109_1"></script>
   <script src="/company.js"></script>
   <script src="/users.js?v=9"></script>
@@ -9432,6 +9432,6 @@ License Date   :   01/04/2008</div>
   <script src="/barcode.js?v=20261107_1"></script>
   <script src="/window-manager.js?v=20261109_4"></script>
   <script src="/workspace-layout.js?v=20261109_3"></script>
-  <script src="/guide.js?v=20261119_full"></script>
+  <script src="/guide.js?v=20261119_clean"></script>
 </body>
 </html>

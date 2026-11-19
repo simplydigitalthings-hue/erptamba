@@ -68,7 +68,7 @@
   }
 
   async function loadItemData(targetCode) {
-    statusIndicator.textContent = "⏳ Fetching item master...";
+    statusIndicator.textContent = "Fetching item master...";
     try {
       const res = await fetch(`/api/barcode/item-data?itemCode=${encodeURIComponent(targetCode || "")}`);
       if (!res.ok) throw new Error("Failed to load item barcode data.");
@@ -94,7 +94,7 @@
       updateLivePreview();
     } catch (err) {
       console.error(err);
-      statusIndicator.textContent = "⚠️ Error loading item: " + err.message;
+      statusIndicator.textContent = "Error loading item: " + err.message;
       updateLivePreview();
     }
   }
@@ -126,7 +126,7 @@
     const uom = metaUom.value.trim() || "NOS";
     const copies = parseInt(inputCopies.value, 10) || (template === "A4-24UP" ? 24 : 1);
 
-    statusIndicator.textContent = "🔄 Rendering live preview...";
+    statusIndicator.textContent = "Rendering live preview...";
 
     try {
       const queryParams = new URLSearchParams({
@@ -152,7 +152,7 @@
         previewRender.style.display = "none";
         zplRaw.style.display = "block";
         zplRaw.value = json.zpl;
-        statusIndicator.textContent = `✅ ZPL II Code Ready (${json.zpl.length} bytes)`;
+        statusIndicator.textContent = `ZPL II Code Ready (${json.zpl.length} bytes)`;
         return;
       }
 
@@ -162,10 +162,10 @@
 
       // Visual Interactive Card Render
       renderPreviewCard(json, template);
-      statusIndicator.textContent = `✅ Live Preview Active &bull; ${template} &bull; ${itemCode}`;
+      statusIndicator.textContent = `Live Preview Active &bull; ${template} &bull; ${itemCode}`;
     } catch (err) {
       console.error(err);
-      statusIndicator.textContent = "❌ Preview error: " + err.message;
+      statusIndicator.textContent = "Preview error: " + err.message;
     }
   }
 
@@ -270,14 +270,14 @@
       iframe.style.border = "none";
       document.body.appendChild(iframe);
     }
-    statusIndicator.textContent = "🖨️ Opening browser print spooler...";
+    statusIndicator.textContent = "Opening browser print spooler...";
     iframe.src = url;
     iframe.onload = function () {
       setTimeout(() => {
         try {
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
-          statusIndicator.textContent = "✅ Print job sent to spooler.";
+          statusIndicator.textContent = "Print job sent to spooler.";
         } catch (e) {
           window.open(url, "_blank");
         }
@@ -298,7 +298,7 @@
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    statusIndicator.textContent = "✅ ZPL file downloaded.";
+    statusIndicator.textContent = "ZPL file downloaded.";
   }
 
   function copyZpl() {
@@ -308,7 +308,7 @@
       const prev = btnCopyZpl.textContent;
       btnCopyZpl.textContent = "✓ Copied!";
       setTimeout(() => (btnCopyZpl.textContent = prev), 1800);
-      statusIndicator.textContent = "✅ ZPL code copied to clipboard.";
+      statusIndicator.textContent = "ZPL code copied to clipboard.";
     }).catch(err => {
       alert("Please copy manually from the text box.");
     });

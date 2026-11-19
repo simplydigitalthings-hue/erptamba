@@ -28,7 +28,7 @@
     // Update any theme toggle buttons in the UI
     const btns = document.querySelectorAll("#btn-toggle-theme, #dash-btn-theme-toggle");
     btns.forEach((btn) => {
-      btn.innerHTML = theme === "dark" ? "☀️ Light Theme" : "🌙 Dark Theme";
+      btn.innerHTML = theme === "dark" ? "Light Theme" : "Dark Theme";
       btn.setAttribute("title", `Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`);
     });
   }
@@ -187,7 +187,7 @@
     toolbar.className = "modern-table-toolbar";
     toolbar.innerHTML = `
       <div class="table-search-box">
-        <span class="table-search-icon">🔍</span>
+        <span class="table-search-icon"><svg class="icon-svg icon-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
         <input type="text" placeholder="${options.searchPlaceholder || 'Type to filter rows...'}" aria-label="Search Table">
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
@@ -335,7 +335,7 @@
         const rightContainer = mainBar.querySelector("div") || mainBar;
         rightContainer.appendChild(toggleBtn);
       }
-      toggleBtn.innerHTML = theme === "dark" ? "☀️ Light Theme" : "🌙 Dark Theme";
+      toggleBtn.innerHTML = theme === "dark" ? "Light Theme" : "Dark Theme";
       toggleBtn.onclick = toggleTheme;
     }
 
@@ -347,7 +347,7 @@
       dashThemeBtn.type = "button";
       dashThemeBtn.className = "btn";
       dashThemeBtn.style.fontWeight = "bold";
-      dashThemeBtn.innerHTML = theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode";
+      dashThemeBtn.innerHTML = theme === "dark" ? "Light Mode" : "Dark Mode";
       dashThemeBtn.addEventListener("click", toggleTheme);
       dashActions.insertBefore(dashThemeBtn, dashActions.firstChild);
     }

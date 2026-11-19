@@ -153,16 +153,16 @@
 
     const role = data.activeRole || "OWNER";
     const roleBadges = {
-      OWNER: { name: "Business Owner", badgeClass: "badge-owner", icon: "💎" },
-      PLANT_MANAGER: { name: "Plant Manager", badgeClass: "badge-primary", icon: "👑" },
-      ACCOUNTS_BILLING: { name: "Accounts & Billing", badgeClass: "badge-info", icon: "💼" },
-      STORE_KEEPER: { name: "Store & Warehouse", badgeClass: "badge-warning", icon: "📦" },
-      PRODUCTION_SUPERVISOR: { name: "Production Shop-Floor", badgeClass: "badge-danger", icon: "⚙️" },
-      QA_INSPECTOR: { name: "Quality Assurance", badgeClass: "badge-success", icon: "🔬" },
-      HR_PAYROLL: { name: "HR & Payroll", badgeClass: "badge-generic", icon: "👥" }
+      OWNER: { name: "Business Owner", badgeClass: "badge-owner", icon: "" },
+      PLANT_MANAGER: { name: "Plant Manager", badgeClass: "badge-primary", icon: "" },
+      ACCOUNTS_BILLING: { name: "Accounts & Billing", badgeClass: "badge-info", icon: "" },
+      STORE_KEEPER: { name: "Store & Warehouse", badgeClass: "badge-warning", icon: "" },
+      PRODUCTION_SUPERVISOR: { name: "Production Shop-Floor", badgeClass: "badge-danger", icon: "" },
+      QA_INSPECTOR: { name: "Quality Assurance", badgeClass: "badge-success", icon: "" },
+      HR_PAYROLL: { name: "HR & Payroll", badgeClass: "badge-generic", icon: "" }
     };
 
-    const currentBadge = roleBadges[role] || { name: role, badgeClass: "badge-primary", icon: "🏢" };
+    const currentBadge = roleBadges[role] || { name: role, badgeClass: "badge-primary", icon: "" };
     const allowedRoles = data.allowedRoles || [];
 
     container.innerHTML = `
@@ -312,7 +312,7 @@
       <div class="dash-charts-grid">
         <div class="dash-chart-card">
           <div class="dash-chart-header">
-            <span class="dash-chart-title">📈 Monthly Sales vs Purchases Trend</span>
+            <span class="dash-chart-title">Monthly Sales vs Purchases Trend</span>
             <span class="dash-chart-badge">Monthly Comparison</span>
           </div>
           <div class="dash-chart-body">
@@ -322,7 +322,7 @@
 
         <div class="dash-chart-card">
           <div class="dash-chart-header">
-            <span class="dash-chart-title">🏆 Top 5 Customers by Revenue</span>
+            <span class="dash-chart-title">Top 5 Customers by Revenue</span>
             <span class="dash-chart-badge">Client Concentration</span>
           </div>
           <div class="dash-chart-body">
@@ -332,7 +332,7 @@
 
         <div class="dash-chart-card">
           <div class="dash-chart-header">
-            <span class="dash-chart-title">🏦 Bank Liquidity Distribution</span>
+            <span class="dash-chart-title">Bank Liquidity Distribution</span>
             <span class="dash-chart-badge">Capital Allocation</span>
           </div>
           <div class="dash-chart-body">
@@ -1223,7 +1223,7 @@
           </div>
           <div class="dash-metal-actions">
             <span id="dash-metal-timestamp" class="dash-metal-time">Syncing live benchmark...</span>
-            <button type="button" id="btn-metal-edit-modal" class="dash-metal-action-btn" title="Set Today's Factory / Mandi Yard Rates">⚙️ Set Mandi Rates</button>
+            <button type="button" id="btn-metal-edit-modal" class="dash-metal-action-btn" title="Set Today's Factory / Mandi Yard Rates">Set Mandi Rates</button>
             <button type="button" id="btn-metal-refresh" class="dash-metal-action-btn" title="Refresh Live Market Rates">↻ Refresh</button>
           </div>
         </div>
@@ -1318,7 +1318,7 @@
     const statusText = document.getElementById("metal-modal-status-text");
     if (!modal || !tbody) return;
 
-    if (statusText) statusText.textContent = "💡 Tip: Changes broadcast live across all client dashboards.";
+    if (statusText) statusText.textContent = "Tip: Changes broadcast live across all client dashboards.";
 
     try {
       const res = await fetch("/api/metal-rates");
@@ -1367,7 +1367,7 @@
       }
     });
 
-    if (statusText) statusText.textContent = "⏳ Saving and broadcasting live rates...";
+    if (statusText) statusText.textContent = "Saving and broadcasting live rates...";
 
     try {
       const res = await fetch("/api/metal-rates/bulk-update", {
@@ -1377,7 +1377,7 @@
       });
       const data = await res.json();
       if (data.ok) {
-        if (statusText) statusText.textContent = "✅ Rates saved and broadcast successfully!";
+        if (statusText) statusText.textContent = "Rates saved and broadcast successfully.";
         setTimeout(() => {
           closeMetalRatesModal();
           loadDashboard(activeRole, activeFrom, activeTo);

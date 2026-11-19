@@ -9,7 +9,7 @@ test("User Guide: Sidebar 13th Tab, Topbar Button, Mobile Drawer & Window Markup
   // 13th Sidebar tab
   assert.ok(html.includes('data-menu="guide"'), "Must include data-menu='guide' button in sidebar");
   assert.ok(html.includes('id="btn-menu-guide"'), "Must include id='btn-menu-guide'");
-  assert.ok(html.includes("📖 User Guide"), "Must display '📖 User Guide' text");
+  assert.ok(html.includes("User Guide"), "Must display 'User Guide' text");
 
   // Topbar quick button
   assert.ok(html.includes('id="topbar-btn-guide"'), "Must include id='topbar-btn-guide'");

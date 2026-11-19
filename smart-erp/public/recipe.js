@@ -266,11 +266,11 @@
 
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
           ${!isNewDraft ? `
-            <button type="button" id="recipe-btn-print-sheet" class="invmfg-btn" style="background: #0f766e; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">🖨️ Print Setup Sheet (A4)</button>
+            <button type="button" id="recipe-btn-print-sheet" class="invmfg-btn" style="background: #0f766e; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Print Setup Sheet (A4)</button>
           ` : ''}
-          <button type="button" id="recipe-btn-save-record" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">💾 Save Recipe</button>
+          <button type="button" id="recipe-btn-save-record" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">Save Recipe</button>
           ${!isNewDraft ? `
-            <button type="button" id="recipe-btn-delete-record" class="invmfg-btn" style="background: #fee2e2; color: #dc2626; font-weight: bold; padding: 6px 10px; font-size: 11px; cursor: pointer; border-radius: 4px; border: 1px solid #fca5a5;">🗑️ Delete</button>
+            <button type="button" id="recipe-btn-delete-record" class="invmfg-btn" style="background: #fee2e2; color: #dc2626; font-weight: bold; padding: 6px 10px; font-size: 11px; cursor: pointer; border-radius: 4px; border: 1px solid #fca5a5;">Delete</button>
           ` : ''}
         </div>
       </div>
@@ -278,7 +278,7 @@
       <!-- Live Capacity Benchmark Card -->
       <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 24px;">⚡</span>
+          
           <div>
             <div style="font-weight: 800; font-size: 13px; color: #166534;">PRODUCTION BENCHMARK &amp; SHIFT CAPACITY</div>
             <div style="font-size: 11px; color: #15803d;">Calculated at 90% OEE &bull; Jamnagar Brass Turning Standard</div>

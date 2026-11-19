@@ -94,7 +94,7 @@
     if (list.length === 0) {
       listContainer.innerHTML = `
         <div style="padding: 30px 16px; text-align: center; color: #94a3b8;">
-          <span style="font-size: 32px; display: block; margin-bottom: 6px;">⚖️</span>
+          <span style="font-size: 32px; display: block; margin-bottom: 6px;"></span>
           <p style="font-weight: 600; font-size: 13px; color: #475569; margin: 0;">No consignments found</p>
           <p style="font-size: 11px; margin-top: 4px;">Click <b>+ New Consignment</b> to weigh and pack cartons.</p>
         </div>`;
@@ -127,7 +127,7 @@
           </div>
 
           <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: #475569;">
-            <span>📦 <b>${c.total_cartons}</b> Box${c.total_cartons === 1 ? "" : "es"} (${c.total_qty_pieces} pcs)</span>
+            <span><b>${c.total_cartons}</b> Box${c.total_cartons === 1 ? "" : "es"} (${c.total_qty_pieces} pcs)</span>
             <span>Net: <b>${Number(c.total_net_weight_kg).toFixed(3)}</b> kg</span>
           </div>
 
@@ -310,7 +310,7 @@
             <td style="padding: 8px 10px; text-align: right;">
               <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
                 <input type="number" step="1" class="ctn-verified" value="${c.verified_qty}" style="font-family: monospace; font-weight: 800; font-size: 12.5px; color: #1c625a; width: 75px; text-align: right; padding: 4px; border: 1.5px solid #1c625a; border-radius: 3px; background: #f0fdfa;">
-                <button type="button" class="btn-sync-pcs" title="Sync with calculated pieces" style="background: #e2e8f0; border: none; border-radius: 3px; padding: 4px 6px; cursor: pointer; font-size: 10px;">⚡</button>
+                <button type="button" class="btn-sync-pcs" title="Sync with calculated pieces" style="background: #e2e8f0; border: none; border-radius: 3px; padding: 4px 6px; cursor: pointer; font-size: 10px;"></button>
               </div>
             </td>
             <td style="padding: 8px 10px; text-align: center;">
@@ -318,7 +318,7 @@
             </td>
             <td style="padding: 8px 10px; text-align: center;">
               <div style="display: flex; gap: 4px; justify-content: center;">
-                <button type="button" class="btn-print-carton-label" title="Print 4x6'' Thermal Barcode Label" style="background: #1c625a; color: #fff; border: none; border-radius: 3px; padding: 4px 8px; font-size: 11px; cursor: pointer;">🖨️ Label</button>
+                <button type="button" class="btn-print-carton-label" title="Print 4x6'' Thermal Barcode Label" style="background: #1c625a; color: #fff; border: none; border-radius: 3px; padding: 4px 8px; font-size: 11px; cursor: pointer;">Label</button>
                 ${cartons.length > 1 ? `<button type="button" class="btn-remove-carton" title="Remove box" style="background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 3px; padding: 4px 6px; font-size: 11px; cursor: pointer;">✕</button>` : ""}
               </div>
             </td>
@@ -358,14 +358,14 @@
         <div style="display: flex; gap: 8px;">
           ${isSaved ? `
             <button type="button" id="btn-print-master-list" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 6px;">
-              <span>🖨️ Master Packing List (A4)</span>
+              <span>Master Packing List (A4)</span>
             </button>
             <button type="button" id="btn-print-all-labels" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 6px;">
-              <span>🏷️ All Carton Labels</span>
+              <span>All Carton Labels</span>
             </button>
           ` : ""}
           <button type="button" id="btn-save-consignment" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 16px; font-size: 12px; cursor: pointer; border-radius: 4px;">
-            💾 Save Consignment
+            Save Consignment
           </button>
         </div>
       </div>
@@ -373,7 +373,7 @@
       <!-- Consignment Metadata Form -->
       <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
         <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 12px; display: flex; justify-content: space-between;">
-          <span>📦 Consignment &amp; Part Identification</span>
+          <span>Consignment &amp; Part Identification</span>
           <span style="font-size: 11px; color: #64748b; font-weight: normal;">* Required Fields</span>
         </div>
 
@@ -382,7 +382,7 @@
             <label style="display: block; font-weight: 700; color: #334155; margin-bottom: 4px;">Part Code *</label>
             <div style="display: flex; gap: 4px;">
               <input type="text" id="pkg-part-code" value="${esc(consignment.part_code || 'B1-VALVE-BODY')}" style="flex: 1; padding: 6px; border: 1.5px solid #cbd5e1; border-radius: 4px; font-weight: bold; font-family: monospace;">
-              <button type="button" id="btn-lookup-part-apw" title="Fetch APW from Master" style="background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 8px; font-size: 11px; cursor: pointer;">🔍 APW</button>
+              <button type="button" id="btn-lookup-part-apw" title="Fetch APW from Master" style="background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; padding: 0 8px; font-size: 11px; cursor: pointer;">APW</button>
             </div>
           </div>
 
@@ -443,7 +443,7 @@
       <div style="background: linear-gradient(180deg, #f8fafc, #edf2f7); border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 18px;">⚖️</span>
+            <span style="font-size: 18px;"></span>
             <span style="font-weight: 800; font-size: 13px; color: #0f172a;">Piece-Count Weighing Scale Calibration (APW)</span>
           </div>
 
@@ -453,7 +453,7 @@
               <span>Scale Disconnected</span>
             </span>
             <button type="button" id="btn-scale-read" style="background: #0284c7; color: #fff; font-weight: bold; border: none; padding: 5px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">
-              ⚖️ Read Scale Platform
+              Read Scale Platform
             </button>
           </div>
         </div>
@@ -494,7 +494,7 @@
       <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <div style="font-weight: 800; font-size: 13px; color: #0f172a;">
-            📦 Carton Breakdown &amp; Weight Slip Grid
+            Carton Breakdown &amp; Weight Slip Grid
           </div>
           <button type="button" id="btn-add-carton" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 5px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">
             + Add Carton / Box
@@ -546,7 +546,7 @@
         <div>
           ${isSaved ? `
             <button type="button" id="btn-delete-consignment" style="background: #fee2e2; color: #991b1b; font-weight: bold; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 4px; font-size: 11.5px; cursor: pointer;">
-              🗑️ Delete Consignment
+              Delete Consignment
             </button>
           ` : ""}
         </div>
@@ -554,14 +554,14 @@
         <div style="display: flex; gap: 8px;">
           ${isSaved ? `
             <button type="button" id="btn-print-master-list-bottom" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">
-              🖨️ Master Packing List (A4)
+              Master Packing List (A4)
             </button>
             <button type="button" id="btn-print-all-labels-bottom" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">
-              🏷️ All Carton Labels
+              All Carton Labels
             </button>
           ` : ""}
           <button type="button" id="btn-save-consignment-bottom" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 18px; font-size: 12px; cursor: pointer; border-radius: 4px;">
-            💾 Save Consignment
+            Save Consignment
           </button>
         </div>
       </div>
@@ -849,7 +849,7 @@
       } finally {
         saveBtns.forEach((b) => {
           b.disabled = false;
-          b.textContent = "💾 Save Consignment";
+          b.textContent = "Save Consignment";
         });
       }
     }
@@ -916,7 +916,7 @@
     if (!detailContainer) return;
     detailContainer.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-        <span style="font-size: 36px; margin-bottom: 8px;">⚖️</span>
+        <span style="font-size: 36px; margin-bottom: 8px;"></span>
         <p style="font-size: 14px; font-weight: bold;">Select a Consignment or Weigh New Cartons</p>
         <p style="font-size: 12px; color: #94a3b8;">Calibrate Piece-Count Scales, tare cartons, and issue OEM Barcode Labels &amp; Master Packing Lists.</p>
       </div>`;

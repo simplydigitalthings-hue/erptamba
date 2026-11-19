@@ -107,7 +107,7 @@
     if (!gauges || gauges.length === 0) {
       container.innerHTML = `
         <div style="padding: 30px 15px; text-align: center; color: #64748b; font-size: 12px;">
-          <div style="font-size: 24px; margin-bottom: 6px;">📏</div>
+          <div style="margin-bottom: 6px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><path d="M2 12h20M2 6h20M2 18h20M6 6v12M18 6v12M12 6v6"></path></svg></div>
           <strong>No Thread Gauges Found</strong>
           <p style="font-size: 11px; margin-top: 4px; color: #94a3b8;">Click "+ New Gauge" to register a thread plug or ring gauge.</p>
         </div>
@@ -148,7 +148,7 @@
           </div>
 
           <div style="font-size: 11px; color: #64748b; margin-top: 2px; display: flex; justify-content: space-between;">
-            <span>📍 ${escapeHtml(g.current_location || 'Tool Crib')}</span>
+            <span>${escapeHtml(g.current_location || 'Tool Crib')}</span>
             <span>Due: <strong>${g.next_calib_due_date ? String(g.next_calib_due_date).slice(0, 10) : '-'}</strong></span>
           </div>
 
@@ -261,13 +261,13 @@
 
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
           ${!isNewDraft ? `
-            <button type="button" id="gauge-btn-print-sticker" class="invmfg-btn" style="background: #0f766e; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">🖨️ 50x25mm QR Sticker</button>
-            <button type="button" id="gauge-btn-open-issue" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">📍 Issue / Transfer</button>
+            <button type="button" id="gauge-btn-print-sticker" class="invmfg-btn" style="background: #0f766e; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">50x25mm QR Sticker</button>
+            <button type="button" id="gauge-btn-open-issue" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">Issue / Transfer</button>
             <button type="button" id="gauge-btn-open-calib" class="invmfg-btn" style="background: #6d28d9; color: #fff; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">+ Log Calibration</button>
           ` : ''}
-          <button type="button" id="gauge-btn-save-record" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">💾 Save Gauge</button>
+          <button type="button" id="gauge-btn-save-record" class="invmfg-btn" style="background: #059669; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 11.5px; cursor: pointer; border-radius: 4px;">Save Gauge</button>
           ${!isNewDraft ? `
-            <button type="button" id="gauge-btn-delete-record" class="invmfg-btn" style="background: #fee2e2; color: #dc2626; font-weight: bold; padding: 6px 10px; font-size: 11px; cursor: pointer; border-radius: 4px; border: 1px solid #fca5a5;">🗑️ Delete</button>
+            <button type="button" id="gauge-btn-delete-record" class="invmfg-btn" style="background: #fee2e2; color: #dc2626; font-weight: bold; padding: 6px 10px; font-size: 11px; cursor: pointer; border-radius: 4px; border: 1px solid #fca5a5;">Delete</button>
           ` : ''}
         </div>
       </div>
@@ -278,7 +278,7 @@
         <div style="background: #fff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div style="font-weight: 800; font-size: 12px; color: #0f172a; display: flex; align-items: center; gap: 6px;">
-              <span>⚡ Wear Life &amp; Strike Cycle Tracker</span>
+              <span>Wear Life &amp; Strike Cycle Tracker</span>
             </div>
             <span style="font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 3px; background: ${wear.color}15; color: ${wear.color}; border: 1px solid ${wear.color}40;">
               ${escapeHtml(wear.badge)}
@@ -310,7 +310,7 @@
         <div style="background: #fff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div style="font-weight: 800; font-size: 12px; color: #0f172a; display: flex; align-items: center; gap: 6px;">
-              <span>📅 Calibration Due Monitor</span>
+              <span>Calibration Due Monitor</span>
             </div>
             <span style="font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 3px; background: ${calib.color}15; color: ${calib.color}; border: 1px solid ${calib.color}40;">
               ${escapeHtml(calib.badge)}

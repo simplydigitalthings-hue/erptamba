@@ -95,7 +95,7 @@
             <td style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(detailsStr.replace(/<[^>]+>/g, ''))}">${detailsStr}</td>
             <td style="font-size: 10px; color: #555;">${escapeHtml(l.ipAddress)}</td>
             <td style="text-align: center; font-size: 10px;">${getSeverityBadge(l.severity)}</td>
-            <td style="font-family: monospace; font-size: 9px; color: #107c41; font-weight: bold;" title="SHA-256 HMAC Seal: ${escapeHtml(l.signatureShort)}">🔒 ${escapeHtml(l.signatureShort)}</td>
+            <td style="font-family: monospace; font-size: 9px; color: #107c41; font-weight: bold;" title="SHA-256 HMAC Seal: ${escapeHtml(l.signatureShort)}">${escapeHtml(l.signatureShort)}</td>
           </tr>
         `;
       }).join("");
@@ -134,7 +134,7 @@
           badgeEl.style.color = "#721c24";
           badgeEl.style.borderColor = "#f5c6cb";
         }
-        if (statusText) statusText.textContent = `⚠️ Tamper Alert: ${json.message}`;
+        if (statusText) statusText.textContent = `Tamper Alert: ${json.message}`;
         if (blockCountEl) blockCountEl.textContent = `Broken at Block #${json.tamperedRecordId}`;
       }
     } catch (err) {

@@ -169,7 +169,7 @@
     const sendBtn = document.getElementById("notify-btn-send-server");
     if (sendBtn) {
       sendBtn.disabled = true;
-      sendBtn.textContent = "⏳ Dispatching...";
+      sendBtn.textContent = "Dispatching...";
     }
     showStatus("Generating Vector PDF and dispatching notification...");
 
@@ -203,7 +203,7 @@
     } finally {
       if (sendBtn) {
         sendBtn.disabled = false;
-        sendBtn.innerHTML = "<span>🚀 Send Automated Dispatch</span>";
+        sendBtn.innerHTML = "<span>Send Automated Dispatch</span>";
       }
     }
   }
@@ -255,7 +255,7 @@
               <td style="padding: 5px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(l.recipientName)}</td>
               <td style="padding: 5px; font-size: 9px; color: #666;">${escapeHtml(l.recipientPhone || l.recipientEmail || "-")}</td>
               <td style="padding: 5px; text-align: center;">
-                ${l.hasAttachment ? `<span title="${escapeHtml(l.attachmentName)}" style="color: #800000; font-weight: bold; cursor: pointer;">📎 ${l.attachmentSizeKb} KB</span>` : `<span style="color: #ccc;">-</span>`}
+                ${l.hasAttachment ? `<span title="${escapeHtml(l.attachmentName)}" style="color: #800000; font-weight: bold; cursor: pointer;">${l.attachmentSizeKb} KB</span>` : `<span style="color: #ccc;">-</span>`}
               </td>
               <td style="padding: 5px; text-align: center;">
                 <span style="background: ${statusBg}; color: ${statusColor}; padding: 1px 6px; border-radius: 3px; font-weight: bold; font-size: 9px;">${escapeHtml(l.status)}</span>

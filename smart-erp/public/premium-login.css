@@ -130,7 +130,7 @@ body .premium-login-shell #license {
   border-radius: 0 !important;
   box-shadow: none !important;
 }
-.premium-login-shell #license::after { content: " ↗"; margin-left: 5px; color: #71827a; }
+.premium-login-shell #license::after { content: " \2197"; margin-left: 5px; color: #71827a; }
 .premium-login-shell .credential-content { width: 100%; max-width: 390px; margin: auto; padding: 44px 0 40px; }
 .premium-login-shell .form-eyebrow { color: #5e756a; }
 body .premium-login-shell .form-heading h2 {

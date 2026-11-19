@@ -79,7 +79,7 @@
     if (!items || items.length === 0) {
       listContainer.innerHTML = `
         <div style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
-          <div style="font-size: 24px; margin-bottom: 6px;">🔍</div>
+          <div style="font-size: 24px; margin-bottom: 6px;"></div>
           No travelers found matching criteria.
         </div>`;
       return;
@@ -93,8 +93,8 @@
       const progressPct = Math.round((passedStages / totalStages) * 100);
 
       const statusBadge = isCompleted
-        ? `<span style="background: #e6f4ea; color: #137333; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">✔ COMPLETED</span>`
-        : `<span style="background: #feefe3; color: #b06000; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">⚡ ${passedStages}/${totalStages} STAGES</span>`;
+        ? `<span style="background: #e6f4ea; color: #137333; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">COMPLETED</span>`
+        : `<span style="background: #feefe3; color: #b06000; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">${passedStages}/${totalStages} STAGES</span>`;
 
       return `
         <div class="traveler-card ${isSelected ? 'active-card' : ''}" data-id="${t.traveler_id}" style="
@@ -176,7 +176,7 @@
 
       const stepBorder = isPassed ? "#10b981" : isRunning ? "#f59e0b" : "#cbd5e1";
       const stepBg = isPassed ? "#ecfdf5" : isRunning ? "#fffbeb" : "#fff";
-      const icon = isPassed ? "✔" : isRunning ? "⚡" : s.seq_no;
+      const icon = isPassed ? "" : isRunning ? "" : s.seq_no;
       const statusLabel = isPassed ? "PASSED" : isRunning ? "IN PROGRESS" : "PENDING";
       const badgeStyle = isPassed
         ? "background: #d1fae5; color: #065f46;"
@@ -223,7 +223,7 @@
       actionBoxHtml = `
         <div style="background: #f0fdfa; border: 2px solid #1c625a; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
           <div style="font-weight: 800; font-size: 13px; color: #134e48; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <span>⚡</span>
+            <span></span>
             <span>Active Stage Checkpoint &bull; Stage ${activeStage.seq_no}: ${esc(activeStage.stage_name)}</span>
           </div>
 
@@ -256,20 +256,20 @@
               background: #334155; color: #fff; font-weight: bold; padding: 8px 12px; border: none;
               border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 5px;
             ">
-              <span>🛠️ Tooling Setup</span>
+              <span>Tooling Setup</span>
             </button>
             <button type="button" id="btn-traveler-gauge" style="
               background: #0f766e; color: #fff; font-weight: bold; padding: 8px 12px; border: none;
               border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 5px;
             ">
-              <span>📏 Thread Gauge</span>
+              <span>Thread Gauge</span>
             </button>
             <button type="button" id="btn-advance-stage" style="
               background: #1c625a; color: #fff; font-weight: bold; padding: 8px 18px; border: none;
               border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;
               box-shadow: 0 2px 6px rgba(28,98,90,0.25);
             ">
-              <span>✔ Confirm &amp; Advance to Next Stage</span>
+              <span>Confirm &amp; Advance to Next Stage</span>
             </button>
           </div>
         </div>
@@ -277,7 +277,7 @@
     } else if (isCompleted) {
       actionBoxHtml = `
         <div style="background: #ecfdf5; border: 1.5px solid #10b981; border-radius: 8px; padding: 14px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 28px;">🎉</span>
+          <span style="font-size: 14px; font-weight: bold; color: #107c41;">All Stages Completed</span>
           <div>
             <div style="font-weight: 800; font-size: 13px; color: #065f46;">All Machining &amp; Inspection Operations Completed</div>
             <div style="font-size: 11.5px; color: #047857;">Final OK Quantity: <b>${traveler.completed_qty} NOS</b> | Total Scrap: <b>${traveler.rejected_qty} NOS</b>. Ready for Customer Dispatch &amp; Invoice.</div>
@@ -305,13 +305,13 @@
               background: #1c625a; color: #fff; font-weight: bold; padding: 6px 14px; border: none;
               border-radius: 4px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px;
             ">
-              <span>🖨️ Print Route Card (A4/A5)</span>
+              <span>Print Route Card (A4/A5)</span>
             </button>
             <button type="button" id="btn-refresh-traveler" style="
               background: #f1f5f9; color: #475569; font-weight: bold; padding: 6px 12px; border: 1px solid #cbd5e1;
               border-radius: 4px; cursor: pointer; font-size: 12px;
             ">
-              🔄 Refresh
+              Refresh
             </button>
           </div>
         </div>
@@ -418,7 +418,7 @@
           if (!json.ok) {
             alert(json.message || "Failed to update stage.");
             btnAdv.disabled = false;
-            btnAdv.textContent = "✔ Confirm & Advance to Next Stage";
+            btnAdv.textContent = "Confirm & Advance to Next Stage";
             return;
           }
 
@@ -428,7 +428,7 @@
         } catch (err) {
           alert("Network error: " + err.message);
           btnAdv.disabled = false;
-          btnAdv.textContent = "✔ Confirm & Advance to Next Stage";
+          btnAdv.textContent = "Confirm & Advance to Next Stage";
         }
       });
     }
@@ -438,7 +438,7 @@
     if (!detailContainer) return;
     detailContainer.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #64748b; text-align: center;">
-        <span style="font-size: 40px; margin-bottom: 8px;">📋</span>
+        <svg class="empty-state-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
         <p style="font-size: 15px; font-weight: bold; color: #1e293b;">No Route Traveler Selected</p>
         <p style="font-size: 12px; color: #64748b; max-width: 320px;">Scan a physical Route Card with your USB Barcode Gun or select a traveler from the list.</p>
       </div>`;
@@ -494,7 +494,7 @@
     modal.innerHTML = `
       <div style="background: #fff; width: 440px; max-width: 95vw; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
         <div style="background: #1c625a; color: #fff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;">
-          <b style="font-size: 13px;">📷 Camera QR Scanner</b>
+          <b style="font-size: 13px;">Camera QR Scanner</b>
           <button id="cam-close-btn" style="background: none; border: none; color: #fff; font-size: 16px; cursor: pointer;">✕</button>
         </div>
         <div style="padding: 14px; text-align: center;">
@@ -550,7 +550,7 @@
           console.warn("Camera access not available or denied:", err);
           video.parentElement.innerHTML = `
             <div style="padding: 30px 10px; color: #64748b;">
-              <span style="font-size: 28px;">📷</span>
+              <span style="font-size: 28px;"></span>
               <p style="font-size: 12px; margin-top: 6px;">Camera preview is not supported in this browser environment or permission was not granted.</p>
               <p style="font-size: 11px; color: #1c625a; font-weight: bold;">You can use your physical USB Barcode Gun or enter the Traveler / WO number directly.</p>
             </div>

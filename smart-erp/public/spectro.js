@@ -89,7 +89,7 @@
     if (!items || items.length === 0) {
       listContainer.innerHTML = `
         <div style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12px;">
-          <div style="font-size: 24px; margin-bottom: 6px;">🧪</div>
+          <div style="font-size: 24px; margin-bottom: 6px;"></div>
           No chemical heat analyses recorded yet.<br>Click <b>+ New Analysis</b> to create one.
         </div>`;
       return;
@@ -100,8 +100,8 @@
                          (activeAnalysisId && t.analysis_id === activeAnalysisId);
       const isPassed = (t.qa_status || "PASSED") === "PASSED";
       const statusBadge = isPassed
-        ? `<span style="background: #e6f4ea; color: #137333; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">✔ PASSED</span>`
-        : `<span style="background: #feefe3; color: #b06000; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">⚠ ${esc(t.qa_status)}</span>`;
+        ? `<span style="background: #e6f4ea; color: #137333; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">PASSED</span>`
+        : `<span style="background: #feefe3; color: #b06000; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">${esc(t.qa_status)}</span>`;
 
       const rohsChip = t.rohs_compliant
         ? `<span style="background: #e0f2fe; color: #0369a1; padding: 1px 5px; border-radius: 3px; font-size: 9.5px; font-weight: 600;">RoHS 6(c)</span>`
@@ -239,7 +239,7 @@
         <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">🧪</span>
+              <span style="font-size: 16px;"></span>
               <span style="font-size: 15px; font-weight: 700; color: #0f172a; font-family: monospace;">Heat Analysis: ${esc(data.heat_no)}</span>
               ${isNew ? '<span style="background: #fef3c7; color: #92400e; font-size: 10.5px; font-weight: bold; padding: 2px 6px; border-radius: 4px;">NEW DRAFT</span>' : '<span style="background: #e6f4ea; color: #137333; font-size: 10.5px; font-weight: bold; padding: 2px 6px; border-radius: 4px;">RECORDED</span>'}
             </div>
@@ -250,13 +250,13 @@
 
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
             <button type="button" id="spectro-btn-print" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-              <span>📄</span> Print MTC 3.1
+              Print MTC 3.1
             </button>
             <button type="button" id="spectro-btn-copy-link" class="invmfg-btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: bold; padding: 6px 12px; font-size: 11px; cursor: pointer; border-radius: 4px;">
-              🔗 Copy MTC Link
+              Copy MTC Link
             </button>
             <button type="button" id="spectro-btn-save" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 6px 16px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-              <span>💾</span> Save Analysis
+              <span></span> Save Analysis
             </button>
           </div>
         </div>
@@ -265,7 +265,7 @@
           <!-- Section 1: Heat Identification & Specification -->
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
             <div style="font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              <span>📌</span> Heat Identification &amp; Material Standard
+              Heat Identification &amp; Material Standard
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
@@ -304,9 +304,9 @@
               <div>
                 <label style="display: block; font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 4px;">QA Disposition</label>
                 <select id="spectro-qa-status" style="width: 100%; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; font-weight: bold;">
-                  <option value="PASSED" ${data.qa_status === 'PASSED' ? 'selected' : ''}>✔ PASSED (Conforms to Standard)</option>
-                  <option value="REJECTED" ${data.qa_status === 'REJECTED' ? 'selected' : ''}>✖ REJECTED (Out of Spec)</option>
-                  <option value="PENDING_REVIEW" ${data.qa_status === 'PENDING_REVIEW' ? 'selected' : ''}>⏳ PENDING REVIEW</option>
+                  <option value="PASSED" ${data.qa_status === 'PASSED' ? 'selected' : ''}>PASSED (Conforms to Standard)</option>
+                  <option value="REJECTED" ${data.qa_status === 'REJECTED' ? 'selected' : ''}>REJECTED (Out of Spec)</option>
+                  <option value="PENDING_REVIEW" ${data.qa_status === 'PENDING_REVIEW' ? 'selected' : ''}>PENDING REVIEW</option>
                 </select>
               </div>
             </div>
@@ -316,11 +316,11 @@
           <div style="background: #fff; border: 1.5px solid #1c625a; border-radius: 6px; padding: 12px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
               <div style="font-size: 12.5px; font-weight: 700; color: #1c625a; display: flex; align-items: center; gap: 6px;">
-                <span>🔬</span> Chemical Composition Analysis (OES Spectrometer % by Weight)
+                Chemical Composition Analysis (OES Spectrometer % by Weight)
               </div>
               <div style="display: flex; align-items: center; gap: 10px;">
                 <button type="button" id="spectro-btn-calc-zn" style="background: #f0fdfa; border: 1px solid #1c625a; color: #1c625a; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">
-                  ⚡ Auto-Balance Zinc (Zn)
+                  Auto-Balance Zinc (Zn)
                 </button>
                 <div id="spectro-sum-badge" style="padding: 3px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; font-family: monospace; background: #e6f4ea; color: #137333;">
                   Total: 100.00%
@@ -362,7 +362,7 @@
             <!-- Mechanical Properties -->
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
               <div style="font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                <span>⚙</span> Mechanical Properties (Batch Sample)
+                Mechanical Properties (Batch Sample)
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
@@ -383,7 +383,7 @@
             <!-- Statutory RoHS / REACH -->
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
               <div style="font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                <span>🌱</span> RoHS &amp; REACH Compliance Declarations
+                RoHS &amp; REACH Compliance Declarations
               </div>
 
               <div style="margin-bottom: 10px;">
@@ -420,10 +420,10 @@
             </div>
             <div style="display: flex; gap: 8px;">
               <button type="button" id="spectro-btn-print-bottom" class="invmfg-btn" style="background: #0284c7; color: #fff; font-weight: bold; padding: 7px 16px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-                <span>📄</span> Print MTC 3.1
+                Print MTC 3.1
               </button>
               <button type="button" id="spectro-btn-save-bottom" class="invmfg-btn" style="background: #1c625a; color: #fff; font-weight: bold; padding: 7px 18px; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 5px;">
-                <span>💾</span> Save Analysis
+                <span></span> Save Analysis
               </button>
             </div>
           </div>
@@ -451,7 +451,7 @@
             style="width: 110px; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: monospace; font-size: 12px; font-weight: bold;">
         </td>
         <td style="padding: 6px 10px;" id="${id}-eval">
-          <span style="color: #137333; font-size: 11px; font-weight: bold;">✔ OK</span>
+          <span style="color: #137333; font-size: 11px; font-weight: bold;">OK</span>
         </td>
       </tr>
     `;
@@ -571,7 +571,7 @@
         }
 
         btnSave.disabled = true;
-        btnSave.innerHTML = `<span>⏳</span> Saving...`;
+        btnSave.innerHTML = `<span></span> Saving...`;
 
         const payload = {
           heat_no: heatNo,
@@ -612,7 +612,7 @@
           if (!json.ok) {
             alert(`Save failed: ${json.message || "Unknown error"}`);
             btnSave.disabled = false;
-            btnSave.innerHTML = `<span>💾</span> Save Analysis`;
+            btnSave.innerHTML = `<span></span> Save Analysis`;
             return;
           }
 
@@ -625,7 +625,7 @@
           alert(`Save error: ${err.message}`);
         } finally {
           btnSave.disabled = false;
-          btnSave.innerHTML = `<span>💾</span> Save Analysis`;
+          btnSave.innerHTML = `<span></span> Save Analysis`;
         }
       });
     }
@@ -674,9 +674,9 @@
         if (!isNaN(max) && val > max) isOutOfSpec = true;
 
         if (isOutOfSpec) {
-          evalSpan.innerHTML = `<span style="color: #b91c1c; font-size: 11px; font-weight: bold;">⚠ OUT OF SPEC</span>`;
+          evalSpan.innerHTML = `<span style="color: #b91c1c; font-size: 11px; font-weight: bold;">OUT OF SPEC</span>`;
         } else {
-          evalSpan.innerHTML = `<span style="color: #137333; font-size: 11px; font-weight: bold;">✔ OK</span>`;
+          evalSpan.innerHTML = `<span style="color: #137333; font-size: 11px; font-weight: bold;">OK</span>`;
         }
       }
     });

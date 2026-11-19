@@ -70,7 +70,7 @@
         if (resultsArea) {
           resultsArea.innerHTML = `
             <div style="padding: 24px; text-align: center; color: #800000; font-weight: bold; background: #fff8f8; border: 1px dashed #d9534f; border-radius: 4px;">
-              <span style="font-size: 20px;">⚠️</span>
+              
               <p style="margin-top: 6px;">${esc(errMsg)}</p>
               <p style="font-weight: normal; font-size: 11px; color: #666; margin-top: 4px;">Try one of the quick test presets: <b>Inv 7047</b> (Backward) or <b>HT-BRASS-704</b> (Forward).</p>
             </div>`;
@@ -238,7 +238,7 @@
       <!-- Dispatches Affected Table -->
       <div style="background: #fff; border: 1px solid #7a98af; border-radius: 4px; padding: 10px; font-size: 11px;">
         <div style="font-weight: bold; color: #800000; margin-bottom: 8px; font-size: 12px; display: flex; justify-content: space-between;">
-          <span>🚨 Dispatched Customer Invoices Affected (Containment Matrix)</span>
+          <span>Dispatched Customer Invoices Affected (Containment Matrix)</span>
           <span style="font-size: 11px; color: #444;">Total Dispatches: <b>${customerDispatches.length}</b></span>
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 11px;">

@@ -3060,6 +3060,32 @@ section > h1 .window-close-btn-top,
   vertical-align: middle !important;
 }
 
+/* Monochrome Industrial Iconography */
+.icon-svg {
+  display: inline-block;
+  vertical-align: middle;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn .icon-svg,
+.guide-print-btn .icon-svg {
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+.table-search-icon .icon-svg {
+  display: inline-block;
+  color: var(--text-muted);
+}
+
+.empty-state-svg {
+  display: block;
+  margin: 0 auto 8px auto;
+  stroke: var(--text-muted);
+  opacity: 0.6;
+}
+
 /* 6. Card-Based Metric / KPI Boxes */
 #gst-summary-cards > div, .dash-kpi {
   background: var(--bg-panel) !important;

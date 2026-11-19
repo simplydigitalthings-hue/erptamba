@@ -211,7 +211,8 @@ const MENUS = {
     { label: "GST Tax Returns (GSTR-1 & GSTR-3B)", form: "frmGSTReports" },
     { label: "Security & Audit Trail", form: "frmAuditTrail" },
     { label: "WhatsApp & Email Dispatch Hub", form: "frmNotificationHub" },
-    { label: "Barcode & QR Label Center", form: "frmBarcodeHub" }
+    { label: "Barcode & QR Label Center", form: "frmBarcodeHub" },
+    { label: "User Guide & Knowledge Base", form: "frmUserGuide" }
   ]
 };
 
@@ -847,6 +848,10 @@ function renderMenu(items, anchor) {
         if (window.openBarcodeModal) window.openBarcodeModal();
         return;
       }
+      if (item.form === "frmUserGuide") {
+        if (window.openUserGuide) window.openUserGuide();
+        return;
+      }
       if (item.form === "frmEstimation") {
         if (window.closeCompany) window.closeCompany();
         if (window.closeProdn) window.closeProdn();
@@ -1064,6 +1069,16 @@ document.querySelectorAll(".sidebar button[data-menu]").forEach((button) => {
       }
       if (window.openCashflowHub) {
         window.openCashflowHub();
+        return;
+      }
+    }
+    if (button.dataset.menu === "guide") {
+      hidePopup();
+      if (typeof window.toggleDashboard === "function") {
+        window.toggleDashboard(false);
+      }
+      if (window.openUserGuide) {
+        window.openUserGuide();
         return;
       }
     }

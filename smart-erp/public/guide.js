@@ -1,0 +1,945 @@
+/**
+ * Tamba ERP — In-App User Guide & Interactive Knowledge Base
+ * Built for complete beginners & industrial enterprise staff.
+ */
+
+(function () {
+  "use strict";
+
+  // Guide Knowledge Base Database
+  const GUIDE_CHAPTERS = [
+    {
+      id: "intro",
+      title: "1. Welcome & ERP 101",
+      subtitle: "The 30,000-ft View for Complete Beginners",
+      role: "all",
+      badge: "Getting Started",
+      readTime: "4 min",
+      content: `
+        <div class="guide-intro-hero">
+          <h3>Welcome to Tamba ERP! 👋</h3>
+          <p class="guide-lead">
+            If you've never used an ERP (Enterprise Resource Planning) system before, don't worry! This guide is written in plain, human English. Think of Tamba ERP as your factory's <b>central nervous system</b> — connecting metal raw materials, machines, workers, quality inspectors, sales dispatch, and the bank ledger into one seamless workflow.
+          </p>
+        </div>
+
+        <div class="guide-diagram-box">
+          <div class="guide-diagram-title">The Master Factory Highway in Tamba ERP:</div>
+          <div class="guide-flow-steps">
+            <span class="flow-pill">1. Master Setup</span> ➔ 
+            <span class="flow-pill">2. Buy Metal (Inward)</span> ➔ 
+            <span class="flow-pill">3. Machine Parts (Production)</span> ➔ 
+            <span class="flow-pill">4. Test & Inspect (Quality)</span> ➔ 
+            <span class="flow-pill">5. Ship to Client (Outward)</span> ➔ 
+            <span class="flow-pill">6. Collect Payment (Accounts)</span>
+          </div>
+        </div>
+
+        <h4>4 Golden Rules for Beginners</h4>
+        <div class="guide-cards-grid">
+          <div class="guide-card">
+            <div class="guide-card-icon">1️⃣</div>
+            <div class="guide-card-title">Delivery Challan (DC) ≠ Invoice</div>
+            <p>A <b>DC</b> is a transport document that physically moves items between locations (or out of your warehouse). An <b>Invoice</b> is the financial bill that demands money and reports to GST.</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-card-icon">2️⃣</div>
+            <div class="guide-card-title">GRN vs. SCN (Quarantine)</div>
+            <p>When a truck unloads, you make a <b>GRN</b> (Goods Received Note). But stock is NOT usable yet! It sits in quarantine until Quality approves it with an <b>SCN</b> (Store Credit Note). Only SCN adds to active inventory.</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-card-icon">3️⃣</div>
+            <div class="guide-card-title">Everything Starts with an Item Code</div>
+            <p>Never type a freeform name for parts. Every metal rod, turned pin, screw, or packing carton must have an Item Code created once in the Item Master.</p>
+          </div>
+          <div class="guide-card">
+            <div class="guide-card-icon">4️⃣</div>
+            <div class="guide-card-title">Locking & Cashflow Protection</div>
+            <p>If a customer pays even ₹1 against a bill, or a batch has been consumed in production, the ERP locks the original document from accidental changes to protect accounting integrity.</p>
+          </div>
+        </div>
+
+        <div class="guide-callout tip">
+          <strong>💡 Pro-Tip for Daily Usage:</strong> You can switch between <b>🌙 Dark Theme</b> and <b>☀️ Light Theme</b> anytime using the button in the top bar. Use the <b>Live Dashboard</b> to check today's production output, pending dispatches, and bank balances at a glance.
+        </div>
+      `
+    },
+    {
+      id: "master",
+      title: "2. Day 1 Master Setup",
+      subtitle: "Configuring Your Company, Stores, Items & Machines",
+      role: "owner",
+      badge: "Prerequisites",
+      readTime: "6 min",
+      content: `
+        <p class="guide-lead">Before logging your first purchase or manufacturing a single part, you must populate your foundation data (Master Data). Do this once, and the rest of the ERP will autofill smoothly.</p>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Set Up Your Company Profile</h4>
+            <p>Go to <b>Master ➔ My Company Details</b>. Enter your exact legal name, address, GSTIN, PAN, and choose your invoice numbering scheme (Separate Books for Sales & Labour, or Combined). Also set prefixes for Quotations (e.g. <code>QT/</code>) and Purchase Orders (e.g. <code>PO/</code>).</p>
+            <button type="button" class="guide-action-btn" onclick="if(window.openCompany) window.openCompany();">🚀 Open Company Details</button>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Configure Your Stores (Warehouses)</h4>
+            <p>Go to <b>Master ➔ Inventory ➔ Stores</b>. Create your physical locations:
+              <ul>
+                <li><b>Raw Material Store</b> (Check <i>Can Add</i> and <i>Can Issue</i>)</li>
+                <li><b>Finished Goods Store</b> (Check <i>Can Add</i> and <i>Can Issue</i>)</li>
+                <li><b>Scrap & Rejection Store</b> (Check <i>Can Add</i>)</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>Create Categories & Item Master</h4>
+            <p>Go to <b>Master ➔ Inventory ➔ Item</b>. Each product needs:
+              <ul>
+                <li><b>Item Code:</b> e.g. <code>HEX-BRASS-12MM</code> or <code>VALVE-PIN-REV-B</code>.</li>
+                <li><b>HSN Code:</b> e.g. <code>7407</code> for copper/brass bars, <code>8481</code> for valve parts.</li>
+                <li><b>GST Rate:</b> Usually 18%.</li>
+                <li><b>UOM:</b> KGS for raw metal, NOS/PCS for finished components.</li>
+                <li><b>Conversion Factor:</b> If you purchase rods in KGS but count finished output in PCS, set the weight-per-piece factor.</li>
+              </ul>
+            </p>
+            <button type="button" class="guide-action-btn" onclick="if(window.openItem) window.openItem();">🚀 Open Item Master</button>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 4</div>
+          <div class="guide-step-content">
+            <h4>Register Machines & Setup Tooling Recipes</h4>
+            <p>Go to <b>Master ➔ General ➔ Machine</b> to enter machine IDs (e.g. <code>CNC-01</code>, <code>VMC-02</code>, <code>TRAUB-3</code>). Then use <b>Machine Setup & Tooling Recipe</b> to preset Jamnagar brass turning speeds, feeds, tool inserts, and coolant specifications for recurring jobs.</p>
+            <button type="button" class="guide-action-btn" onclick="if(window.openMachine) window.openMachine();">🚀 Open Machine Master</button>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 5</div>
+          <div class="guide-step-content">
+            <h4>Add Customers, Vendors & Subcontractors</h4>
+            <p>
+              • <b>Customer:</b> Clients who buy your finished products or send job work (<b>Master ➔ General ➔ Customer</b>).<br>
+              • <b>Vendor:</b> Suppliers who sell you raw brass rods, cutting oils, cartons (<b>Master ➔ General ➔ Vendor</b>).<br>
+              • <b>Supplier:</b> External plating, heat treatment, or job-work contractors (<b>Master ➔ General ➔ Supplier</b>).
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-callout warn">
+          <strong>⚠️ Watch Out:</strong> Always enter the exact 15-character GSTIN for all customers and vendors. The first 2 digits represent their state code (e.g. <code>24</code> for Gujarat, <code>27</code> for Maharashtra). This determines whether the ERP automatically calculates CGST + SGST (intra-state) or IGST (inter-state).
+        </div>
+      `
+    },
+    {
+      id: "inward",
+      title: "3. Raw Material Inward Flow",
+      subtitle: "Procurement, GRN, Inspection (SCN) & Inward Invoices",
+      role: "store",
+      badge: "Inward Supply",
+      readTime: "5 min",
+      content: `
+        <p class="guide-lead">This is how raw materials (brass billets, hex rods, coils, tooling, packaging) enter your factory and become available stock in the inventory ledger.</p>
+
+        <div class="guide-diagram-box">
+          <div class="guide-diagram-title">The 4-Step Procurement Chain:</div>
+          <div class="guide-flow-steps">
+            <span class="flow-pill">1. Purchase PO</span> ➔ 
+            <span class="flow-pill">2. Gate GRN</span> ➔ 
+            <span class="flow-pill">3. QC Inspection (SCN)</span> ➔ 
+            <span class="flow-pill">4. Inward Invoice</span>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Raise a Purchase Order (PO)</h4>
+            <p>Open <b>Purchase ➔ Purchase Order - Outgoing</b>. Select your vendor, payment terms, and items ordered. Specify rate, quantity, delivery date, and whether rates are inclusive or exclusive of GST. Print or email the PO to the vendor.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Receive the Truck with a GRN</h4>
+            <p>When goods arrive at the factory gate, open <b>Purchase ➔ Goods Received Note</b>. Reference the vendor's DC number, vehicle number, and link it to your original PO. Enter the gross weight or received quantity.</p>
+            <div class="guide-callout warn">
+              <strong>Notice:</strong> At this stage, stock balance in the warehouse is still zero! The material is placed in a "Temporary Inspection Store" until verified.
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>Inspect & Accept via SCN (Store Credit Note)</h4>
+            <p>Quality / Stores opens <b>Purchase ➔ Material Inspection & Acceptance (SCN)</b>.
+              <ul>
+                <li>Inspect dimensions, weight, surface finish, and metallurgical heat number.</li>
+                <li>Enter <b>Accepted Qty</b> and any <b>Rejected Qty</b>.</li>
+                <li>Choose the destination warehouse (e.g. <code>Raw Material Store</code>).</li>
+                <li>Click <b>Save</b>. <b>Now your inventory balance increases in the ledger!</b></li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 4</div>
+          <div class="guide-step-content">
+            <h4>Book the Vendor's Inward Invoice</h4>
+            <p>When the vendor's tax invoice arrives, accounts opens <b>Purchase ➔ Invoice Inwards</b>. Select the vendor and tick the approved SCN. The ERP verifies taxable amount, CGST, SGST, IGST, and records the pending accounts payable liability in Cash Flow.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "production",
+      title: "4. Production & Shopfloor",
+      subtitle: "Internal Work Orders, Machine Logs, Route Cards & Packing",
+      role: "prod",
+      badge: "Shopfloor",
+      readTime: "7 min",
+      content: `
+        <p class="guide-lead">Turn raw materials into finished parts with complete machine traceability, scrap tracking, operator efficiency, and digital QR route travelers.</p>
+
+        <div class="guide-diagram-box">
+          <div class="guide-diagram-title">Shopfloor Production Lifecycle:</div>
+          <div class="guide-flow-steps">
+            <span class="flow-pill">1. IWO Material Issue</span> ➔ 
+            <span class="flow-pill">2. Shift Production Log</span> ➔ 
+            <span class="flow-pill">3. QR Route Traveler</span> ➔ 
+            <span class="flow-pill">4. Box Packing & Weighing</span>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Issue Raw Material via Internal Work Order (IWO)</h4>
+            <p>Open <b>Production ➔ Internal Work Order cum Material Issue</b>.
+              <ul>
+                <li>Select the raw material rod (e.g. <code>BRASS-ROD-16MM</code>) and quantity issued (e.g. 150 kg).</li>
+                <li>Select the target item to produce (e.g. <code>PIN-HEX-M10</code>) and expected yield.</li>
+                <li>Select the department / operator. Click <b>Save</b>. Raw material stock is deducted from the store and transferred to work-in-progress (WIP).</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Log Daily Production & Machine Efficiency</h4>
+            <p>Open <b>Production ➔ Production Log</b>.
+              <ul>
+                <li>Select date, machine (e.g. <code>CNC-01</code>), operator, and shift timings (e.g. <code>08:00 AM to 04:30 PM</code>).</li>
+                <li>Enter produced quantity, rejection count, and idle breakdown minutes.</li>
+                <li>The ERP instantly computes operator efficiency %, target achievement, and machine utilization.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>Generate Digital Route Cards & QR Travelers</h4>
+            <p>Open <b>Production ➔ Digital Route Card & QR Traveler</b>.
+              <ul>
+                <li>Pick the work order or part code.</li>
+                <li>The system prints an A4/A5 traveler sheet with an ISO/IEC Code 128 barcode and 2D QR Code.</li>
+                <li>This sheet travels with the tote bin physically across Turning, Deburring, Threading, Washing, and Inspection stages.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 4</div>
+          <div class="guide-step-content">
+            <h4>Piece-Count Weighing & Box Packing</h4>
+            <p>Open <b>Production ➔ Piece-Count Weighing & Box Packing</b>.
+              <ul>
+                <li>Place finished components on digital weighing scales.</li>
+                <li>Enter sample piece weight (e.g. 18.4 grams) and gross crate weight; the ERP auto-computes accurate piece count!</li>
+                <li>Print export box packing labels with heat number, box ID, gross weight, net weight, and customer part number.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "quality",
+      title: "5. Quality & Metrology Lab",
+      subtitle: "Spectro Chemical Analysis, MTC 3.1 & Thread Gauge Calibration",
+      role: "qc",
+      badge: "Quality Lab",
+      readTime: "5 min",
+      content: `
+        <p class="guide-lead">Maintain zero-defect manufacturing compliance with European EN 10204 3.1 Material Test Certificates, RoHS / REACH compliance, and calibrated thread gauge wear tracking.</p>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module A</div>
+          <div class="guide-step-content">
+            <h4>Spectro Chemical Analysis & Mill Test Certificates (MTC 3.1)</h4>
+            <p>Open <b>Inspection ➔ Spectro Chemical Analysis & MTC 3.1</b>.
+              <ul>
+                <li>Select your brass / metal alloy standard (e.g., <code>IS 319 Free Cutting Brass</code>, <code>CW614N / CZ121</code>, <code>C36000 Lead-Free Brass</code>).</li>
+                <li>Enter the optical spectrometer reading for Cu, Zn, Pb, Fe, Sn, Ni, Al.</li>
+                <li>The ERP auto-validates against standard min/max thresholds and calculates RoHS / REACH compliance status (including Lead Exemption 6(c) for copper alloys up to 4%).</li>
+                <li>Click <b>Print EN 10204 3.1 Certificate</b> to produce an internationally accepted lab test report with verification QR code.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module B</div>
+          <div class="guide-step-content">
+            <h4>Thread Gauge Calibration & Wear Life Register</h4>
+            <p>Open <b>Maintenance ➔ Thread Gauge Calibration & Wear Register</b>.
+              <ul>
+                <li>Register Go & No-Go thread plug and ring gauges (e.g. <code>M12 x 1.5 - 6H</code>, <code>G 1/2" BSP</code>, <code>1/4"-18 NPT</code>).</li>
+                <li>Track accumulated strike cycles, pitch diameter micrometer wear measurements, and calibration frequency (e.g. 90 days).</li>
+                <li>Print <b>50x25mm direct thermal calibration stickers</b> to adhere onto gauge boxes showing Due Date and Metrologist signature.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "outward",
+      title: "6. Sales, Dispatch & Invoicing",
+      subtitle: "Manufacturing Sales, Labour Work, E-Way Bills & DC Outward",
+      role: "all",
+      badge: "Revenue Flow",
+      readTime: "6 min",
+      content: `
+        <p class="guide-lead">Ship goods out to your customers, deduct warehouse finished inventory, generate tax invoices, and export government NIC E-Way Bill JSON payloads.</p>
+
+        <div class="guide-diagram-box">
+          <div class="guide-diagram-title">Manufacturing Sales vs. Labour Job Work:</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+            <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #c0d0e0;">
+              <b>Manufacturing (You supply metal):</b><br>
+              Quotation ➔ Inward PO ➔ Delivery Challan (DC) ➔ Tax Invoice (HSN Goods)
+            </div>
+            <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #c0d0e0;">
+              <b>Labour Work (Customer supplies metal):</b><br>
+              DC Inward ➔ Machining ➔ DC Outward ➔ Labour Tax Invoice (SAC 9988 Service)
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Creating an Outward Delivery Challan (DC)</h4>
+            <p>Open <b>Sales / Labour ➔ Manufacturing ➔ DC</b>.
+              <ul>
+                <li>Select customer name, store (e.g. <code>Finished Goods Store</code>), and transport details.</li>
+                <li>Add lines with item code and dispatch quantity.</li>
+                <li><b>Stock Deduction:</b> The ERP checks warehouse stock. If available, saving the DC deducts the exact finished quantity from the store balance.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Generating the Tax Invoice</h4>
+            <p>Open <b>Sales / Labour ➔ Manufacturing ➔ Invoice</b>.
+              <ul>
+                <li>Select the customer and select the Delivery Challan(s) to bill.</li>
+                <li>The system automatically computes Taxable Value, CGST (9%), SGST (9%) or IGST (18%), Round Off, and Total Invoice Value.</li>
+                <li>Print official GST Tax Invoices in 3 copies: <i>Original for Recipient, Duplicate for Transporter, Triplicate for Supplier</i>.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>E-Way Bill JSON Export</h4>
+            <p>For consignments exceeding ₹50,000, click <b>Export E-Way Bill JSON</b> on the invoice screen. Upload this JSON directly to the government NIC portal (<code>ewaybillgst.gov.in</code>) without manual re-typing!</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "subcontract",
+      title: "7. Subcontract Job Work",
+      subtitle: "Outsourcing Plating, Heat Treatment & External Operations",
+      role: "prod",
+      badge: "Outsourcing",
+      readTime: "5 min",
+      content: `
+        <p class="guide-lead">When parts leave your factory for external processing (like zinc/nickel plating, powder coating, annealing, or thread rolling) and return afterward, use the Subcontract module to maintain strict quantity and batch accountability.</p>
+
+        <div class="guide-diagram-box">
+          <div class="guide-diagram-title">Subcontract Flow:</div>
+          <div class="guide-flow-steps">
+            <span class="flow-pill">1. Work Order</span> ➔ 
+            <span class="flow-pill">2. SubCon DC Out (Annexure II)</span> ➔ 
+            <span class="flow-pill">3. SubCon GRN In</span> ➔ 
+            <span class="flow-pill">4. SubCon SCN</span> ➔ 
+            <span class="flow-pill">5. Service Bill</span>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Issue Subcontract DC Outward</h4>
+            <p>Open <b>Sub Contract ➔ DC Outwards</b>. Enter the supplier (job worker), item, sent quantity, and click <b>Annexure II Details</b> to enter GST Job Work declaration and estimated process duration. This protects your goods during road transport under GST Rule 45.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Receive Treated Parts Back</h4>
+            <p>When the plating vendor returns parts, open <b>Sub Contract ➔ Goods Received Note</b> to record received quantity, then open <b>Subcontract Material Inspection & Acceptance (SCN)</b> to record acceptable vs rejected quantities and return parts into your warehouse stock.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "cash",
+      title: "8. Cash Flow & Accounts",
+      subtitle: "Payments, Customer Receipts, Advances & Bank Reconciliation",
+      role: "accounts",
+      badge: "Finance",
+      readTime: "6 min",
+      content: `
+        <p class="guide-lead">Keep your finances crystal clean without double-entry headaches. Tamba ERP tracks bill-by-bill pending balances, advances, cheques, and cash transactions in real time.</p>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module 1</div>
+          <div class="guide-step-content">
+            <h4>Paying Vendors (Payments)</h4>
+            <p>Open <b>Cash Flow ➔ Payments</b>.
+              <ul>
+                <li>Select the vendor and payment mode (Cheque, NEFT/Bank, or Cash).</li>
+                <li>The system displays all open unpaid purchase bills with their pending balances.</li>
+                <li>Enter the allocated payment against specific bills or use auto-allocation. The bill balance decreases instantly.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module 2</div>
+          <div class="guide-step-content">
+            <h4>Collecting Money from Customers (Receipts)</h4>
+            <p>Open <b>Cash Flow ➔ Receipts</b>.
+              <ul>
+                <li>Select the customer and deposit bank account.</li>
+                <li>Allocate received payments against one or multiple sales invoices.</li>
+                <li>Print or save payment receipts. Outstanding customer receivables are updated on the Business Owner dashboard immediately.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module 3</div>
+          <div class="guide-step-content">
+            <h4>Advance Adjustments (Safe Reversible FIFO)</h4>
+            <p>Open <b>Cash Flow ➔ Advance Adjustments</b>. When a party provides an advance deposit before invoicing, record it as an Advance voucher. When bills are subsequently raised, use Advance Adjustments to settle the bill against the advance balance without affecting your live bank account.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module 4</div>
+          <div class="guide-step-content">
+            <h4>Live Cash Flow Hub Cockpit</h4>
+            <p>Click <b>Cash Flow</b> in the left sidebar to open the dedicated liquidity cockpit. View real-time bank account balances, 30-day cash projections, and pending debtor/creditor ageing tables in one visual dashboard.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "hr",
+      title: "9. Human Resources & Salary",
+      subtitle: "Staff Master, Daily Attendance, Overtime & Monthly Payroll",
+      role: "all",
+      badge: "Staff & Payroll",
+      readTime: "4 min",
+      content: `
+        <p class="guide-lead">Manage factory workforce payroll, daily presence, shift allocations, advances, and loan repayments with factory tenant isolation.</p>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 1</div>
+          <div class="guide-step-content">
+            <h4>Employee Master & Shift Allocation</h4>
+            <p>Go to <b>Master ➔ Human Resource ➔ Employee Details</b>. Enter employee name, department (CNC, Assembly, Stores, Office), basic salary, PF, ESI, and bank details. In <b>Shift Allocation</b>, assign General, Morning, or Night shift schedules.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 2</div>
+          <div class="guide-step-content">
+            <h4>Daily Attendance</h4>
+            <p>Open <b>Human Resource ➔ Attendance</b>. Quickly mark Present, Absent, Half-Day, and Overtime hours for each department. The system tracks accumulated working days automatically.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>Monthly Salary Processing</h4>
+            <p>Open <b>Human Resource ➔ Salary</b>. Select Year and Month. The ERP calculates gross pay, PF, ESI, Professional Tax (PT), loan installments, and net pay. Saving prints salary slips and updates staff balance ledgers.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "gst",
+      title: "10. Statutory GST & Month-End",
+      subtitle: "GSTR-1, GSTR-3B, GSTR-2B Recon & Security Audit Trail",
+      role: "owner",
+      badge: "Tax & Compliance",
+      readTime: "5 min",
+      content: `
+        <p class="guide-lead">Comply with Indian Goods & Services Tax (GST) requirements without needing an external accountant to re-calculate your sales and purchases.</p>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Report 1</div>
+          <div class="guide-step-content">
+            <h4>GSTR-1 Outward Supplies Summary</h4>
+            <p>Open <b>Utilities ➔ GST Tax Returns</b>.
+              <ul>
+                <li>Automatically sums all Manufacturing Sales Invoices and Labour Work Invoices for any selected month or date range.</li>
+                <li>Displays Taxable Amount, CGST, SGST, IGST, and customer GSTIN breakdowns for easy upload to the GST portal.</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Report 2</div>
+          <div class="guide-step-content">
+            <h4>GSTR-3B Input Tax Credit (ITC) Summary</h4>
+            <p>Aggregates all approved inward raw material and service purchases, showing eligible Input Tax Credit (ITC) broken down by central, state, and integrated tax.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Report 3</div>
+          <div class="guide-step-content">
+            <h4>GSTR-2B JSON Reconciliation</h4>
+            <p>Download your GSTR-2B JSON file from the GST portal and drop it into Tamba ERP. The engine compares supplier invoices line-by-line and highlights any missing invoices or ITC mismatches.</p>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Report 4</div>
+          <div class="guide-step-content">
+            <h4>Security & Audit Trail</h4>
+            <p>Open <b>Utilities ➔ Security & Audit Trail</b>. In compliance with MCA (Ministry of Corporate Affairs) statutory requirements, Tamba ERP maintains an immutable audit log of every creation, edit, deletion, and financial adjustment with timestamps and user IDs.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      id: "faqs",
+      title: "Beginner FAQs & Troubleshooting",
+      subtitle: "Solutions to the Top 10 Most Common Factory Scenarios",
+      role: "all",
+      badge: "Help & FAQ",
+      readTime: "5 min",
+      content: `
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q1: I created a Purchase GRN, but my Raw Material stock balance didn't increase. Why?</div>
+          <div class="guide-faq-a">A GRN only acknowledges that a delivery truck arrived. Stock is kept in quarantine until inspected! You must open <b>Purchase ➔ Material Inspection & Acceptance (SCN)</b> and approve the quantity. Only the SCN moves metal into your active warehouse inventory.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q2: The system won't let me edit or delete a Delivery Challan. What gives?</div>
+          <div class="guide-faq-a">For financial safety, if a DC has already been converted into a Tax Invoice, or if payment has been collected, the ERP locks the DC from modification. You must first cancel or un-allocate the payment receipt before modifying the source document.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q3: How do I know whether an invoice should be CGST+SGST or IGST?</div>
+          <div class="guide-faq-a">You don't need to guess! Tamba ERP compares the first 2 digits of your factory GSTIN with the customer's GSTIN. If they match (e.g. both in Gujarat <code>24</code>), it charges CGST 9% + SGST 9%. If different (e.g. Gujarat to Maharashtra <code>27</code>), it auto-charges IGST 18%.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q4: Can I run Sales and Labour job work under separate invoice sequences?</div>
+          <div class="guide-faq-a">Yes! Open <b>Master ➔ My Company Details</b>. Under <i>Choose Inv. Type (for Auto Running No.)</i>, select <b>Sales & Labour - SEPARATE BOOKS</b>. This maintains distinct invoice series like <code>INV/2026/001</code> for goods and <code>LBR/2026/001</code> for job work.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q5: How do I print thermal stickers for my thread gauges?</div>
+          <div class="guide-faq-a">Open <b>Maintenance ➔ Thread Gauge Calibration</b>, select your gauge (e.g. M10 x 1.25 Plug), and click <b>Print Calibration Sticker (50x25mm)</b>. It renders a thermal-printer-ready label with the calibration date, next due date, status, and metrologist sign.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q6: What should I do if an operator logs overlapping machine hours?</div>
+          <div class="guide-faq-a">Tamba ERP has built-in interval collision detection. If Machine CNC-01 is already logged for 08:00 AM - 04:00 PM, logging a shift from 01:00 PM - 05:00 PM will trigger a collision notice. Always verify operator shift times before saving.</div>
+        </div>
+      `
+    }
+  ];
+
+  // Role filtering mapping
+  const ROLE_MAP = {
+    all: () => true,
+    store: (ch) => ["all", "store"].includes(ch.role) || ["inward", "subcontract"].includes(ch.id),
+    prod: (ch) => ["all", "prod"].includes(ch.role) || ["production", "subcontract"].includes(ch.id),
+    qc: (ch) => ["all", "qc"].includes(ch.role) || ["quality", "inward"].includes(ch.id),
+    accounts: (ch) => ["all", "accounts"].includes(ch.role) || ["cash", "gst", "outward"].includes(ch.id),
+    owner: (ch) => true
+  };
+
+  let activeChapterId = "intro";
+  let activeRoleFilter = "all";
+  let searchQuery = "";
+
+  function initGuideUI() {
+    const listContainer = document.getElementById("guide-chapters-list");
+    const contentDisplay = document.getElementById("guide-content-display");
+    const searchInput = document.getElementById("guide-search-input");
+    const roleChips = document.querySelectorAll(".guide-chip");
+    const closeBtn = document.getElementById("guide-btn-close");
+    const printCheatBtn = document.getElementById("guide-btn-print-cheat");
+
+    if (!listContainer || !contentDisplay) return;
+
+    // Render Chapters List
+    renderChapterList();
+
+    // Render Initial Chapter
+    renderActiveChapter();
+
+    // Event Listeners
+    if (searchInput) {
+      searchInput.addEventListener("input", function (e) {
+        searchQuery = (e.target.value || "").trim().toLowerCase();
+        renderChapterList();
+      });
+    }
+
+    roleChips.forEach(chip => {
+      chip.addEventListener("click", function () {
+        roleChips.forEach(c => c.classList.remove("active"));
+        this.classList.add("active");
+        activeRoleFilter = this.dataset.role || "all";
+        renderChapterList();
+      });
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", window.closeUserGuide);
+    }
+
+    if (printCheatBtn) {
+      printCheatBtn.addEventListener("click", printDeskCheatSheet);
+    }
+  }
+
+  function renderChapterList() {
+    const listContainer = document.getElementById("guide-chapters-list");
+    if (!listContainer) return;
+
+    const filterFn = ROLE_MAP[activeRoleFilter] || (() => true);
+
+    const filtered = GUIDE_CHAPTERS.filter(ch => {
+      const matchesRole = filterFn(ch);
+      if (!matchesRole) return false;
+      if (!searchQuery) return true;
+      const haystack = (ch.title + " " + ch.subtitle + " " + ch.badge + " " + ch.content).toLowerCase();
+      return haystack.includes(searchQuery);
+    });
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `
+        <div style="padding: 20px 10px; text-align: center; color: var(--text-muted); font-size: 12px;">
+          No topics found for "<b>${escapeHtml(searchQuery)}</b>"<br>
+          <button type="button" class="btn btn-sm" style="margin-top: 8px;" onclick="document.getElementById('guide-search-input').value=''; document.getElementById('guide-search-input').dispatchEvent(new Event('input'));">Clear Search</button>
+        </div>
+      `;
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map((ch, idx) => {
+      const isActive = ch.id === activeChapterId;
+      return `
+        <button type="button" class="guide-nav-item ${isActive ? "active" : ""}" data-id="${ch.id}">
+          <div class="guide-nav-header">
+            <span class="guide-nav-title">${ch.title}</span>
+            <span class="guide-nav-badge">${ch.badge}</span>
+          </div>
+          <div class="guide-nav-sub">${ch.subtitle}</div>
+        </button>
+      `;
+    }).join("");
+
+    listContainer.querySelectorAll(".guide-nav-item").forEach(btn => {
+      btn.addEventListener("click", function () {
+        activeChapterId = this.dataset.id;
+        renderChapterList();
+        renderActiveChapter();
+      });
+    });
+  }
+
+  function renderActiveChapter() {
+    const contentDisplay = document.getElementById("guide-content-display");
+    if (!contentDisplay) return;
+
+    const chapter = GUIDE_CHAPTERS.find(c => c.id === activeChapterId) || GUIDE_CHAPTERS[0];
+    if (!chapter) return;
+
+    contentDisplay.innerHTML = `
+      <article class="guide-article">
+        <header class="guide-article-header">
+          <div class="guide-meta-bar">
+            <span class="guide-badge-pill">${chapter.badge}</span>
+            <span class="guide-read-time">⏱️ ${chapter.readTime} read</span>
+          </div>
+          <h2 class="guide-article-title">${chapter.title}</h2>
+          <div class="guide-article-subtitle">${chapter.subtitle}</div>
+        </header>
+
+        <div class="guide-article-body">
+          ${chapter.content}
+        </div>
+
+        <footer class="guide-article-footer">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--border-color); margin-top: 30px;">
+            <button type="button" class="btn" id="guide-btn-prev">⬅️ Previous Chapter</button>
+            <button type="button" class="btn btn-primary" id="guide-btn-next">Next Chapter ➡️</button>
+          </div>
+        </footer>
+      </article>
+    `;
+
+    // Wire previous / next buttons
+    const curIdx = GUIDE_CHAPTERS.findIndex(c => c.id === chapter.id);
+    const prevBtn = document.getElementById("guide-btn-prev");
+    const nextBtn = document.getElementById("guide-btn-next");
+
+    if (prevBtn) {
+      if (curIdx > 0) {
+        prevBtn.onclick = () => {
+          activeChapterId = GUIDE_CHAPTERS[curIdx - 1].id;
+          renderChapterList();
+          renderActiveChapter();
+          contentDisplay.scrollTop = 0;
+        };
+      } else {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = "0.5";
+      }
+    }
+
+    if (nextBtn) {
+      if (curIdx < GUIDE_CHAPTERS.length - 1) {
+        nextBtn.onclick = () => {
+          activeChapterId = GUIDE_CHAPTERS[curIdx + 1].id;
+          renderChapterList();
+          renderActiveChapter();
+          contentDisplay.scrollTop = 0;
+        };
+      } else {
+        nextBtn.textContent = "Back to Start 🔄";
+        nextBtn.onclick = () => {
+          activeChapterId = GUIDE_CHAPTERS[0].id;
+          renderChapterList();
+          renderActiveChapter();
+          contentDisplay.scrollTop = 0;
+        };
+      }
+    }
+  }
+
+  // 1-Click Printable A4 Quick-Reference Cheat Sheet
+  function printDeskCheatSheet() {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("Please allow popups to open the printable reference sheet.");
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Tamba ERP — Quick Reference SOP Desk Cheat Sheet</title>
+        <style>
+          @page { size: A4 portrait; margin: 10mm; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 10.5px; color: #111; line-height: 1.35; padding: 0; margin: 0; background: #fff; }
+          .header { text-align: center; border-bottom: 2px solid #003366; padding-bottom: 6px; margin-bottom: 8px; }
+          .header h1 { margin: 0; font-size: 16px; color: #003366; text-transform: uppercase; letter-spacing: 0.5px; }
+          .header p { margin: 2px 0 0; font-size: 9px; color: #555; }
+          .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+          .section-card { border: 1px solid #7799bb; border-radius: 4px; padding: 6px 8px; background: #fdfdfd; page-break-inside: avoid; }
+          .section-title { font-size: 11px; font-weight: bold; color: #003366; border-bottom: 1px solid #c0d0e0; padding-bottom: 3px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+          .flow-line { background: #eaf1f8; padding: 3px 6px; border-radius: 3px; font-weight: bold; color: #002244; font-size: 9.5px; margin-bottom: 4px; border-left: 3px solid #005a9e; }
+          ul { margin: 0; padding-left: 14px; }
+          li { margin-bottom: 2px; }
+          .badge { font-size: 8px; background: #003366; color: #fff; padding: 1px 4px; border-radius: 2px; }
+          .rule-box { background: #fff8e6; border: 1px solid #ffd166; padding: 4px 6px; border-radius: 3px; font-size: 9px; margin-top: 4px; }
+          .footer { text-align: center; font-size: 8px; color: #777; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 4px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Tamba Industrial Enterprise ERP — Standard Operating Cheat Sheet</h1>
+          <p>Quick Reference Standard Operating Procedures (SOP) for Shopfloor, Stores, Quality & Accounts</p>
+        </div>
+
+        <div class="grid-2">
+          <!-- Raw Material Inward -->
+          <div class="section-card">
+            <div class="section-title"><span>1. RAW MATERIAL INWARD</span><span class="badge">STORES</span></div>
+            <div class="flow-line">Purchase Order ➔ Gate GRN ➔ Inspection SCN ➔ Inward Invoice</div>
+            <ul>
+              <li><b>PO:</b> Raise outgoing PO with rate, weight & delivery date (<i>Purchase ➔ Purchase PO</i>).</li>
+              <li><b>GRN:</b> Record truck arrival with vendor DC & vehicle number (<i>Purchase ➔ GRN</i>).</li>
+              <li><b>SCN:</b> Accept good quantity into warehouse stock. <i>Stock only increases after SCN!</i></li>
+              <li><b>Invoice:</b> Book vendor bill against approved SCN (<i>Purchase ➔ Invoice Inwards</i>).</li>
+            </ul>
+          </div>
+
+          <!-- Production & Shopfloor -->
+          <div class="section-card">
+            <div class="section-title"><span>2. PRODUCTION & SHOPFLOOR</span><span class="badge">MANUFACTURING</span></div>
+            <div class="flow-line">IWO Issue ➔ Production Log ➔ QR Route Card ➔ Packing Slip</div>
+            <ul>
+              <li><b>IWO:</b> Issue raw brass bars to machine operator (<i>Production ➔ IWO Issue</i>).</li>
+              <li><b>Shift Log:</b> Record machine, operator, produced qty, rejection & idle time.</li>
+              <li><b>Route Traveler:</b> Print barcode/QR traveler traveling physically with the tote bin.</li>
+              <li><b>Box Packing:</b> Digital piece-count weighing scale calculation & carton labels.</li>
+            </ul>
+          </div>
+
+          <!-- Quality & Metrology -->
+          <div class="section-card">
+            <div class="section-title"><span>3. QUALITY & METROLOGY</span><span class="badge">QUALITY LAB</span></div>
+            <div class="flow-line">Inward Inspection ➔ Spectro MTC 3.1 ➔ Thread Gauge Register</div>
+            <ul>
+              <li><b>Spectro Analysis:</b> Verify Cu, Zn, Pb, Fe against alloy standards (IS 319 / CW614N).</li>
+              <li><b>EN 10204 3.1 MTC:</b> Print chemical certificate with RoHS/REACH compliance & QR.</li>
+              <li><b>Thread Gauges:</b> Record strike cycles, Go/No-Go wear, and 50x25mm calibration labels.</li>
+            </ul>
+          </div>
+
+          <!-- Outward & Dispatch -->
+          <div class="section-card">
+            <div class="section-title"><span>4. OUTWARD SALES & DISPATCH</span><span class="badge">SALES</span></div>
+            <div class="flow-line">Inward PO ➔ Delivery Challan (DC) ➔ Tax Invoice ➔ E-Way Bill</div>
+            <ul>
+              <li><b>Delivery Challan:</b> Select finished store & items. <i>DC deducts warehouse stock!</i></li>
+              <li><b>Tax Invoice:</b> Bill the DC. Auto-calculates CGST+SGST (Local) or IGST (Out of State).</li>
+              <li><b>E-Way Bill:</b> For bills &gt; ₹50,000, click <i>Export NIC E-Way Bill JSON</i> for portal upload.</li>
+            </ul>
+          </div>
+
+          <!-- Subcontract Job Work -->
+          <div class="section-card">
+            <div class="section-title"><span>5. SUBCONTRACT JOB WORK</span><span class="badge">OUTSOURCING</span></div>
+            <div class="flow-line">Work Order Out ➔ DC Out (Annex II) ➔ GRN In ➔ SubCon SCN</div>
+            <ul>
+              <li>Send parts for plating or heat treatment with <b>Annexure II declaration</b>.</li>
+              <li>Receive treated parts on <b>Subcontract GRN</b> and inspect on <b>Subcontract SCN</b>.</li>
+            </ul>
+          </div>
+
+          <!-- Cash Flow & Accounts -->
+          <div class="section-card">
+            <div class="section-title"><span>6. CASH FLOW & ACCOUNTS</span><span class="badge">FINANCE</span></div>
+            <div class="flow-line">Payments (Vendors) | Receipts (Customers) | Advance Adjustments</div>
+            <ul>
+              <li><b>Vendor Payments:</b> Allocate payments against specific purchase bills to close dues.</li>
+              <li><b>Customer Receipts:</b> Record Cheque/NEFT receipts to lower accounts receivable.</li>
+              <li><b>Advance Adjust:</b> Settle advances against pending bills safely with FIFO reversion.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="rule-box">
+          <b>⚡ GOLDEN RULES:</b> DC moves goods physically; Invoice demands payment. • Always enter 15-digit GSTIN (first 2 digits determine local vs interstate tax). • If a cash receipt is logged against an invoice, the source DC is locked against accidental modification.
+        </div>
+
+        <div class="footer">
+          Tamba ERP Enterprise Suite • Confidential Factory Reference Document • Press Ctrl+P to Print (Select 'Fit to printable area')
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() { window.print(); }, 400);
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Public Interface
+  window.openUserGuide = function (chapterId) {
+    const guideWin = document.getElementById("user-guide-window");
+    if (!guideWin) return;
+
+    if (chapterId && GUIDE_CHAPTERS.some(c => c.id === chapterId)) {
+      activeChapterId = chapterId;
+    }
+
+    // Hide any other active windows
+    if (window.closeCompany) window.closeCompany();
+    if (window.closeUsers) window.closeUsers();
+    if (window.closeUserRights) window.closeUserRights();
+    if (window.closeItem) window.closeItem();
+    if (window.closeMachine) window.closeMachine();
+    if (window.toggleDashboard) window.toggleDashboard(false);
+
+    guideWin.hidden = false;
+    renderChapterList();
+    renderActiveChapter();
+
+    const display = document.getElementById("guide-content-display");
+    if (display) display.scrollTop = 0;
+  };
+
+  window.closeUserGuide = function () {
+    const guideWin = document.getElementById("user-guide-window");
+    if (guideWin) guideWin.hidden = true;
+  };
+
+  // Initialize on DOM load
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGuideUI);
+  } else {
+    initGuideUI();
+  }
+
+})();

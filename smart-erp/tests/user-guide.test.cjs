@@ -26,7 +26,7 @@ test("User Guide: Sidebar 13th Tab, Topbar Button, Mobile Drawer & Window Markup
   assert.ok(html.includes('id="guide-btn-print-cheat"'), "Must include 1-click A4 print cheat sheet button");
 
   // Script tag
-  assert.ok(html.includes('<script src="/guide.js?v=20261119"></script>'), "Must load guide.js script tag");
+  assert.ok(/<script src="\/guide\.js\?v=[^"]+"><\/script>/.test(html), "Must load guide.js script tag");
 });
 
 test("User Guide: Navigation & Menu Integration in app.js", async () => {

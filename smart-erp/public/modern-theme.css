@@ -5125,3 +5125,1016 @@ body.dark-theme .guide-diagram-box {
   background: var(--bg-surface-raised);
   border-color: var(--border-color);
 }
+
+/* ==========================================================================
+   HUMAN RESOURCE MODULE - INDUSTRIAL MODERNIZATION
+   Attendance (frmAttendance), Salary (frmSalary), Staff Loan (frmStaffLoan)
+   ========================================================================== */
+
+/* Universal HR Window Shells */
+#attendance.invmfg-window,
+#salary.invmfg-window,
+#staff-loan.invmfg-window {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95vw;
+  max-height: 92vh;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  z-index: 105;
+}
+
+#attendance:not([hidden]),
+#salary:not([hidden]),
+#staff-loan:not([hidden]) {
+  display: flex !important;
+}
+
+/* Empty State Cards */
+.att-empty-state,
+.sal-empty-state,
+.loan-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  background: var(--bg-card, #f8fafc);
+  border: 1px dashed var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  margin: 12px;
+}
+
+.att-empty-state p,
+.sal-empty-state p,
+.loan-empty-state p {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: var(--text-muted, #64748b);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   ATTENDANCE SCREEN STYLES
+   -------------------------------------------------------------------------- */
+.att-scroll-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+  overflow-y: auto;
+  max-height: calc(92vh - 55px);
+}
+
+.att-top-frames {
+  display: grid !important;
+  grid-template-columns: 140px 180px 1fr 1.6fr !important;
+  gap: 12px !important;
+}
+
+@media (max-width: 1024px) {
+  .att-top-frames {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+.att-frame {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 4px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.att-frame-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary, #1c625a);
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  padding-bottom: 3px;
+}
+
+.att-frame-year .att-year-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  text-align: center;
+}
+
+.att-frame-year .att-year-label {
+  text-align: center;
+  font-weight: 700;
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+.att-frame-month .att-month-select {
+  width: 100%;
+  height: 90px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  font-size: 11.5px;
+  padding: 2px;
+}
+
+.att-frame-legend .att-legend-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.att-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.att-badge {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 11px;
+  border-radius: 3px;
+}
+
+.att-badge-p { background: #e6f4f1; color: #1c625a; }
+.att-badge-a { background: #fee2e2; color: #b91c1c; }
+.att-badge-l { background: #fef3c7; color: #b45309; }
+.att-badge-m { background: #fef3c7; color: #b45309; }
+.att-badge-n { background: #fef3c7; color: #b45309; }
+.att-badge-h { background: #f1f5f9; color: #64748b; }
+
+/* Holiday Box locked to 100px */
+.att-holiday-box {
+  display: flex;
+  gap: 8px;
+  height: 100px !important;
+  max-height: 100px !important;
+  overflow: hidden !important;
+}
+
+.att-day-names {
+  width: 22px;
+  height: 100px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-align: center;
+  flex-shrink: 0;
+  padding: 2px 0;
+}
+
+#att-holiday-list {
+  flex: 1;
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 4px 6px !important;
+  height: 100px !important;
+  max-height: 100px !important;
+  overflow-y: auto !important;
+  padding: 2px 4px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 3px;
+  background: var(--bg-card, #fafafa);
+}
+
+.att-holiday-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.att-holiday-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* Note Banner */
+.att-note-banner {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-left: 3px solid #1c625a;
+  border-radius: 3px;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 !important;
+}
+
+/* Attendance Table Matrix */
+.att-matrix-wrap {
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 420px;
+}
+
+.att-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.att-table th {
+  background: var(--bg-card, #f1f5f9);
+  color: var(--text-color, #0f172a);
+  font-weight: 700;
+  font-size: 10.5px;
+  padding: 6px 4px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.att-table td {
+  border: 1px solid var(--border-color, #e2e8f0);
+  padding: 2px 3px;
+  text-align: center;
+}
+
+.att-row-att {
+  background: #ffffff;
+}
+
+.att-row-ot {
+  background: #f8fafc;
+}
+
+.att-code-input {
+  width: 22px;
+  height: 22px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.att-code-input:focus {
+  border-color: #1c625a;
+  outline: 1px solid #1c625a;
+  background: #e6f4f1;
+}
+
+.att-ot-input {
+  width: 22px;
+  height: 20px;
+  text-align: center;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  border: 1px solid #e2e8f0;
+  border-radius: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   SALARY PROCESSING SCREEN STYLES
+   -------------------------------------------------------------------------- */
+.sal-scroll-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+  overflow-y: auto;
+  max-height: calc(92vh - 55px);
+}
+
+.sal-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-card, #f8fafc);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  padding: 8px 14px;
+  flex-wrap: wrap;
+}
+
+.sal-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-color, #0f172a);
+}
+
+.sal-toolbar-group input,
+.sal-toolbar-group select {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.sal-input-year { width: 70px; }
+.sal-input-wdays { width: 55px; }
+
+.sal-toolbar-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sal-mode-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.sal-mode-pill.mode-saved {
+  background: #e6f4f1;
+  color: #1c625a;
+  border-color: #1c625a;
+}
+
+.sal-mode-pill.mode-new {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+/* 3-Column Layout */
+.sal-layout-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .sal-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sal-staff-pane {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 520px;
+}
+
+.sal-staff-header {
+  background: var(--bg-card, #f1f5f9);
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-color, #0f172a);
+  border-bottom: 1px solid var(--border-color, #cbd5e1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sal-count-badge {
+  background: #1c625a;
+  color: #ffffff;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-family: 'DM Mono', monospace;
+}
+
+.sal-batch-action-wrap {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.sal-btn-batch {
+  width: 100%;
+  font-size: 11.5px;
+  padding: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sal-staff-search-wrap {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.sal-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.sal-staff-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sal-staff-item {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  cursor: pointer;
+  transition: background 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sal-staff-item:hover {
+  background: var(--bg-card, #f8fafc);
+}
+
+.sal-staff-item.active {
+  background: #e6f4f1 !important;
+  border-left: 3px solid #1c625a;
+}
+
+.sal-staff-item-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-color, #0f172a);
+}
+
+.sal-staff-item.active .sal-staff-item-name {
+  color: #144943;
+}
+
+.sal-staff-item-meta {
+  font-size: 10px;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sal-staff-footer-meta {
+  padding: 6px 10px;
+  background: var(--bg-card, #f8fafc);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  font-size: 11px;
+  color: #475569;
+}
+
+/* Form Cards */
+.sal-card {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sal-card-header {
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color, #cbd5e1);
+}
+
+.earnings-header {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.deductions-header {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.sal-card-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sal-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-color, #334155);
+}
+
+.sal-field-row label {
+  margin: 0;
+  font-weight: 500;
+}
+
+.sal-num-input {
+  width: 95px;
+  padding: 4px 6px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  font-size: 11.5px;
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+}
+
+.sal-num-input:focus {
+  border-color: #1c625a;
+  outline: 1px solid #1c625a;
+}
+
+.sal-dual-input {
+  display: flex;
+  gap: 6px;
+}
+
+.sal-dual-input .sal-num-input {
+  width: 48px;
+}
+
+.sal-label-with-check,
+.sal-label-with-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sal-sub-check,
+.sal-radio-opts {
+  font-size: 10px;
+  color: #64748b;
+  display: flex;
+  gap: 6px;
+}
+
+.sal-gross-banner {
+  margin-top: 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.sal-totded-row {
+  margin-top: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+.sal-total-readonly {
+  width: 100px;
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-color, #0f172a);
+}
+
+.sal-netpay-card {
+  margin-top: 10px;
+  background: #e6f4f1;
+  border: 1px solid #1c625a;
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sal-netpay-meta {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #144943;
+}
+
+.sal-netpay-amount {
+  width: 120px;
+  background: transparent;
+  border: none;
+  font-weight: 800;
+  font-size: 16px;
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+  color: #144943;
+}
+
+.sal-bottom-bar,
+.loan-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 18px;
+  background: var(--bg-card, #f8fafc);
+  border-top: 1px solid var(--border-color, #cbd5e1);
+  margin-top: auto;
+}
+
+.sal-bottom-right,
+.loan-bottom-right {
+  display: flex;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   STAFF LOAN SCREEN STYLES
+   -------------------------------------------------------------------------- */
+.loan-scroll-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+  overflow-y: auto;
+  max-height: calc(92vh - 55px);
+}
+
+.loan-layout-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .loan-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.loan-staff-pane {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 480px;
+}
+
+.loan-staff-filter-bar {
+  padding: 6px 10px;
+  background: var(--bg-card, #f1f5f9);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  font-size: 11px;
+}
+
+.loan-chk-current-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.loan-staff-search-wrap {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.loan-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.loan-staff-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.loan-staff-item {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  cursor: pointer;
+  transition: background 0.1s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loan-staff-item:hover {
+  background: var(--bg-card, #f8fafc);
+}
+
+.loan-staff-item.active {
+  background: #e6f4f1 !important;
+  border-left: 3px solid #1c625a;
+}
+
+.loan-staff-item-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-color, #0f172a);
+}
+
+.loan-staff-item.active .loan-staff-item-name {
+  color: #144943;
+}
+
+.loan-staff-item-meta {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.loan-details-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loan-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card, #f8fafc);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  padding: 8px 14px;
+}
+
+.loan-status-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.loan-employee-name-label {
+  font-size: 12px;
+}
+
+.loan-employee-name-label .label-caption {
+  color: #64748b;
+  margin-right: 4px;
+}
+
+.loan-balance-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.loan-balance-pill {
+  background: #e6f4f1;
+  color: #144943;
+  border: 1px solid #1c625a;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+}
+
+.loan-toggle-recovery-label {
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #475569;
+}
+
+.loan-card-section {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loan-section-header {
+  padding: 8px 12px;
+  background: var(--bg-card, #f1f5f9);
+  border-bottom: 1px solid var(--border-color, #cbd5e1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loan-section-header .section-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-color, #0f172a);
+}
+
+.loan-table-wrap {
+  overflow-x: auto;
+  max-height: 280px;
+}
+
+.loan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+
+.loan-table th {
+  background: var(--bg-card, #f8fafc);
+  color: var(--text-color, #334155);
+  font-weight: 700;
+  font-size: 10.5px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-color, #cbd5e1);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.loan-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.loan-input-desc {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 3px 6px;
+  font-size: 11px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 2px;
+}
+
+.loan-input-amt,
+.loan-input-months,
+.loan-input-date {
+  box-sizing: border-box;
+  padding: 3px 5px;
+  font-size: 11px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 2px;
+}
+
+.loan-input-amt { width: 90px; text-align: right; font-family: 'DM Mono', monospace; }
+.loan-input-months { width: 55px; text-align: center; }
+.loan-input-date { width: 110px; font-size: 10.5px; }
+
+.loan-btn-del-row {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.loan-btn-del-row:hover {
+  background: #fee2e2;
+}
+
+/* Dark Theme Overrides for HR Module */
+[data-theme="dark"] #attendance.invmfg-window,
+[data-theme="dark"] #salary.invmfg-window,
+[data-theme="dark"] #staff-loan.invmfg-window,
+body.dark-theme #attendance.invmfg-window,
+body.dark-theme #salary.invmfg-window,
+body.dark-theme #staff-loan.invmfg-window {
+  background: var(--bg-surface, #1e293b);
+  border-color: var(--border-color, #334155);
+}
+
+[data-theme="dark"] .att-frame,
+[data-theme="dark"] .sal-staff-pane,
+[data-theme="dark"] .sal-card,
+[data-theme="dark"] .loan-staff-pane,
+[data-theme="dark"] .loan-card-section,
+body.dark-theme .att-frame,
+body.dark-theme .sal-staff-pane,
+body.dark-theme .sal-card,
+body.dark-theme .loan-staff-pane,
+body.dark-theme .loan-card-section {
+  background: var(--bg-card, #0f172a);
+  border-color: var(--border-color, #334155);
+}
+
+[data-theme="dark"] .att-table th,
+[data-theme="dark"] .loan-table th,
+[data-theme="dark"] .sal-toolbar,
+[data-theme="dark"] .sal-staff-header,
+[data-theme="dark"] .sal-card-header,
+[data-theme="dark"] .loan-status-bar,
+[data-theme="dark"] .loan-section-header,
+body.dark-theme .att-table th,
+body.dark-theme .loan-table th,
+body.dark-theme .sal-toolbar,
+body.dark-theme .sal-staff-header,
+body.dark-theme .sal-card-header,
+body.dark-theme .loan-status-bar,
+body.dark-theme .loan-section-header {
+  background: var(--bg-surface-raised, #1e293b);
+  border-color: var(--border-color, #334155);
+  color: var(--text-color, #f8fafc);
+}
+
+[data-theme="dark"] .att-note-banner,
+body.dark-theme .att-note-banner {
+  background: #1e293b;
+  border-color: #334155;
+  border-left-color: #38bdf8;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .att-row-att,
+body.dark-theme .att-row-att {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .att-row-ot,
+body.dark-theme .att-row-ot {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .att-code-input,
+[data-theme="dark"] .att-ot-input,
+[data-theme="dark"] .sal-num-input,
+[data-theme="dark"] .loan-input-desc,
+[data-theme="dark"] .loan-input-amt,
+[data-theme="dark"] .loan-input-months,
+[data-theme="dark"] .loan-input-date,
+body.dark-theme .att-code-input,
+body.dark-theme .att-ot-input,
+body.dark-theme .sal-num-input,
+body.dark-theme .loan-input-desc,
+body.dark-theme .loan-input-amt,
+body.dark-theme .loan-input-months,
+body.dark-theme .loan-input-date {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .sal-staff-item.active,
+[data-theme="dark"] .loan-staff-item.active,
+body.dark-theme .sal-staff-item.active,
+body.dark-theme .loan-staff-item.active {
+  background: #1e3a34 !important;
+  border-left-color: #2dd4bf;
+}
+
+[data-theme="dark"] .sal-netpay-card,
+body.dark-theme .sal-netpay-card {
+  background: #132e29;
+  border-color: #2dd4bf;
+}
+
+[data-theme="dark"] .sal-netpay-meta,
+[data-theme="dark"] .sal-netpay-amount,
+body.dark-theme .sal-netpay-meta,
+body.dark-theme .sal-netpay-amount {
+  color: #2dd4bf;
+}

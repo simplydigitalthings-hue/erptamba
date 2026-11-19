@@ -44,6 +44,8 @@
         }
         if (style.display !== "grid" || style.gridTemplateColumns === "none") continue;
         if (el.matches("label:has(> input[type='checkbox']), label:has(> input[type='radio'])")) continue;
+        if (el.matches("#att-holiday-list, .no-layout-override, .att-top-frames, .att-top-frames *, .no-layout-override *")) continue;
+        if (el.closest(".no-layout-override, #att-holiday-list, .att-top-frames")) continue;
         const fieldRow = el.tagName === "LABEL" ||
           /(?:^|[-\s])(line|row|field|split|name)(?:$|[-\s])/.test(el.className);
         if (/(actions|cmds|move|end)/.test(el.className)) continue;
@@ -89,7 +91,7 @@
 
     function discover() {
       for (const panel of document.querySelectorAll("section[id]")) {
-        if (excluded.has(panel.id) || panel.matches(".modal, [role='dialog']")) continue;
+        if (excluded.has(panel.id) || panel.matches(".modal, [role='dialog'], .no-layout-override")) continue;
         const parent = panel.parentElement.closest("section[id]");
         if (!parent || parent.id === "main-window") enhance(panel);
       }

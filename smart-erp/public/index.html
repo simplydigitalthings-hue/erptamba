@@ -8024,101 +8024,124 @@ License Date   :   01/04/2008</div>
           <!-- ============================================================= -->
           <!-- HUMAN RESOURCE - Attendance (frmAttendance)                   -->
           <!-- ============================================================= -->
-          <section id="attendance" class="invmfg-window" hidden style="max-width: 1080px; margin: 0 auto; z-index: 105;">
+          <section id="attendance" class="invmfg-window no-layout-override" hidden style="max-width: 1120px; margin: 0 auto; z-index: 105;">
             <div class="invmfg-card">
               <div class="invmfg-titlebar">
-                <span>Attendance</span>
-                <button type="button" class="invmfg-close-btn" id="att-btn-close-top">✕</button>
+                <span class="invmfg-title-text">Attendance &amp; Daily Roll Call</span>
+                <button type="button" class="invmfg-close-btn window-close-btn-top" id="att-btn-close-top" data-close-target="#att-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
               </div>
 
-              <div style="padding: 8px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: auto;">
-                <!-- Top 4 Frames -->
-                <div style="display: grid; grid-template-columns: 140px 160px 220px 1fr; gap: 8px;">
+              <div class="att-scroll-body">
+                <!-- Top 4 Control Frames -->
+                <div class="att-top-frames no-layout-override">
                   
-                  <!-- Frame 1: Select Year -->
-                  <fieldset style="border: 1px solid #7f9db9; padding: 6px; background: #ece9d8;">
-                    <legend style="font-weight: bold; color: #003366;">Select Year</legend>
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 130px; gap: 10px;">
-                      <div style="color: #444; font-size: 11px;">For the Year</div>
-                      <input type="number" id="att-year" style="width: 75px; text-align: center; font-weight: bold; font-size: 14px; color: #000080; border: 1px solid #7f9db9; padding: 2px;" value="2026">
-                      <div id="att-month-label" style="color: #d00; font-weight: bold; font-size: 13px; text-transform: uppercase;">JANUARY</div>
+                  <!-- Frame 1: Select Year & Active Month -->
+                  <fieldset class="att-frame att-frame-year">
+                    <legend>Select Period</legend>
+                    <div class="att-period-content">
+                      <span class="att-frame-sublabel">Working Year</span>
+                      <input type="number" id="att-year" class="att-year-input" value="2026">
+                      <span id="att-month-label" class="att-month-pill">FEBRUARY</span>
                     </div>
                   </fieldset>
 
                   <!-- Frame 2: Select a Month -->
-                  <fieldset style="border: 1px solid #7f9db9; padding: 6px; background: #ece9d8;">
-                    <legend style="font-weight: bold; color: #003366;">Select a Month</legend>
-                    <div style="height: 130px; overflow-y: auto; background: #fff; border: 1px solid #7f9db9;">
-                      <ul id="att-month-list" style="list-style: none; margin: 0; padding: 0; font-size: 11px; cursor: pointer;">
+                  <fieldset class="att-frame att-frame-month">
+                    <legend>Select Month</legend>
+                    <div class="att-month-list-wrap">
+                      <ul id="att-month-list" class="att-month-list">
                         <!-- populated dynamically -->
                       </ul>
                     </div>
                   </fieldset>
 
-                  <!-- Frame 3: These Alphabets use to Att. -->
-                  <fieldset style="border: 1px solid #7f9db9; padding: 6px; background: #ece9d8;">
-                    <legend style="font-weight: bold; color: #003366;">These Alphabets use to Att.</legend>
-                    <div style="height: 130px; display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; font-weight: bold; color: #000; padding: 2px 4px;">
-                      <div>P - Present</div>
-                      <div>L - Leave</div>
-                      <div>M - Half a day Leave</div>
-                      <div>A - Absent</div>
-                      <div>N - Half a Day Absent</div>
-                      <div>H - Holiday</div>
+                  <!-- Frame 3: Alphabet Legend -->
+                  <fieldset class="att-frame att-frame-legend">
+                    <legend>Status Codes</legend>
+                    <div class="att-legend-grid">
+                      <div class="att-legend-item"><span class="att-badge att-badge-p">P</span> Present</div>
+                      <div class="att-legend-item"><span class="att-badge att-badge-l">L</span> Leave</div>
+                      <div class="att-legend-item"><span class="att-badge att-badge-m">M</span> 0.5 Day Leave</div>
+                      <div class="att-legend-item"><span class="att-badge att-badge-a">A</span> Absent</div>
+                      <div class="att-legend-item"><span class="att-badge att-badge-n">N</span> 0.5 Day Absent</div>
+                      <div class="att-legend-item"><span class="att-badge att-badge-h">H</span> Holiday</div>
                     </div>
                   </fieldset>
 
                   <!-- Frame 4: Mark Holidays -->
-                  <fieldset style="border: 1px solid #7f9db9; padding: 6px; background: #ece9d8;">
-                    <legend style="font-weight: bold; color: #003366;">Mark Holidays</legend>
-                    <div style="display: flex; gap: 8px; height: 110px;">
-                      <div id="att-day-names" style="display: flex; flex-direction: column; justify-content: space-around; font-size: 10px; color: #333; font-weight: bold; width: 30px; text-align: center; border-right: 1px dashed #bbb; padding-right: 2px;">
-                        <!-- Day initials -->
+                  <fieldset class="att-frame att-frame-holidays">
+                    <legend>Mark Holidays</legend>
+                    <div class="att-holiday-box">
+                      <div id="att-day-names" class="att-day-names">
+                        <!-- Day initials 1..7 -->
                       </div>
-                      <div style="flex: 1; border: 1px solid #7f9db9; background: #fff; overflow-y: auto; padding: 4px;">
-                        <div id="att-holiday-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; font-size: 11px;">
+                      <div class="att-holiday-scroll-wrap">
+                        <div id="att-holiday-list" class="att-holiday-list no-layout-override">
                           <!-- 1..daysInMonth checkboxes -->
                         </div>
                       </div>
                     </div>
-                    <div style="font-size: 10px; color: #555; text-align: right; margin-top: 4px;">
-                      Select Employee &amp; Press F5 Key -&gt; Leave Status
+                    <div class="att-holiday-hint">
+                      Select Employee &amp; Press F5 Key &rarr; Leave Status
                     </div>
                   </fieldset>
 
                 </div>
 
                 <!-- Note Bar -->
-                <fieldset style="border: 1px solid #7f9db9; padding: 4px 8px; background: #ece9d8;">
-                  <legend style="font-weight: bold; color: #003366;">Note</legend>
-                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: #0000cc; font-weight: bold;">
-                    <span>* Use Alternate White Colored Rows to Enter OT hrs</span>
-                    <span>* Use BACKSPACE for deletion/modification of OT hrs.</span>
+                <div class="att-note-banner">
+                  <span class="att-note-badge" style="font-weight: 700; color: #1c625a; margin-right: 6px;">NOTE:</span>
+                  <div class="att-note-content">
+                    <span>* Use white rows below staff names to enter Overtime (OT) hours.</span>
+                    <span>* Use BACKSPACE or Delete to clear/modify status or OT hours.</span>
                   </div>
-                </fieldset>
+                </div>
 
-                <!-- FlexGrid Section -->
-                <div style="flex: 1; min-height: 250px; background: #fff; border: 1px solid #7f9db9; overflow: auto; position: relative;">
-                  <table id="att-flexgrid" style="border-collapse: collapse; width: 100%; font-size: 11px; text-align: center; white-space: nowrap;">
-                    <thead style="position: sticky; top: 0; background: #d4d0c8; z-index: 2;">
+                <!-- FlexGrid Section with Integrated Empty State -->
+                <div class="att-grid-shell">
+                  <table id="att-flexgrid" class="att-table">
+                    <thead>
                       <tr id="att-grid-header">
-                        <th style="border: 1px solid #999; padding: 4px; width: 35px; background: #d4d0c8;">Sl</th>
-                        <th style="border: 1px solid #999; padding: 4px; width: 55px; background: #d4d0c8;">StaffId</th>
-                        <th style="border: 1px solid #999; padding: 4px; text-align: left; min-width: 160px; background: #d4d0c8;">Name</th>
+                        <th class="att-col-sl">Sl</th>
+                        <th class="att-col-id">Staff ID</th>
+                        <th class="att-col-name">Employee Name</th>
                         <!-- Day headers 1..31 dynamically populated -->
                       </tr>
                     </thead>
                     <tbody id="att-grid-body">
-                      <!-- 2 rows per employee -->
+                      <!-- Populated dynamically -->
                     </tbody>
                   </table>
+                  
+                  <div id="att-empty-state" class="att-empty-state" hidden>
+                    <div class="att-empty-icon">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                    </div>
+                    <h4>No Active Staff Records Found</h4>
+                    <p>No employees are currently active in Staff Master for this month. Register your plant workers to start recording daily muster roll and overtime hours.</p>
+                    <button type="button" class="btn btn-primary att-empty-btn" onclick="window.openStaff &amp;&amp; window.openStaff();">
+                      + Add Employee in Staff Master
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Bottom Button Bar -->
-                <div style="display: flex; justify-content: center; gap: 16px; padding: 6px; background: #ece9d8; border-top: 1px solid #999;">
-                  <button type="button" id="att-btn-save" style="padding: 4px 20px; font-weight: bold; min-width: 80px;"><span style="text-decoration: underline;">S</span>ave</button>
-                  <button type="button" id="att-btn-printer" style="padding: 4px 20px; min-width: 80px;"><span style="text-decoration: underline;">P</span>rinter</button>
-                  <button type="button" id="att-btn-close" style="padding: 4px 20px; min-width: 80px;"><span style="text-decoration: underline;">C</span>lose</button>
+                <div class="att-bottom-bar">
+                  <div class="att-bottom-left">
+                    <button type="button" class="btn att-btn-quick" id="att-btn-mark-all" title="Mark all workers Present (P) on non-holiday days">
+                      Mark All Present (P)
+                    </button>
+                  </div>
+                  <div class="att-bottom-right">
+                    <button type="button" class="btn btn-primary" id="att-btn-save">Save Attendance</button>
+                    <button type="button" class="btn" id="att-btn-printer">Print Muster Sheet</button>
+                    <button type="button" class="btn" id="att-btn-close">Close</button>
+                  </div>
                 </div>
 
               </div>
@@ -8128,59 +8151,75 @@ License Date   :   01/04/2008</div>
           <!-- ======================================================= -->
           <!-- Human Resource: Staff Loan (frmStaffLoan)               -->
           <!-- ======================================================= -->
-          <section id="staff-loan" class="invmfg-window" hidden style="max-width: 960px; margin: 0 auto; z-index: 105;">
+          <section id="staff-loan" class="invmfg-window no-layout-override" hidden style="max-width: 1060px; margin: 0 auto; z-index: 105;">
             <div class="invmfg-card">
               <div class="invmfg-titlebar">
-                <span>Staff Loan</span>
-                <button type="button" class="invmfg-close-btn" id="loan-btn-close-top">✕</button>
+                <span class="invmfg-title-text">Staff Loan &amp; Advance Recovery</span>
+                <button type="button" class="invmfg-close-btn window-close-btn-top" id="loan-btn-close-top" data-close-target="#loan-btn-exit" title="Close [Esc]" aria-label="Close">✕</button>
               </div>
 
-              <div style="padding: 10px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; overflow: auto;">
-                <div style="display: grid; grid-template-columns: 240px 1fr; gap: 12px; min-height: 400px;">
-                  <!-- Left: Employee Selection -->
-                  <div style="border: 1px solid #7f9db9; background: #fff; padding: 8px; display: flex; flex-direction: column; gap: 6px;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">
-                      <input type="checkbox" id="loan-chk-current" checked />
-                      Current Employees Only
-                    </label>
-                    <div style="font-size: 10px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 4px;">Staff Name</div>
-                    <div id="loan-staff-list" style="flex: 1; overflow-y: auto; border: 1px solid #c0c0c0; background: #fff; min-height: 320px;">
+              <div class="loan-scroll-body">
+                <div class="loan-layout-grid">
+                  <!-- Left: Employee Selection Rail -->
+                  <div class="loan-staff-pane">
+                    <div class="loan-staff-filter-bar">
+                      <label class="loan-chk-current-wrap">
+                        <input type="checkbox" id="loan-chk-current" checked />
+                        <span>Active Staff Only</span>
+                      </label>
+                    </div>
+                    <div class="loan-staff-search-wrap">
+                      <input type="text" id="loan-staff-search" class="loan-search-input" placeholder="Search employee..." />
+                    </div>
+                    <div id="loan-staff-list" class="loan-staff-list">
                       <!-- Populated dynamically -->
+                    </div>
+                    <div id="loan-empty-state" class="loan-empty-state" hidden>
+                      <p>No active employees found.</p>
+                      <button type="button" class="btn btn-primary" onclick="window.openStaff && window.openStaff();">
+                        + Add Employee
+                      </button>
                     </div>
                   </div>
 
                   <!-- Right: Loan & Recovery Details -->
-                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div class="loan-details-pane">
                     <!-- Top Status Bar -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #eef3f8; border: 1px solid #bcd; padding: 6px 10px;">
-                      <div style="display: flex; align-items: center; gap: 15px;">
-                        <div><strong>Employee:</strong> <span id="loan-lbl-name" style="color: #003399; font-weight: bold;">(Select an Employee)</span></div>
-                        <div><strong>Loan Balance:</strong> <span id="loan-lbl-bal" style="color: #b00; font-weight: bold;">0.00</span></div>
+                    <div class="loan-status-bar">
+                      <div class="loan-status-meta">
+                        <div class="loan-employee-name-label">
+                          <span class="label-caption">Employee:</span>
+                          <strong id="loan-lbl-name">(Select an Employee)</strong>
+                        </div>
+                        <div class="loan-balance-badge-wrap">
+                          <span class="label-caption">Total Balance:</span>
+                          <span class="loan-balance-pill" id="loan-lbl-bal">₹ 0.00</span>
+                        </div>
                       </div>
-                      <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                      <label class="loan-toggle-recovery-label">
                         <input type="checkbox" id="loan-chk-details" />
-                        Recovery Details
+                        <span>Show Deduction History</span>
                       </label>
                     </div>
 
                     <!-- Main Loan Grid Frame -->
-                    <div style="border: 1px solid #7f9db9; background: #fff; display: flex; flex-direction: column; flex: 1;">
-                      <div style="background: #2a6496; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Loan Details</span>
-                        <button type="button" id="loan-btn-add-row" style="background: #fff; color: #2a6496; border: 1px solid #fff; font-size: 11px; font-weight: bold; padding: 1px 8px; cursor: pointer; border-radius: 2px;">+ Add Loan Row</button>
+                    <div class="loan-card-section">
+                      <div class="loan-section-header">
+                        <span class="section-title">Active Loan Disbursements</span>
+                        <button type="button" class="btn btn-sm btn-primary" id="loan-btn-add-row">+ Add Loan Row</button>
                       </div>
-                      <div style="overflow-x: auto; max-height: 220px; overflow-y: auto;">
-                        <table id="loan-table-main" style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                      <div class="loan-table-wrap">
+                        <table id="loan-table-main" class="loan-table">
                           <thead>
-                            <tr style="background: #e4e4e4; border-bottom: 1px solid #a0a0a0; text-align: left;">
-                              <th style="padding: 4px; width: 65px; text-align: center; border-right: 1px solid #c0c0c0;">Loan No.</th>
-                              <th style="padding: 4px; width: 45px; text-align: center; border-right: 1px solid #c0c0c0;">Sl.No</th>
-                              <th style="padding: 4px; min-width: 180px; border-right: 1px solid #c0c0c0;">Description (Loan Iss. Reason)</th>
-                              <th style="padding: 4px; width: 90px; text-align: right; border-right: 1px solid #c0c0c0;">Loan Amt.</th>
-                              <th style="padding: 4px; width: 90px; text-align: center; border-right: 1px solid #c0c0c0;">No. of Months</th>
-                              <th style="padding: 4px; width: 110px; text-align: center; border-right: 1px solid #c0c0c0;">Date Of Issue</th>
-                              <th style="padding: 4px; width: 85px; text-align: right; border-right: 1px solid #c0c0c0;">Balance</th>
-                              <th style="padding: 4px; width: 40px; text-align: center;">Act</th>
+                            <tr>
+                              <th style="width: 70px; text-align: center;">Loan No.</th>
+                              <th style="width: 50px; text-align: center;">Sl. No</th>
+                              <th style="min-width: 180px;">Reason / Description</th>
+                              <th style="width: 100px; text-align: right;">Loan Amt (₹)</th>
+                              <th style="width: 90px; text-align: center;">Tenure (Mo.)</th>
+                              <th style="width: 110px; text-align: center;">Issue Date</th>
+                              <th style="width: 100px; text-align: right;">Remaining</th>
+                              <th style="width: 50px; text-align: center;">Action</th>
                             </tr>
                           </thead>
                           <tbody id="loan-tbody-main">
@@ -8190,19 +8229,19 @@ License Date   :   01/04/2008</div>
                       </div>
                     </div>
 
-                    <!-- Recovery Details Grid Frame (Hidden by default) -->
-                    <div id="loan-recovery-frame" style="border: 1px solid #7f9db9; background: #fff; display: none; flex-direction: column;">
-                      <div style="background: #4682b4; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px;">
-                        <span>Recovery Details (Salary Deductions)</span>
+                    <!-- Recovery Details Grid Frame (Toggleable) -->
+                    <div id="loan-recovery-frame" class="loan-card-section loan-recovery-section" style="display: none;">
+                      <div class="loan-section-header recovery-header">
+                        <span class="section-title">Salary Recovery History (Automatic Deductions)</span>
                       </div>
-                      <div style="overflow-x: auto; max-height: 160px; overflow-y: auto;">
-                        <table id="loan-table-recovery" style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                      <div class="loan-table-wrap">
+                        <table id="loan-table-recovery" class="loan-table">
                           <thead>
-                            <tr style="background: #e4e4e4; border-bottom: 1px solid #a0a0a0; text-align: left;">
-                              <th style="padding: 4px; width: 80px; text-align: center; border-right: 1px solid #c0c0c0;">Loan No.</th>
-                              <th style="padding: 4px; width: 120px; text-align: center; border-right: 1px solid #c0c0c0;">Deducted Date</th>
-                              <th style="padding: 4px; width: 110px; text-align: right; border-right: 1px solid #c0c0c0;">Amt. Deducted</th>
-                              <th style="padding: 4px; text-align: center;">Deducted From</th>
+                            <tr>
+                              <th style="width: 80px; text-align: center;">Loan No.</th>
+                              <th style="width: 130px; text-align: center;">Deduction Date</th>
+                              <th style="width: 120px; text-align: right;">Deducted Amt (₹)</th>
+                              <th style="text-align: center;">Salary Period</th>
                             </tr>
                           </thead>
                           <tbody id="loan-tbody-recovery">
@@ -8214,16 +8253,16 @@ License Date   :   01/04/2008</div>
                   </div>
                 </div>
 
-                <!-- Footer & Buttons -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #c0c0c0; padding-top: 8px;">
-                  <div>
-                    <span id="loan-lbl-corres" style="font-size: 11px; color: #003399; text-decoration: underline; cursor: pointer;">Correspondences (0 / 0)</span>
+                <!-- Footer & Action Buttons -->
+                <div class="loan-bottom-bar">
+                  <div class="loan-bottom-left">
+                    <span id="loan-lbl-corres" class="loan-corres-link">Correspondences (0 / 0)</span>
                   </div>
-                  <div style="display: flex; gap: 8px;">
-                    <button type="button" class="invmfg-btn" id="loan-btn-save" style="min-width: 80px; font-weight: bold;">Save</button>
-                    <button type="button" class="invmfg-btn" id="loan-btn-delete" style="min-width: 80px;">Delete</button>
-                    <button type="button" class="invmfg-btn" id="loan-btn-print" style="min-width: 80px;">Print</button>
-                    <button type="button" class="invmfg-btn" id="loan-btn-exit" style="min-width: 80px;">Exit</button>
+                  <div class="loan-bottom-right">
+                    <button type="button" class="btn btn-primary" id="loan-btn-save">Save Loans</button>
+                    <button type="button" class="btn btn-danger" id="loan-btn-delete">Delete</button>
+                    <button type="button" class="btn" id="loan-btn-print">Print Ledger</button>
+                    <button type="button" class="btn" id="loan-btn-exit">Close</button>
                   </div>
                 </div>
               </div>
@@ -8231,244 +8270,274 @@ License Date   :   01/04/2008</div>
           </section>
 
           <!-- ======================================================= -->
-          <!-- Human Resource: Salary (frmSalary)                      -->
+          <!-- Human Resource: Salary Processing (frmSalary)           -->
           <!-- ======================================================= -->
-          <section id="salary" class="invmfg-window" hidden style="max-width: 1100px; margin: 0 auto; z-index: 105;">
+          <section id="salary" class="invmfg-window no-layout-override" hidden style="max-width: 1180px; margin: 0 auto; z-index: 105;">
             <div class="invmfg-card">
               <div class="invmfg-titlebar">
-                <span>Salary Processing</span>
-                <button type="button" class="invmfg-close-btn" id="sal-btn-close-top">✕</button>
+                <span class="invmfg-title-text">Salary Processing &amp; Industrial Payroll</span>
+                <button type="button" class="invmfg-close-btn window-close-btn-top" id="sal-btn-close-top" data-close-target="#sal-btn-exit" title="Close [Esc]" aria-label="Close">✕</button>
               </div>
 
-              <div style="padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: auto;">
-                <!-- Top Filter / Control Bar -->
-                <div style="display: flex; gap: 15px; align-items: center; background: #eef3f8; border: 1px solid #bcd; padding: 6px 12px; border-radius: 3px;">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <label for="sal-year" style="font-weight: bold; font-size: 11px;">Year:</label>
-                    <input type="number" id="sal-year" style="width: 70px; padding: 2px 4px; font-size: 11px;" />
+              <div class="sal-scroll-body">
+                <!-- Top Filter / Control Toolbar -->
+                <div class="sal-toolbar">
+                  <div class="sal-toolbar-group">
+                    <label for="sal-year">Year:</label>
+                    <input type="number" id="sal-year" class="sal-input-year" value="2026" />
                   </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <label for="sal-month" style="font-weight: bold; font-size: 11px;">Month:</label>
-                    <select id="sal-month" style="padding: 2px 4px; font-size: 11px; min-width: 110px;"></select>
+                  <div class="sal-toolbar-group">
+                    <label for="sal-month">Month:</label>
+                    <select id="sal-month" class="sal-select-month"></select>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <label for="sal-date" style="font-weight: bold; font-size: 11px;">Sal. Date:</label>
-                    <input type="date" id="sal-date" style="padding: 2px 4px; font-size: 11px;" />
+                  <div class="sal-toolbar-group">
+                    <label for="sal-date">Salary Date:</label>
+                    <input type="date" id="sal-date" class="sal-input-date" />
                   </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <label for="sal-working-days" style="font-weight: bold; font-size: 11px;">Working Days:</label>
-                    <input type="number" id="sal-working-days" style="width: 60px; padding: 2px 4px; font-size: 11px; text-align: center;" />
+                  <div class="sal-toolbar-group">
+                    <label for="sal-working-days">Working Days:</label>
+                    <input type="number" id="sal-working-days" class="sal-input-wdays" value="30" />
                   </div>
-                  <div style="margin-left: auto; font-size: 11px;">
-                    <strong>Status:</strong> <span id="sal-lbl-mode" style="color: #003399; font-weight: bold;">New Salary</span>
+                  <div class="sal-toolbar-status">
+                    <span class="sal-status-caption">Status:</span>
+                    <span id="sal-lbl-mode" class="sal-mode-pill">New Salary Entry</span>
                   </div>
                 </div>
 
                 <!-- 3 Columns Layout -->
-                <div style="display: grid; grid-template-columns: 220px 1fr 1fr; gap: 10px; flex: 1;">
-                  <!-- Col 1: Employee List -->
-                  <div style="border: 1px solid #7f9db9; background: #fff; padding: 6px; display: flex; flex-direction: column; gap: 4px;">
-                    <div style="font-weight: bold; font-size: 11px; border-bottom: 1px solid #eee; padding-bottom: 4px;">Select Employee</div>
-                    <div id="sal-staff-list" style="flex: 1; overflow-y: auto; border: 1px solid #c0c0c0; min-height: 380px;">
+                <div class="sal-layout-grid">
+                  <!-- Col 1: Employee Roster Rail -->
+                  <div class="sal-staff-pane">
+                    <div class="sal-staff-header">
+                      <span>Employees</span>
+                      <span id="sal-staff-count-badge" class="sal-count-badge">0</span>
+                    </div>
+                    <div class="sal-batch-action-wrap">
+                      <button type="button" class="btn btn-primary sal-btn-batch" id="sal-btn-batch" title="Calculate all employee salaries automatically based on attendance and loan schedules">
+                        Process All Salaries
+                      </button>
+                    </div>
+                    <div class="sal-staff-search-wrap">
+                      <input type="text" id="sal-staff-search" class="sal-search-input" placeholder="Search employee..." />
+                    </div>
+                    <div id="sal-staff-list" class="sal-staff-list">
                       <!-- Populated dynamically -->
                     </div>
-                    <div style="font-size: 11px; padding-top: 4px; border-top: 1px solid #eee;">
-                      <div><strong>Dept:</strong> <span id="sal-lbl-dept">-</span></div>
+                    <div id="sal-empty-state" class="sal-empty-state" hidden>
+                      <p>No active employees found.</p>
+                      <button type="button" class="btn btn-primary" onclick="window.openStaff && window.openStaff();">
+                        + Add Employee
+                      </button>
+                    </div>
+                    <div class="sal-staff-footer-meta">
+                      <span>Dept: <strong id="sal-lbl-dept">-</strong></span>
                     </div>
                   </div>
 
-                  <!-- Col 2: Earnings -->
-                  <div style="border: 1px solid #7f9db9; background: #fff; display: flex; flex-direction: column;">
-                    <div style="background: #2a6496; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px;">
-                      EARNINGS
+                  <!-- Col 2: Earnings & Allowances Card -->
+                  <div class="sal-card sal-card-earnings">
+                    <div class="sal-card-header earnings-header">
+                      <span>Earnings &amp; Allowances</span>
                     </div>
-                    <div style="padding: 8px; display: flex; flex-direction: column; gap: 5px; font-size: 11px; overflow-y: auto;">
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>Days Worked / Leave:</span>
-                        <div style="display: flex; gap: 4px;">
-                          <input type="number" id="sal-days-present" style="width: 55px; text-align: right; padding: 1px 3px;" title="Worked Days" />
-                          <input type="number" id="sal-leave-days" style="width: 55px; text-align: right; padding: 1px 3px;" title="Leave Days" />
+                    <div class="sal-card-body">
+                      <div class="sal-field-row">
+                        <span>Days Worked / Leaves:</span>
+                        <div class="sal-dual-input">
+                          <input type="number" id="sal-days-present" class="sal-num-input" title="Days Worked" placeholder="Worked" />
+                          <input type="number" id="sal-leave-days" class="sal-num-input" title="Leave Days" placeholder="Leave" />
                         </div>
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label for="sal-basic">Basic Pay:</label>
-                        <input type="number" step="0.01" id="sal-basic" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                      <div class="sal-field-row">
+                        <label for="sal-basic">Basic Pay (₹):</label>
+                        <input type="number" step="0.01" id="sal-basic" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label for="sal-da" style="display: flex; align-items: center; gap: 4px;">
-                          D.A.:
-                          <label style="font-size: 10px; cursor: pointer;"><input type="checkbox" id="sal-chk-da2pf" /> DA to PF</label>
+                      <div class="sal-field-row">
+                        <label for="sal-da" class="sal-label-with-check">
+                          <span>D.A. (₹):</span>
+                          <label class="sal-sub-check"><input type="checkbox" id="sal-chk-da2pf" /> Add to PF</label>
                         </label>
-                        <input type="number" step="0.01" id="sal-da" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-da" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
+                      <div class="sal-field-row">
+                        <div class="sal-label-with-radio">
                           <span>H.R.A.:</span>
-                          <span style="font-size: 10px;">
+                          <span class="sal-radio-opts">
                             <label><input type="radio" name="sal-opt-hra" id="sal-opt-hra-basic" checked /> %</label>
                             <label><input type="radio" name="sal-opt-hra" id="sal-opt-hra-fixed" /> Fix</label>
                           </span>
                         </div>
-                        <input type="number" step="0.01" id="sal-hra" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-hra" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
+                      <div class="sal-field-row">
+                        <div class="sal-label-with-radio">
                           <span>Conveyance:</span>
-                          <span style="font-size: 10px;">
+                          <span class="sal-radio-opts">
                             <label><input type="radio" name="sal-opt-convey" id="sal-opt-convey-day" checked /> Day</label>
                             <label><input type="radio" name="sal-opt-convey" id="sal-opt-convey-month" /> Fix</label>
                           </span>
                         </div>
-                        <input type="number" step="0.01" id="sal-convey" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-convey" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-medical">Medical Allow.:</label>
-                        <input type="number" step="0.01" id="sal-medical" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-medical" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                          <input type="checkbox" id="sal-chk-attbonus" /> Att. Bonus:
+                      <div class="sal-field-row">
+                        <label class="sal-label-with-check">
+                          <input type="checkbox" id="sal-chk-attbonus" /> <span>Att. Bonus:</span>
                         </label>
-                        <input type="number" step="0.01" id="sal-attbonus" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-attbonus" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                          <span>Overtime (Hrs × Rate):</span>
-                          <div style="font-size: 10px;">
+                      <div class="sal-field-row">
+                        <div class="sal-label-with-radio">
+                          <span>Overtime:</span>
+                          <span class="sal-radio-opts">
                             <label><input type="radio" name="sal-opt-ot" id="sal-opt-ot-basic" checked /> Basic</label>
                             <label><input type="radio" name="sal-opt-ot" id="sal-opt-ot-fixed" /> Fix</label>
-                          </div>
+                          </span>
                         </div>
-                        <div style="display: flex; gap: 4px;">
-                          <input type="number" step="0.1" id="sal-ot-hrs" style="width: 48px; text-align: right; padding: 1px 3px;" placeholder="Hrs" />
-                          <input type="number" step="0.01" id="sal-ot-times" style="width: 48px; text-align: right; padding: 1px 3px;" placeholder="Rate" value="1" />
+                        <div class="sal-dual-input">
+                          <input type="number" step="0.1" id="sal-ot-hrs" class="sal-num-input" placeholder="Hrs" />
+                          <input type="number" step="0.01" id="sal-ot-times" class="sal-num-input" placeholder="Rate" value="1" />
                         </div>
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-splallow">Special Allow.:</label>
-                        <input type="number" step="0.01" id="sal-splallow" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-splallow" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-other-allow">Other Allow.:</label>
-                        <input type="number" step="0.01" id="sal-other-allow" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-other-allow" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-misc-earning">Misc. Earning:</label>
-                        <input type="number" step="0.01" id="sal-misc-earning" style="width: 100px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-misc-earning" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #c0c0c0; padding-top: 5px; margin-top: 5px;">
-                        <strong>GROSS SALARY:</strong>
-                        <input type="text" id="sal-gross" readonly style="width: 100px; text-align: right; padding: 2px 4px; font-weight: bold; background: #f0f0f0;" value="0.00" />
+                      <div class="sal-gross-banner">
+                        <span>GROSS SALARY:</span>
+                        <input type="text" id="sal-gross" class="sal-total-readonly" readonly value="0.00" />
                       </div>
                     </div>
                   </div>
 
-                  <!-- Col 3: Deductions & Settlement -->
-                  <div style="border: 1px solid #7f9db9; background: #fff; display: flex; flex-direction: column;">
-                    <div style="background: #a94442; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 8px;">
-                      DEDUCTIONS & SETTLEMENT
+                  <!-- Col 3: Deductions & Settlement Card -->
+                  <div class="sal-card sal-card-deductions">
+                    <div class="sal-card-header deductions-header">
+                      <span>Deductions &amp; Settlement</span>
                     </div>
-                    <div style="padding: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 11px; overflow-y: auto;">
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer;"><input type="checkbox" id="sal-chk-pf" checked /> Provident Fund (PF):</label>
-                        <input type="number" step="0.01" id="sal-pf" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                    <div class="sal-card-body">
+                      <div class="sal-field-row">
+                        <label class="sal-label-with-check">
+                          <input type="checkbox" id="sal-chk-pf" checked /> <span>Provident Fund (PF):</span>
+                        </label>
+                        <input type="number" step="0.01" id="sal-pf" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer;"><input type="checkbox" id="sal-chk-esi" checked /> ESI:</label>
-                        <input type="number" step="0.01" id="sal-esi" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                      <div class="sal-field-row">
+                        <label class="sal-label-with-check">
+                          <input type="checkbox" id="sal-chk-esi" checked /> <span>E.S.I.:</span>
+                        </label>
+                        <input type="number" step="0.01" id="sal-esi" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label style="cursor: pointer;"><input type="checkbox" id="sal-chk-pt" checked /> Professional Tax (PT):</label>
-                        <input type="number" step="0.01" id="sal-pt" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                      <div class="sal-field-row">
+                        <label class="sal-label-with-check">
+                          <input type="checkbox" id="sal-chk-pt" checked /> <span>Professional Tax (PT):</span>
+                        </label>
+                        <input type="number" step="0.01" id="sal-pt" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-advance">Salary Advance:</label>
-                        <input type="number" step="0.01" id="sal-advance" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-advance" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-loan">Staff Loan Ded.:</label>
-                        <input type="number" step="0.01" id="sal-loan" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-loan" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-tds">T.D.S.:</label>
-                        <input type="number" step="0.01" id="sal-tds" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-tds" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-society">Society:</label>
-                        <input type="number" step="0.01" id="sal-society" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-society" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-insurance">Insurance:</label>
-                        <input type="number" step="0.01" id="sal-insurance" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-insurance" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-fines">Fines / Loss:</label>
-                        <div style="display: flex; gap: 4px;">
-                          <input type="number" step="0.01" id="sal-fines" style="width: 45px; text-align: right; padding: 1px 3px;" placeholder="Fine" />
-                          <input type="number" step="0.01" id="sal-damage" style="width: 45px; text-align: right; padding: 1px 3px;" placeholder="Loss" />
+                        <div class="sal-dual-input">
+                          <input type="number" step="0.01" id="sal-fines" class="sal-num-input" placeholder="Fine" />
+                          <input type="number" step="0.01" id="sal-damage" class="sal-num-input" placeholder="Loss" />
                         </div>
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-other-ded">Other Ded.:</label>
-                        <input type="number" step="0.01" id="sal-other-ded" style="width: 95px; text-align: right; padding: 1px 3px;" />
+                        <input type="number" step="0.01" id="sal-other-ded" class="sal-num-input" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #c0c0c0; padding-top: 4px;">
-                        <strong>Total Deductions:</strong>
-                        <input type="text" id="sal-totded" readonly style="width: 95px; text-align: right; padding: 1px 3px; font-weight: bold; background: #f0f0f0;" value="0.00" />
+                      <div class="sal-totded-row">
+                        <span>Total Deductions:</span>
+                        <input type="text" id="sal-totded" class="sal-total-readonly" readonly value="0.00" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <span>Old Balance:</span>
-                        <input type="number" step="0.01" id="sal-oldbal" style="width: 95px; text-align: right; padding: 1px 3px;" value="0.00" />
+                        <input type="number" step="0.01" id="sal-oldbal" class="sal-num-input" value="0.00" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffd0; padding: 4px; border: 1px solid #e0d080;">
-                        <strong style="color: #003399; font-size: 12px;">NET PAYABLE:</strong>
-                        <input type="text" id="sal-netpay" readonly style="width: 95px; text-align: right; padding: 2px 4px; font-weight: bold; font-size: 12px; color: #003399; background: #fff;" value="0.00" />
+                      <!-- Net Payable Callout Card -->
+                      <div class="sal-netpay-card">
+                        <div class="sal-netpay-meta">NET SALARY PAYABLE</div>
+                        <input type="text" id="sal-netpay" class="sal-netpay-amount" readonly value="0.00" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="sal-field-row">
                         <label for="sal-paid">Amount Paid:</label>
-                        <input type="number" step="0.01" id="sal-paid" style="width: 95px; text-align: right; padding: 1px 3px; font-weight: bold;" value="0.00" />
+                        <input type="number" step="0.01" id="sal-paid" class="sal-num-input sal-paid-input" value="0.00" />
                       </div>
 
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>Balance:</span>
-                        <input type="text" id="sal-balance" readonly style="width: 95px; text-align: right; padding: 1px 3px; background: #f0f0f0;" value="0.00" />
+                      <div class="sal-field-row">
+                        <span>Remaining Balance:</span>
+                        <input type="text" id="sal-balance" class="sal-num-input sal-balance-readonly" readonly value="0.00" />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- Footer & Action Buttons -->
-                <div style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #c0c0c0; padding-top: 8px;">
-                  <button type="button" class="invmfg-btn" id="sal-btn-calc" style="min-width: 90px; background: #eaf2f8; font-weight: bold;">Calculate</button>
-                  <button type="button" class="invmfg-btn" id="sal-btn-save" style="min-width: 90px; font-weight: bold;">Save</button>
-                  <button type="button" class="invmfg-btn" id="sal-btn-delete" style="min-width: 90px;">Delete</button>
-                  <button type="button" class="invmfg-btn" id="sal-btn-print" style="min-width: 90px;">Print Slip</button>
-                  <button type="button" class="invmfg-btn" id="sal-btn-print-all" style="min-width: 100px;">Print Register</button>
-                  <button type="button" class="invmfg-btn" id="sal-btn-exit" style="min-width: 80px;">Exit</button>
+                <div class="sal-bottom-bar">
+                  <div class="sal-bottom-status" id="sal-bottom-status">
+                    <!-- Real-time status / batch summary -->
+                  </div>
+                  <div class="sal-bottom-actions">
+                    <button type="button" class="btn" id="sal-btn-calc">Calculate</button>
+                    <button type="button" class="btn btn-primary" id="sal-btn-save">Save Salary</button>
+                    <button type="button" class="btn btn-danger" id="sal-btn-delete">Delete</button>
+                    <button type="button" class="btn" id="sal-btn-print">Print Payslip</button>
+                    <button type="button" class="btn" id="sal-btn-print-all">Print Register</button>
+                    <button type="button" class="btn" id="sal-btn-exit">Close</button>
+                  </div>
                 </div>
               </div>
             </div>

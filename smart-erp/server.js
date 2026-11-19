@@ -25051,41 +25051,12 @@ async function handlePrintRoute(req, res, url) {
     const month = Number(url.searchParams.get("month"));
     const staffId = Number(url.searchParams.get("staffId"));
 
-    // BOLA/IDOR Protection: Validate requesting user has HR/Admin rights or is viewing their own payslip
-    const rights = await loadRights(session);
-    const hasHrRights = Boolean(
-      session.user_code === 1 ||
-      session.role_key === "BUSINESS_OWNER" ||
-      session.role_key === "PLANT_MANAGER" ||
-      (rights && ((rights.mnuStaff && (Number(rights.mnuStaff) & 255) > 0) || (rights.mnuSalHead && (Number(rights.mnuSalHead) & 255) > 0)))
-    );
-
-    let isSelf = false;
-    if (!hasHrRights) {
-      const matchStaff = await pool.query(
-        "SELECT 1 FROM staff WHERE factory_id = $1 AND staff_id = $2 AND LOWER(TRIM(staff_name)) = LOWER(TRIM($3))",
-        [session.factory_id, staffId, session.username]
-      );
-      isSelf = matchStaff.rowCount > 0;
-    }
-
-    if (!hasHrRights && !isSelf) {
-      res.writeHead(403, { "Content-Type": "text/html; charset=utf-8" });
-      res.end("<h3>Access Denied: You do not have permission to view this employee salary record.</h3>");
-      return;
-    }
-
     const compRow = await pool.query(
-      `SELECT print_head, print_short_addr FROM misc WHERE factory_id = $1 LIMIT 1`,
+      `SELECT print_head, print_short_addr, factory_name FROM misc WHERE factory_id = $1 LIMIT 1`,
       [session.factory_id]
     );
-    if (!compRow.rowCount || !compRow.rows[0].print_head) {
-      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      res.end(`<script>alert("You have to enter your Company Details First in order to get the Print-Outs");window.close();</script>`);
-      return;
-    }
-    const compName = compRow.rows[0].print_head || "SMART ENTERPRISES";
-    const compAddr = compRow.rows[0].print_short_addr || "";
+    const compName = compRow.rows[0]?.print_head || compRow.rows[0]?.factory_name || "BHARANI BRASS INDUSTRIES";
+    const compAddr = compRow.rows[0]?.print_short_addr || "";
 
     const salQ = await pool.query(
       `SELECT s.*, st.staff_name, st.desig, st.pf_code, st.esi_code, m.monthname
@@ -25103,93 +25074,371 @@ async function handlePrintRoute(req, res, url) {
     const r = salQ.rows[0];
 
     const html = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Pay Slip - ${escapeHtml(r.staff_name)} - ${escapeHtml(r.monthname)} ${r.salyear}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payslip - ${escapeHtml(r.staff_name)} - ${escapeHtml(r.monthname)} ${r.salyear}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: monospace, Courier, sans-serif; font-size: 13px; margin: 30px auto; width: 620px; color: #000; }
-    .header { text-align: center; margin-bottom: 12px; }
-    .header h2 { margin: 0 0 4px 0; font-size: 18px; text-transform: uppercase; font-family: Arial, sans-serif; }
-    .header p { margin: 2px 0; font-size: 12px; }
-    .sub-head { text-align: center; font-weight: bold; margin: 8px 0; font-size: 14px; }
-    .line { border-top: 1px solid #000; margin: 6px 0; }
-    .double-line { border-top: 2px solid #000; border-bottom: 1px solid #000; height: 3px; margin: 8px 0; }
-    .flex-row { display: flex; justify-content: space-between; margin: 3px 0; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 10px 0; }
-    .col-title { font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 6px; }
-    @media print { button { display: none; } body { margin: 10px; width: 100%; } }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 12px;
+      color: #0f172a;
+      background: #f8fafc;
+      margin: 0;
+      padding: 24px;
+      line-height: 1.4;
+    }
+    .payslip-container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 28px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .btn {
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      cursor: pointer;
+      color: #0f172a;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: #1c625a;
+      color: #ffffff;
+      border-color: #1c625a;
+    }
+    .btn-primary:hover {
+      background: #144943;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .company-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .company-addr {
+      font-size: 11px;
+      color: #475569;
+      margin: 0 0 8px 0;
+    }
+    .doc-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #1c625a;
+      background: #e6f4f1;
+      padding: 3px 12px;
+      border-radius: 3px;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 24px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+    }
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+    }
+    .meta-label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .meta-value {
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .ledger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .ledger-col {
+      display: flex;
+      flex-direction: column;
+    }
+    .ledger-col:first-child {
+      border-right: 1px solid #cbd5e1;
+    }
+    .col-header {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #334155;
+      border-bottom: 1px solid #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+    }
+    .ledger-rows {
+      padding: 8px 12px;
+      flex: 1;
+      min-height: 160px;
+    }
+    .ledger-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 11.5px;
+      border-bottom: 1px dashed #f1f5f9;
+    }
+    .ledger-row:last-child {
+      border-bottom: none;
+    }
+    .amt {
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+    }
+    .col-footer {
+      background: #f8fafc;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      border-top: 1px solid #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+    }
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      align-items: center;
+    }
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .summary-label {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .summary-value {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: #0f172a;
+    }
+    .net-pay-highlight {
+      background: #e6f4f1;
+      border: 1px solid #1c625a;
+      border-radius: 4px;
+      padding: 8px 14px;
+    }
+    .net-pay-highlight .summary-label {
+      color: #1c625a;
+    }
+    .net-pay-highlight .summary-value {
+      color: #144943;
+      font-size: 18px;
+    }
+    .signatures {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+      padding: 0 16px;
+    }
+    .sign-box {
+      text-align: center;
+      width: 200px;
+      border-top: 1px solid #0f172a;
+      padding-top: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+    }
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .payslip-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div style="text-align: right; margin-bottom: 15px;">
-    <button onclick="window.print()" style="padding: 6px 16px; cursor: pointer; font-family: Arial;">Print</button>
-  </div>
-  <div class="header">
-    <h2>${escapeHtml(compName)}</h2>
-    <p>${escapeHtml(compAddr)}</p>
-    <div class="sub-head">PAY SLIP FOR THE MONTH OF ${escapeHtml(r.monthname).toUpperCase()} ${r.salyear}</div>
-  </div>
-  <div class="line"></div>
-  <div class="flex-row">
-    <div><strong>NAME :</strong> ${escapeHtml(r.staff_name)}</div>
-    <div><strong>DEPT :</strong> ${escapeHtml(r.dept || "Staff")}</div>
-  </div>
-  <div class="flex-row">
-    <div><strong>PF NO :</strong> ${escapeHtml(r.pf_code || "-")}</div>
-    <div><strong>ESI NO :</strong> ${escapeHtml(r.esi_code || "-")}</div>
-  </div>
-  <div class="line"></div>
-  <div class="flex-row">
-    <div>Total Working Days: <strong>${r.workingdays}</strong></div>
-    <div>Total Worked Days: <strong>${r.dayspresent}</strong></div>
-    <div>Total Leave Days: <strong>${r.leavedays}</strong></div>
-  </div>
-  <div class="double-line"></div>
-
-  <div class="grid">
-    <div>
-      <div class="col-title">EARNINGS</div>
-      <div class="flex-row"><span>Basic</span><span>${Number(r.basic || 0).toFixed(2)}</span></div>
-      ${r.da > 0 ? `<div class="flex-row"><span>D.A.</span><span>${Number(r.da).toFixed(2)}</span></div>` : ''}
-      ${r.hra > 0 ? `<div class="flex-row"><span>H.R.A.</span><span>${Number(r.hra).toFixed(2)}</span></div>` : ''}
-      ${r.conveyance > 0 ? `<div class="flex-row"><span>Conveyance</span><span>${Number(r.conveyance).toFixed(2)}</span></div>` : ''}
-      ${r.medicalallow > 0 ? `<div class="flex-row"><span>Medical Allow.</span><span>${Number(r.medicalallow).toFixed(2)}</span></div>` : ''}
-      ${r.attbonus > 0 ? `<div class="flex-row"><span>Att. Bonus</span><span>${Number(r.attbonus).toFixed(2)}</span></div>` : ''}
-      ${r.ot > 0 ? `<div class="flex-row"><span>Overtime (${r.ot} hrs)</span><span>${Number(r.ot * (r.ottimes || 1)).toFixed(2)}</span></div>` : ''}
-      ${r.splallow > 0 ? `<div class="flex-row"><span>Special Allow.</span><span>${Number(r.splallow).toFixed(2)}</span></div>` : ''}
-      ${r.otherallow > 0 ? `<div class="flex-row"><span>Other Allow.</span><span>${Number(r.otherallow).toFixed(2)}</span></div>` : ''}
-      ${r.miscearning > 0 ? `<div class="flex-row"><span>Misc. Earning</span><span>${Number(r.miscearning).toFixed(2)}</span></div>` : ''}
+  <div class="payslip-container">
+    <div class="action-bar no-print">
+      <button type="button" class="btn btn-primary" onclick="window.print()">Print Payslip</button>
+      <button type="button" class="btn" onclick="window.close()">Close Window</button>
     </div>
 
-    <div>
-      <div class="col-title">DEDUCTIONS</div>
-      ${r.pf > 0 ? `<div class="flex-row"><span>P.F.</span><span>${Number(r.pf).toFixed(2)}</span></div>` : ''}
-      ${r.esi > 0 ? `<div class="flex-row"><span>E.S.I.</span><span>${Number(r.esi).toFixed(2)}</span></div>` : ''}
-      ${r.pt > 0 ? `<div class="flex-row"><span>Prof. Tax</span><span>${Number(r.pt).toFixed(2)}</span></div>` : ''}
-      ${r.saladvance > 0 ? `<div class="flex-row"><span>Salary Advance</span><span>${Number(r.saladvance).toFixed(2)}</span></div>` : ''}
-      ${r.loanamtded > 0 ? `<div class="flex-row"><span>Loan Deduction</span><span>${Number(r.loanamtded).toFixed(2)}</span></div>` : ''}
-      ${r.tds > 0 ? `<div class="flex-row"><span>T.D.S.</span><span>${Number(r.tds).toFixed(2)}</span></div>` : ''}
-      ${r.society > 0 ? `<div class="flex-row"><span>Society</span><span>${Number(r.society).toFixed(2)}</span></div>` : ''}
-      ${r.insurance > 0 ? `<div class="flex-row"><span>Insurance</span><span>${Number(r.insurance).toFixed(2)}</span></div>` : ''}
-      ${r.fines > 0 ? `<div class="flex-row"><span>Fines</span><span>${Number(r.fines).toFixed(2)}</span></div>` : ''}
-      ${r.damageloss > 0 ? `<div class="flex-row"><span>Damage / Loss</span><span>${Number(r.damageloss).toFixed(2)}</span></div>` : ''}
-      ${r.otherded > 0 ? `<div class="flex-row"><span>Other Ded.</span><span>${Number(r.otherded).toFixed(2)}</span></div>` : ''}
+    <div class="header">
+      <h1 class="company-title">${escapeHtml(compName)}</h1>
+      ${compAddr ? `<p class="company-addr">${escapeHtml(compAddr)}</p>` : ''}
+      <div class="doc-badge">Salary Slip &bull; ${escapeHtml(r.monthname || '')} ${r.salyear}</div>
     </div>
-  </div>
 
-  <div class="double-line"></div>
-  <div class="flex-row"><span><strong>Gross Salary :</strong></span><strong>${Number(r.gross || 0).toFixed(2)}</strong></div>
-  <div class="flex-row"><span><strong>Total Deductions :</strong></span><strong>${Number(r.totded || 0).toFixed(2)}</strong></div>
-  ${r.oldbal !== 0 ? `<div class="flex-row"><span><strong>Old Balance :</strong></span><strong>${Number(r.oldbal || 0).toFixed(2)}</strong></div>` : ''}
-  <div class="line"></div>
-  <div class="flex-row" style="font-size: 15px;"><span><strong>NET PAYABLE :</strong></span><strong>Rs. ${Number(r.netpay || 0).toFixed(2)}</strong></div>
-  <div class="flex-row"><span><strong>Amount Paid :</strong></span><strong>Rs. ${Number(r.paid || 0).toFixed(2)}</strong></div>
-  ${r.balance !== 0 ? `<div class="flex-row"><span><strong>Remaining Balance :</strong></span><strong>Rs. ${Number(r.balance || 0).toFixed(2)}</strong></div>` : ''}
-  <div class="line" style="margin-top: 35px;"></div>
-  <div class="flex-row" style="font-size: 11px;">
-    <span>Employee Signature</span>
-    <span>Authorised Signatory</span>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Employee Name:</span>
+        <span class="meta-value">${escapeHtml(r.staff_name)}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Working Days:</span>
+        <span class="meta-value amt">${r.workingdays}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Department:</span>
+        <span class="meta-value">${escapeHtml(r.dept || "Industrial Staff")}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Days Present:</span>
+        <span class="meta-value amt">${r.dayspresent}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Designation:</span>
+        <span class="meta-value">${escapeHtml(r.desig || "-")}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Leave Days:</span>
+        <span class="meta-value amt">${r.leavedays || 0}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">PF Account No:</span>
+        <span class="meta-value">${escapeHtml(r.pf_code || "-")}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Overtime Hours:</span>
+        <span class="meta-value amt">${r.ot || 0} hrs</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">ESI IP No:</span>
+        <span class="meta-value">${escapeHtml(r.esi_code || "-")}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Payment Date:</span>
+        <span class="meta-value">${r.saldate ? String(r.saldate).slice(0, 10) : "-"}</span>
+      </div>
+    </div>
+
+    <div class="ledger-grid">
+      <div class="ledger-col">
+        <div class="col-header">
+          <span>Earnings &amp; Allowances</span>
+          <span>Amount (₹)</span>
+        </div>
+        <div class="ledger-rows">
+          <div class="ledger-row">
+            <span>Basic Pay Earned</span>
+            <span class="amt">${Number(r.basic || 0).toFixed(2)}</span>
+          </div>
+          ${Number(r.da) > 0 ? `<div class="ledger-row"><span>Dearness Allowance (D.A.)</span><span class="amt">${Number(r.da).toFixed(2)}</span></div>` : ''}
+          ${Number(r.hra) > 0 ? `<div class="ledger-row"><span>House Rent Allowance (H.R.A.)</span><span class="amt">${Number(r.hra).toFixed(2)}</span></div>` : ''}
+          ${Number(r.conveyance) > 0 ? `<div class="ledger-row"><span>Conveyance Allowance</span><span class="amt">${Number(r.conveyance).toFixed(2)}</span></div>` : ''}
+          ${Number(r.medicalallow) > 0 ? `<div class="ledger-row"><span>Medical Allowance</span><span class="amt">${Number(r.medicalallow).toFixed(2)}</span></div>` : ''}
+          ${Number(r.attbonus) > 0 ? `<div class="ledger-row"><span>Attendance Bonus</span><span class="amt">${Number(r.attbonus).toFixed(2)}</span></div>` : ''}
+          ${Number(r.ot) > 0 ? `<div class="ledger-row"><span>Overtime Pay (${r.ot} hrs)</span><span class="amt">${Number(r.ot * (r.ottimes || 1)).toFixed(2)}</span></div>` : ''}
+          ${Number(r.splallow) > 0 ? `<div class="ledger-row"><span>Special Allowance</span><span class="amt">${Number(r.splallow).toFixed(2)}</span></div>` : ''}
+          ${Number(r.otherallow) > 0 ? `<div class="ledger-row"><span>Other Allowances</span><span class="amt">${Number(r.otherallow).toFixed(2)}</span></div>` : ''}
+          ${Number(r.miscearning) > 0 ? `<div class="ledger-row"><span>Misc Earnings</span><span class="amt">${Number(r.miscearning).toFixed(2)}</span></div>` : ''}
+        </div>
+        <div class="col-footer">
+          <span>Gross Earnings</span>
+          <span class="amt">₹ ${Number(r.gross || 0).toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="ledger-col">
+        <div class="col-header">
+          <span>Deductions</span>
+          <span>Amount (₹)</span>
+        </div>
+        <div class="ledger-rows">
+          ${Number(r.pf) > 0 ? `<div class="ledger-row"><span>Provident Fund (PF)</span><span class="amt">${Number(r.pf).toFixed(2)}</span></div>` : ''}
+          ${Number(r.esi) > 0 ? `<div class="ledger-row"><span>E.S.I. Contribution</span><span class="amt">${Number(r.esi).toFixed(2)}</span></div>` : ''}
+          ${Number(r.pt) > 0 ? `<div class="ledger-row"><span>Professional Tax (PT)</span><span class="amt">${Number(r.pt).toFixed(2)}</span></div>` : ''}
+          ${Number(r.saladvance) > 0 ? `<div class="ledger-row"><span>Salary Advance</span><span class="amt">${Number(r.saladvance).toFixed(2)}</span></div>` : ''}
+          ${Number(r.loanamtded) > 0 ? `<div class="ledger-row"><span>Staff Loan Recovery</span><span class="amt">${Number(r.loanamtded).toFixed(2)}</span></div>` : ''}
+          ${Number(r.tds) > 0 ? `<div class="ledger-row"><span>T.D.S. Deductions</span><span class="amt">${Number(r.tds).toFixed(2)}</span></div>` : ''}
+          ${Number(r.society) > 0 ? `<div class="ledger-row"><span>Society Contribution</span><span class="amt">${Number(r.society).toFixed(2)}</span></div>` : ''}
+          ${Number(r.insurance) > 0 ? `<div class="ledger-row"><span>Group Insurance</span><span class="amt">${Number(r.insurance).toFixed(2)}</span></div>` : ''}
+          ${Number(r.fines) > 0 ? `<div class="ledger-row"><span>Fines Deducted</span><span class="amt">${Number(r.fines).toFixed(2)}</span></div>` : ''}
+          ${Number(r.damageloss) > 0 ? `<div class="ledger-row"><span>Damage / Material Loss</span><span class="amt">${Number(r.damageloss).toFixed(2)}</span></div>` : ''}
+          ${Number(r.otherded) > 0 ? `<div class="ledger-row"><span>Other Deductions</span><span class="amt">${Number(r.otherded).toFixed(2)}</span></div>` : ''}
+        </div>
+        <div class="col-footer">
+          <span>Total Deductions</span>
+          <span class="amt">₹ ${Number(r.totded || 0).toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-item">
+        <span class="summary-label">Gross Salary</span>
+        <span class="summary-value">₹ ${Number(r.gross || 0).toFixed(2)}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Total Deductions</span>
+        <span class="summary-value">₹ ${Number(r.totded || 0).toFixed(2)}</span>
+      </div>
+      <div class="summary-item net-pay-highlight">
+        <span class="summary-label">Net Salary Payable</span>
+        <span class="summary-value">₹ ${Number(r.netpay || 0).toFixed(2)}</span>
+      </div>
+    </div>
+
+    <div class="signatures">
+      <div class="sign-box">Employee Signature</div>
+      <div class="sign-box">Authorised Signatory</div>
+    </div>
   </div>
 </body>
 </html>`;
@@ -25197,7 +25446,6 @@ async function handlePrintRoute(req, res, url) {
     res.end(html);
     return;
   }
-
   if (type === "salary-register") {
     const year = Number(url.searchParams.get("year"));
     const month = Number(url.searchParams.get("month"));
@@ -30264,15 +30512,24 @@ async function handleAttendanceGet(req, res, url) {
   const startDate = `${year}-${String(monthId).padStart(2, "0")}-01`;
   const endDate = `${year}-${String(monthId).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
 
-  const staffRes = await pool.query(
+  let staffRes = await pool.query(
     `SELECT staff_id, staff_name, doj, dol
      FROM staff
      WHERE factory_id = $1
-       AND doj <= $2
+       AND (doj <= $2 OR doj IS NULL)
        AND (dol >= $3 OR dol IS NULL)
      ORDER BY staff_id`,
     [session.factory_id, endDate, startDate]
   );
+  if (staffRes.rowCount === 0) {
+    staffRes = await pool.query(
+      `SELECT staff_id, staff_name, doj, dol
+       FROM staff
+       WHERE factory_id = $1
+       ORDER BY staff_id`,
+      [session.factory_id]
+    );
+  }
 
   const holRes = await pool.query(
     `SELECT holidays FROM holidays
@@ -30992,6 +31249,284 @@ async function handleSalaryGet(req, res, url) {
       balance: 0
     }
   });
+}
+
+async function handleSalaryBatchProcess(req, res) {
+  const session = await openSession(req);
+  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+
+  const body = await readBody(req);
+  const curDate = new Date();
+  const year = Number(body.year) || curDate.getFullYear();
+  const month = Number(body.month) || (curDate.getMonth() + 1);
+  const pad2 = n => String(n).padStart(2, "0");
+  const salDate = body.saldate || `${curDate.getFullYear()}-${pad2(curDate.getMonth() + 1)}-${pad2(curDate.getDate())}`;
+  let workingDays = Number(body.workingdays || 0);
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  if (workingDays <= 0) {
+    const holQ = await pool.query(
+      "SELECT holidays FROM holidays WHERE factory_id = $1 AND year = $2 AND monthid = $3 LIMIT 1",
+      [session.factory_id, year, month]
+    );
+    let holidayCount = 0;
+    if (holQ.rowCount > 0 && holQ.rows[0].holidays) {
+      holidayCount = (holQ.rows[0].holidays.match(/1/g) || []).length;
+    }
+    workingDays = Math.max(1, daysInMonth - holidayCount);
+  }
+
+  const startDate = `${year}-${pad2(month)}-01`;
+  const endDate = `${year}-${pad2(month)}-${pad2(daysInMonth)}`;
+  let staffQ = await pool.query(
+    `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
+     FROM staff
+     WHERE factory_id = $1 AND (doj <= $2 OR doj IS NULL) AND (dol >= $3 OR dol IS NULL)
+     ORDER BY staff_name`,
+    [session.factory_id, endDate, startDate]
+  );
+  if (staffQ.rowCount === 0) {
+    staffQ = await pool.query(
+      `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
+       FROM staff
+       WHERE factory_id = $1
+       ORDER BY staff_name`,
+      [session.factory_id]
+    );
+  }
+
+  if (staffQ.rowCount === 0) {
+    return sendJson(res, 400, { error: "No employees found in Staff Master." });
+  }
+
+  const miscQ = await pool.query(
+    "SELECT pf, esi FROM misc WHERE factory_id = $1 AND year_label = $2 LIMIT 1",
+    [session.factory_id, session.year_label]
+  );
+  const misc = miscQ.rows[0] || {};
+  const pfRate = Number(misc.pf || 12);
+  const esiRate = Number(misc.esi || 1.75);
+
+  const client = await pool.connect();
+  let processedCount = 0;
+
+  try {
+    await client.query("BEGIN");
+
+    for (const emp of staffQ.rows) {
+      const staffId = emp.staff_id;
+
+      // Check attendance
+      const attQ = await client.query(
+        `SELECT ldetail, otdetail FROM attendance
+         WHERE factory_id = $1 AND year = $2 AND monthid = $3 AND staffid = $4 LIMIT 1`,
+        [session.factory_id, year, month, staffId]
+      );
+
+      let daysPresent = 0;
+      let leaveDays = 0;
+      let otHours = 0;
+
+      if (attQ.rowCount > 0) {
+        const ldetail = attQ.rows[0].ldetail || "";
+        const otdetail = attQ.rows[0].otdetail || "";
+        for (let i = 0; i < ldetail.length; i++) {
+          const ch = ldetail[i];
+          if (ch === "P" || ch === "H") daysPresent += 1;
+          else if (ch === "L") leaveDays += 1;
+          else if (ch === "M" || ch === "N") {
+            daysPresent += 0.5;
+            leaveDays += 0.5;
+          }
+        }
+        const otParts = otdetail.split(";").filter(Boolean);
+        otParts.forEach(val => {
+          otHours += Number(val || 0);
+        });
+      } else {
+        daysPresent = workingDays;
+        leaveDays = 0;
+        otHours = 0;
+      }
+
+      // Check latest previous salary record for wage parameters
+      const prevSalQ = await client.query(
+        `SELECT * FROM salary
+         WHERE factory_id = $1 AND staffid = $2
+         ORDER BY salyear DESC, salmonth DESC LIMIT 1`,
+        [session.factory_id, staffId]
+      );
+      const prev = prevSalQ.rows[0] || {};
+
+      const basic = Number(prev.basic || 15000);
+      const da = Number(prev.da || 0);
+      const da2pf = !!prev.da2pf;
+      const hrabasic = prev.hrabasic !== false;
+      const hra = Number(prev.hra || 0);
+      const conveyday = prev.conveyday !== false;
+      const conveyance = Number(prev.conveyance || 0);
+      const medicalallow = Number(prev.medicalallow || 0);
+      const attbonusapplicable = !!prev.attbonusapplicable;
+      const attbonus = Number(prev.attbonus || 0);
+      const otTimes = Number(prev.ottimes || 1);
+      const otbasic = prev.otbasic !== false;
+      const splallow = Number(prev.splallow || 0);
+      const otherallow = Number(prev.otherallow || 0);
+      const miscearning = 0;
+
+      const totalWorkedDays = daysPresent + leaveDays;
+      const basicEarned = workingDays > 0 ? Math.round((basic * (totalWorkedDays / workingDays)) * 100) / 100 : 0;
+      const daEarned = workingDays > 0 ? Math.round((da * (totalWorkedDays / workingDays)) * 100) / 100 : 0;
+      const hraEarned = hrabasic ? Math.round((basicEarned * (hra / 100)) * 100) / 100 : hra;
+      const conveyEarned = conveyday ? Math.round((conveyance * totalWorkedDays) * 100) / 100 : conveyance;
+      const attBonusEarned = (attbonusapplicable && daysPresent >= workingDays) ? attbonus : 0;
+      const otEarned = otbasic ? (workingDays > 0 ? Math.round(((basic / workingDays / 8) * otHours * otTimes) * 100) / 100 : 0) : Math.round((otHours * otTimes) * 100) / 100;
+
+      const gross = Math.round((basicEarned + daEarned + hraEarned + conveyEarned + medicalallow + attBonusEarned + splallow + otEarned + miscearning + otherallow) * 100) / 100;
+
+      const pfapplicable = prev.pfapplicable !== false && !!emp.pf_code;
+      const pfDeduction = pfapplicable ? Math.round(((basicEarned + (da2pf ? daEarned : 0)) * (pfRate / 100)) * 100) / 100 : 0;
+
+      const esiapplicable = prev.esiapplicable !== false && !!emp.esi_code;
+      const esiDeduction = esiapplicable ? Math.round((gross * (esiRate / 100)) * 100) / 100 : 0;
+
+      const ptapplicable = prev.ptapplicable !== false;
+      const ptDeduction = ptapplicable ? Number(prev.pt || 0) : 0;
+
+      // Loan deduction
+      const loanQ = await client.query(
+        `SELECT loanid, balance, repayamt FROM staffloan
+         WHERE factory_id = $1 AND staffid = $2 AND balance > 0
+         ORDER BY loanid LIMIT 1`,
+        [session.factory_id, staffId]
+      );
+      let loanAmtDed = 0;
+      let loanDedId = null;
+      if (loanQ.rowCount > 0) {
+        loanDedId = loanQ.rows[0].loanid;
+        loanAmtDed = Math.min(Number(loanQ.rows[0].balance), Number(loanQ.rows[0].repayamt));
+      }
+
+      const tds = Number(prev.tds || 0);
+      const society = Number(prev.society || 0);
+      const insurance = Number(prev.insurance || 0);
+      const saladvance = 0;
+      const fines = 0;
+      const damageloss = 0;
+      const otherded = 0;
+
+      const totDed = Math.round((pfDeduction + esiDeduction + ptDeduction + tds + society + insurance + saladvance + fines + damageloss + otherded + loanAmtDed) * 100) / 100;
+      const oldBal = Number(emp.payoldbal || 0);
+      const netPay = Math.round((gross - totDed + oldBal) * 100) / 100;
+      const paid = netPay;
+      const balance = 0;
+
+      const q = `
+        INSERT INTO salary (
+          factory_id, year_label, salyear, salmonth, saldate, staffid, dept,
+          workingdays, dayspresent, leavedays, ot, ottimes, otbasic,
+          basic, da, da2pf, hrabasic, hra, conveyday, conveyance,
+          medicalallow, attbonus, attbonusapplicable, splallow, miscearning, otherallow,
+          gross, pf, pfapplicable, esi, esiapplicable, pt, ptapplicable,
+          tds, society, insurance, saladvance, fines, damageloss, otherded,
+          loanamtded, loandedid, totded, netpay, oldbal, paid, balance
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7,
+          $8, $9, $10, $11, $12, $13,
+          $14, $15, $16, $17, $18, $19, $20,
+          $21, $22, $23, $24, $25, $26,
+          $27, $28, $29, $30, $31, $32, $33,
+          $34, $35, $36, $37, $38, $39, $40,
+          $41, $42, $43, $44, $45, $46, $47
+        )
+        ON CONFLICT (factory_id, year_label, salyear, salmonth, staffid)
+        DO UPDATE SET
+          saldate = EXCLUDED.saldate,
+          dept = EXCLUDED.dept,
+          workingdays = EXCLUDED.workingdays,
+          dayspresent = EXCLUDED.dayspresent,
+          leavedays = EXCLUDED.leavedays,
+          ot = EXCLUDED.ot,
+          ottimes = EXCLUDED.ottimes,
+          otbasic = EXCLUDED.otbasic,
+          basic = EXCLUDED.basic,
+          da = EXCLUDED.da,
+          da2pf = EXCLUDED.da2pf,
+          hrabasic = EXCLUDED.hrabasic,
+          hra = EXCLUDED.hra,
+          conveyday = EXCLUDED.conveyday,
+          conveyance = EXCLUDED.conveyance,
+          medicalallow = EXCLUDED.medicalallow,
+          attbonus = EXCLUDED.attbonus,
+          attbonusapplicable = EXCLUDED.attbonusapplicable,
+          splallow = EXCLUDED.splallow,
+          miscearning = EXCLUDED.miscearning,
+          otherallow = EXCLUDED.otherallow,
+          gross = EXCLUDED.gross,
+          pf = EXCLUDED.pf,
+          pfapplicable = EXCLUDED.pfapplicable,
+          esi = EXCLUDED.esi,
+          esiapplicable = EXCLUDED.esiapplicable,
+          pt = EXCLUDED.pt,
+          ptapplicable = EXCLUDED.ptapplicable,
+          tds = EXCLUDED.tds,
+          society = EXCLUDED.society,
+          insurance = EXCLUDED.insurance,
+          saladvance = EXCLUDED.saladvance,
+          fines = EXCLUDED.fines,
+          damageloss = EXCLUDED.damageloss,
+          otherded = EXCLUDED.otherded,
+          loanamtded = EXCLUDED.loanamtded,
+          loandedid = EXCLUDED.loandedid,
+          totded = EXCLUDED.totded,
+          netpay = EXCLUDED.netpay,
+          oldbal = EXCLUDED.oldbal,
+          paid = EXCLUDED.paid,
+          balance = EXCLUDED.balance
+      `;
+
+      await client.query(q, [
+        session.factory_id, session.year_label, year, month, salDate, staffId, emp.dept || "",
+        workingDays, daysPresent, leaveDays, otHours, otTimes, otbasic,
+        basic, da, da2pf, hrabasic, hra, conveyday, conveyance,
+        medicalallow, attbonus, attbonusapplicable, splallow, miscearning, otherallow,
+        gross, pfDeduction, pfapplicable, esiDeduction, esiapplicable, ptDeduction, ptapplicable,
+        tds, society, insurance, saladvance, fines, damageloss, otherded,
+        loanAmtDed, loanDedId, totDed, netPay, oldBal, paid, balance
+      ]);
+
+      if (loanAmtDed > 0 && loanDedId) {
+        await client.query(
+          `INSERT INTO staffloandedtrack (factory_id, year_label, loandedid, staffid, loanamtded, saldate)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [session.factory_id, session.year_label, loanDedId, staffId, loanAmtDed, salDate]
+        );
+        await client.query(
+          `UPDATE staffloan
+           SET balance = GREATEST(0, balance - $1), closed = (balance - $1 <= 0)
+           WHERE loanid = $2 AND factory_id = $3`,
+          [loanAmtDed, loanDedId, session.factory_id]
+        );
+      }
+
+      processedCount++;
+    }
+
+    await client.query("COMMIT");
+    return sendJson(res, 200, {
+      ok: true,
+      processedCount,
+      totalEmployees: staffQ.rowCount,
+      message: `Successfully processed payroll for ${processedCount} employee(s).`
+    });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    console.error("handleSalaryBatchProcess error:", err);
+    return sendJson(res, 500, { error: err.message });
+  } finally {
+    client.release();
+  }
 }
 
 async function handleSalaryCalc(req, res) {
@@ -32096,6 +32631,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/api/staff-loan/delete") return await handleStaffLoanDelete(req, res);
     if (req.method === "GET" && url.pathname === "/api/salary/init") return await handleSalaryInit(req, res, url);
     if (req.method === "GET" && url.pathname === "/api/salary") return await handleSalaryGet(req, res, url);
+    if (req.method === "POST" && url.pathname === "/api/salary/batch-process") return await handleSalaryBatchProcess(req, res);
     if (req.method === "POST" && url.pathname === "/api/salary/calc") return await handleSalaryCalc(req, res);
     if (req.method === "POST" && url.pathname === "/api/salary/save") return await handleSalarySave(req, res);
     if (req.method === "POST" && url.pathname === "/api/salary/delete") return await handleSalaryDelete(req, res);

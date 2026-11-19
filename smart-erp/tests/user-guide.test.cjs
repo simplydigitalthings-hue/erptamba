@@ -53,49 +53,64 @@ test("User Guide: Client Engine Completeness & Mobile Toggle in guide.js", async
   // Mobile navigation drawer toggle
   assert.ok(guideJs.includes("mobile-open"), "Must toggle mobile-open class on sidebar");
 
-  // All 10 Business Chapters & FAQ
+  // All 15 Exhaustive Business Chapters & FAQ
   const expectedChapters = [
-    "1. Welcome & ERP 101",
-    "2. Day 1 Master Setup",
-    "3. Raw Material Inward Flow",
-    "4. Production & Shopfloor",
-    "5. Quality & Metrology Lab",
-    "6. Sales, Dispatch & Invoicing",
-    "7. Subcontract Job Work",
-    "8. Cash Flow & Accounts",
-    "9. Human Resources & Salary",
-    "10. Statutory GST & Month-End",
-    "Beginner FAQs & Troubleshooting"
+    "1. Welcome, Cockpit & ERP 101",
+    "2. Enterprise Master Setup",
+    "3. Production Planning & Cost Estimation",
+    "4. Procurement & Raw Material Inward",
+    "5. Warehouse, Tool Crib & Store Operations",
+    "6. Production & Shopfloor Execution",
+    "7. Quality Control, Metrology Lab & Traceability",
+    "8. Plant & Machinery Maintenance",
+    "9. Sales Orders, Dispatch & Tax Invoicing",
+    "10. Job Work & Subcontracting",
+    "11. Cash Flow, Banking & Accounts",
+    "12. Human Resources, Payroll & Staff Loans",
+    "13. Statutory GST, Audit Trail & Month-End",
+    "14. Utilities & Factory Automation",
+    "15. Beginner FAQs & Troubleshooting"
   ];
 
   for (const ch of expectedChapters) {
     assert.ok(guideJs.includes(ch), `Must include chapter: ${ch}`);
   }
 
-  // Role Quickstart Checklists in Chapter 1
-  assert.ok(guideJs.includes("Day 1 Role Quickstart Checklists"), "Must include Day 1 Role Quickstart Checklists");
-  assert.ok(guideJs.includes("Storekeeper & Inward Logistics"), "Must include Storekeeper role checklist");
-  assert.ok(guideJs.includes("CNC Machinist & Supervisor"), "Must include CNC Machinist role checklist");
+  // Live Operations Cockpit in Chapter 1
+  assert.ok(guideJs.includes("Live Operations Cockpit"), "Must include Live Operations Cockpit overview");
+  assert.ok(guideJs.includes("Stores & Warehouse Manager"), "Must include Stores Manager role checklist");
+  assert.ok(guideJs.includes("CNC Machinist & Shopfloor Supervisor"), "Must include CNC Machinist role checklist");
   assert.ok(guideJs.includes("Quality & Metrology Inspector"), "Must include Quality inspector role checklist");
+  assert.ok(guideJs.includes("Sales & Commercial Coordinator"), "Must include Sales coordinator role checklist");
   assert.ok(guideJs.includes("Accounts & Finance Specialist"), "Must include Accounts specialist role checklist");
 
-  // 10 Beginner FAQs
-  for (let i = 1; i <= 10; i++) {
+  // 12 Beginner FAQs
+  for (let i = 1; i <= 12; i++) {
     assert.ok(guideJs.includes(`Q${i}:`), `Must include FAQ Q${i}`);
   }
 
-  // Interactive Screen Jump Buttons
+  // Interactive Screen Jump Buttons across full ERP
+  assert.ok(guideJs.includes("window.guideJumpToScreen('dashboard')"), "Must have Live Cockpit launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('bom')"), "Must have BOM launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('assmReq')"), "Must have Assembly Analysis launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('matReq')"), "Must have Material Shortage launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('estimation')"), "Must have Cost Estimation launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('po')"), "Must have PO launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('grn')"), "Must have GRN launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('scn')"), "Must have SCN launcher");
-  assert.ok(guideJs.includes("window.guideJumpToScreen('invPurch')"), "Must have Inward Invoice launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('ist')"), "Must have Inter-Store Transfer launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('toolCrib')"), "Must have Tool Crib launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('iwo')"), "Must have IWO launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('prodn')"), "Must have Production log launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('spectro')"), "Must have Spectro launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('gauge')"), "Must have Gauge launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('maintainSch')"), "Must have Maintenance Schedule launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('breakdown')"), "Must have Breakdown Maintenance launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('quote')"), "Must have Sales Quotation launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('dc')"), "Must have DC launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('invoice')"), "Must have Invoice launcher");
   assert.ok(guideJs.includes("window.guideJumpToScreen('cashflow')"), "Must have Cash Flow launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('notificationHub')"), "Must have WhatsApp / Email Hub launcher");
 
   // Real-time search and role filtering
   assert.ok(guideJs.includes("guide-search-input"), "Must hook search input");

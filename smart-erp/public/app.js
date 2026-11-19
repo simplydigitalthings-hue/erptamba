@@ -1257,14 +1257,77 @@ document.querySelector("#cmdExit")?.addEventListener("click", async () => {
   }
 });
 
-document.addEventListener("keydown", (e) => {
-  const modal = document.querySelector("#license-modal");
-  if (!modal || modal.hidden) return;
-  if (e.key === "Escape") {
-    closeLicenseModal();
-  } else if (e.key === "F1") {
+// Universal Top Close Button & Data-Close Delegator
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".window-close-btn-top, [data-close-target]");
+  if (btn && btn.dataset && btn.dataset.closeTarget) {
     e.preventDefault();
-    window.open("/help/License.html", "_blank");
+    const target = document.querySelector(btn.dataset.closeTarget);
+    if (target) {
+      target.click();
+    }
+  }
+});
+
+// Universal Escape Key Handler
+document.addEventListener("keydown", (e) => {
+  if (e.key === "F1") {
+    const licModal = document.querySelector("#license-modal");
+    if (licModal && !licModal.hidden) {
+      e.preventDefault();
+      window.open("/help/License.html", "_blank");
+      return;
+    }
+  }
+
+  if (e.key === "Escape") {
+    // Safeguard: do not close screen if active element is a select dropdown
+    if (document.activeElement && document.activeElement.tagName === "SELECT") return;
+
+    // 1. License modal
+    const licModal = document.querySelector("#license-modal");
+    if (licModal && !licModal.hidden && licModal.style.display !== "none") {
+      closeLicenseModal();
+      return;
+    }
+
+    // 2. User Guide window
+    const guideWin = document.querySelector("#user-guide-window");
+    if (guideWin && !guideWin.hidden && guideWin.style.display !== "none") {
+      const guideClose = document.querySelector("#guide-btn-close");
+      if (guideClose) { guideClose.click(); return; }
+    }
+
+    // 3. Open modal dialogs / ask boxes (topmost first)
+    const openModals = Array.from(document.querySelectorAll(".modal:not([hidden]), .ask:not([hidden]), [role='dialog']:not([hidden]), div[id$='-modal']:not([hidden])"))
+      .filter(m => m.style.display !== "none" && !m.hidden && m.offsetParent !== null && m.id !== "main-window" && m.id !== "login-window");
+
+    if (openModals.length > 0) {
+      const topModal = openModals[openModals.length - 1];
+      const closeBtn = topModal.querySelector(".window-close-btn-top, [data-close-target], .invmfg-close-btn, button[id*='cancel'], button[id*='close'], button[id*='btn-x'], .status-close-x");
+      if (closeBtn) {
+        closeBtn.click();
+        return;
+      }
+    }
+
+    // 4. Open operational module screens
+    const openSections = Array.from(document.querySelectorAll(".workspace > section:not([hidden]), #main > section:not([hidden])"))
+      .filter(s => s.id !== "main-window" && s.id !== "login-window" && !s.hidden && s.style.display !== "none" && s.offsetParent !== null);
+
+    if (openSections.length > 0) {
+      const activeSec = openSections[openSections.length - 1];
+      const topClose = activeSec.querySelector(".window-close-btn-top, [data-close-target], .invmfg-close-btn");
+      if (topClose) {
+        topClose.click();
+        return;
+      }
+      const bottomClose = activeSec.querySelector("button[id*='close']");
+      if (bottomClose) {
+        bottomClose.click();
+        return;
+      }
+    }
   }
 });
 

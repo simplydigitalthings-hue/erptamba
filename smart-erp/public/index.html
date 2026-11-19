@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=DM+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=20261108_1">
-  <link rel="stylesheet" href="/modern-theme.css?v=20261119_5">
+  <link rel="stylesheet" href="/modern-theme.css?v=20261119_topclose">
   <link rel="stylesheet" href="/premium-login.css?v=20261109_1">
   <link rel="stylesheet" href="/workspace-layout.css?v=20261110_1">
   <link rel="stylesheet" href="/onboarding.css?v=20261110_1">
@@ -170,7 +170,7 @@ License Date   :   01/04/2008</div>
         </div>
         <div id="notice" class="notice" hidden></div>
         <section id="company" class="company" hidden>
-          <h1>My Company Details</h1>
+          <h1><span>My Company Details</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="company-btn-close-top" data-close-target="#company-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="company-grid">
             <div>
               <fieldset>
@@ -263,7 +263,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="users" class="users" hidden>
-          <h1>MASTER - Admin - User</h1>
+          <h1><span>MASTER - Admin - User</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="users-btn-close-top" data-close-target="#user-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="users-grid">
             <fieldset>
               <legend>User Details</legend>
@@ -305,7 +305,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="staff" class="staff" hidden tabindex="-1">
-          <h1>Master - Employee details</h1>
+          <h1><span>Master - Employee details</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="staff-btn-close-top" data-close-target="#staff-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="staff-grid">
             <fieldset>
               <legend>Staff Details</legend>
@@ -362,7 +362,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="shift" class="shift" hidden tabindex="-1">
-          <h1>Shift Allocation</h1>
+          <h1><span>Shift Allocation</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="shift-btn-close-top" data-close-target="#shift-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="shift-head">
             <label>Preparation Date <input id="shift-date" type="date"></label>
             <span id="shift-day" class="shift-day"></span>
@@ -409,7 +409,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="machine" class="machine" hidden tabindex="-1">
-          <h1>MASTER - General - Machine</h1>
+          <h1><span>MASTER - General - Machine</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="machine-btn-close-top" data-close-target="#machine-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="machine-grid">
             <fieldset>
               <legend>Machine Details</legend>
@@ -451,7 +451,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="customer" class="customer" hidden tabindex="-1">
-          <h1>Customer <span id="customer-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
+          <h1><span style="display:inline-flex;align-items:center;gap:8px;">Customer <span id="customer-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></span><button type="button" class="invmfg-close-btn window-close-btn-top" id="customer-btn-close-top" data-close-target="#customer-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Customer Details</legend>
             <input id="customer-id" type="hidden">
@@ -532,7 +532,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="supplier" class="supplier" hidden tabindex="-1">
-          <h1>MASTER - General - Supplier / Sub-Contractor</h1>
+          <h1><span>MASTER - General - Supplier / Sub-Contractor</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="supplier-btn-close-top" data-close-target="#supplier-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Supplier (Sub-Contractor) Details</legend>
             <input id="supplier-id" type="hidden">
@@ -595,7 +595,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="vendor" class="vendor" hidden tabindex="-1">
-          <h1>MASTER - General - Vendor <span id="vendor-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
+          <h1><span style="display:inline-flex;align-items:center;gap:8px;">MASTER - General - Vendor <span id="vendor-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></span><button type="button" class="invmfg-close-btn window-close-btn-top" id="vendor-btn-close-top" data-close-target="#vendor-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Vendor Details</legend>
             <input id="vendor-id" type="hidden">
@@ -676,7 +676,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="category" class="category" hidden>
-          <h1>Master - Category</h1>
+          <h1><span>Master - Category</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="category-btn-close-top" data-close-target="#category-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="category-grid">
             <fieldset>
               <legend>Category Details</legend>
@@ -711,7 +711,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="item" class="item" hidden>
-          <h1>MASTER - Inventory <span id="item-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></h1>
+          <h1><span style="display:inline-flex;align-items:center;gap:8px;">MASTER - Inventory <span id="item-mode-pill" class="form-mode-pill mode-view"><span class="mode-indicator"></span><span class="mode-text">View Mode</span></span></span><button type="button" class="invmfg-close-btn window-close-btn-top" id="item-btn-close-top" data-close-target="#item-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="item-top">
             <div>
               <p class="item-list-head">Select a Category</p>
@@ -837,7 +837,7 @@ License Date   :   01/04/2008</div>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Define raw material cut geometry, weights, tolerances, cycle time &amp; routing</span>
                 </div>
-                <button id="item-more-close-btn" type="button" class="status-close-x" aria-label="Close" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                <button id="item-more-close-btn" type="button" class="invmfg-close-btn window-close-btn-top status-close-x" data-close-target="#item-more-cancel" title="Close [Esc]" aria-label="Close">✕</button>
               </div>
 
               <div class="status-modal-body item-modal-body-scroll">
@@ -966,7 +966,7 @@ License Date   :   01/04/2008</div>
                   </h2>
                   <span style="font-size:12px; color:var(--text-muted);">Assign this item to Customers, Vendors (Subcontractors), and Suppliers</span>
                 </div>
-                <button id="item-assign-close-btn" type="button" class="status-close-x" aria-label="Close" style="background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-muted);">&times;</button>
+                <button id="item-assign-close-btn" type="button" class="invmfg-close-btn window-close-btn-top status-close-x" data-close-target="#item-assign-cancel" title="Close [Esc]" aria-label="Close">✕</button>
               </div>
 
               <div class="status-modal-body item-modal-body-scroll">
@@ -1051,7 +1051,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="bom" class="bom" hidden>
-          <h1>MASTER - Inventory - Assembly Definitions</h1>
+          <h1><span>MASTER - Inventory - Assembly Definitions</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="bom-btn-close-top" data-close-target="#bom-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="bom-head">
             <label>Assembly Name /Sub Assembly Name
               <select id="bom-assembly"></select>
@@ -1085,7 +1085,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="stores" class="stores" hidden>
-          <h1>MASTER - Inventory - Stores / Warehouses</h1>
+          <h1><span>MASTER - Inventory - Stores / Warehouses</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="stores-btn-close-top" data-close-target="#store-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="stores-grid">
             <fieldset>
               <legend>Creat Stores</legend>
@@ -1125,7 +1125,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="process" class="process" hidden>
-          <h1>Process</h1>
+          <h1><span>Process</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="process-btn-close-top" data-close-target="#process-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="process-grid">
             <fieldset>
               <legend>Create Process here</legend>
@@ -1156,7 +1156,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="expense" class="expense" hidden>
-          <h1>MASTER - Accounts - Expense Heads</h1>
+          <h1><span>MASTER - Accounts - Expense Heads</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="expense-btn-close-top" data-close-target="#expense-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="expense-grid">
             <div>
               <fieldset>
@@ -1198,7 +1198,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="income" class="income" hidden>
-          <h1>MASTER - Accounts - Income Heads</h1>
+          <h1><span>MASTER - Accounts - Income Heads</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="income-btn-close-top" data-close-target="#income-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="acct-grid">
             <fieldset>
               <legend>Income Details</legend>
@@ -1238,7 +1238,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="banks" class="banks" hidden>
-          <h1>Bank - Master</h1>
+          <h1><span>Bank - Master</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="banks-btn-close-top" data-close-target="#bank-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="acct-grid">
             <fieldset>
               <legend>Bank Details</legend>
@@ -1278,7 +1278,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="currency" class="currency" hidden>
-          <h1>Master - Currency</h1>
+          <h1><span>Master - Currency</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="currency-btn-close-top" data-close-target="#curr-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Currency Detail</legend>
             <label>Currency Name <input id="curr-name" maxlength="80"> <span class="hint">(Eg. In Rupees)</span></label>
@@ -1306,7 +1306,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="curr-today" class="curr-today" hidden>
-          <h1>Master - Currency Today</h1>
+          <h1><span>Master - Currency Today</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="curr-today-btn-close-top" data-close-target="#curr-today-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="curr-date"><label>Date <input id="curr-today-date" type="date"></label></div>
           <div class="curr-today-grid">
             <div>
@@ -1346,7 +1346,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="cost" class="cost" hidden>
-          <h1>Master - Cost Centre</h1>
+          <h1><span>Master - Cost Centre</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="cost-btn-close-top" data-close-target="#cost-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <div class="cost-line">
               <label>Cost Center Name <input id="cost-name" maxlength="80"></label>
@@ -1376,7 +1376,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="prod-setup" class="prod-setup" hidden>
-          <h1>Master - My Company Details - Production</h1>
+          <h1><span>Master - My Company Details - Production</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="prod-setup-btn-close-top" data-close-target="#prod-setup-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Production - Stoppage Heads and Percentage Contribution to Employees</legend>
             <table class="prod-grid">
@@ -1421,7 +1421,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="company-more-panel" class="company-more" hidden>
-          <h1>Master - My Company Details - More...</h1>
+          <h1><span>Master - My Company Details - More...</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="company-more-panel-btn-close-top" data-close-target="#more-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="more-top">
             <div>
               <fieldset>
@@ -1481,7 +1481,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="company-eou-panel" class="company-eou" hidden>
-          <h1>EOU Details...</h1>
+          <h1><span>EOU Details...</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="company-eou-panel-btn-close-top" data-close-target="#eou-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <fieldset>
             <legend>Customs Bonded Warehouse</legend>
             <label>License No. <input id="eou-lic"></label>
@@ -1514,7 +1514,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="pt-details" class="pt-details" hidden>
-          <h1>PT Details</h1>
+          <h1><span>PT Details</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="pt-details-btn-close-top" data-close-target="#pt-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <table class="prod-grid">
             <thead>
               <tr>
@@ -1534,7 +1534,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="print-info" class="print-info" hidden>
-          <h1>PrintInfo</h1>
+          <h1><span>PrintInfo</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="print-info-btn-close-top" data-close-target="#print-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <table class="prod-grid">
             <thead>
               <tr>
@@ -1555,7 +1555,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="prodn" class="prodn" hidden>
-          <h1>Production Log</h1>
+          <h1><span>Production Log</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="prodn-btn-close-top" data-close-target="#prodn-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="prodn-top">
             <div>
               <label>Date<input id="prodn-date" type="date"></label>
@@ -1622,7 +1622,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="iwo" class="iwo" hidden>
-          <h1>Internal Work Order cum Material Issue</h1>
+          <h1><span>Internal Work Order cum Material Issue</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="iwo-btn-close-top" data-close-target="#iwo-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="iwo-head">
             <label>Internal Work Order No.<input id="iwo-no"></label>
             <label>Date<input id="iwo-date" type="date"></label>
@@ -1666,7 +1666,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="iwo-return" class="iwo-return" hidden>
-          <h1>Production - Material Return Note</h1>
+          <h1><span>Production - Material Return Note</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="iwo-return-btn-close-top" data-close-target="#ret-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="iwo-head">
             <div>
               <label>Material Return Note No.<input id="ret-no"></label>
@@ -1710,7 +1710,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="scn" class="scn" hidden>
-          <h1>Store Credit Note - Production</h1>
+          <h1><span>Store Credit Note - Production</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="scn-btn-close-top" data-close-target="#scn-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="scn-top">
             <fieldset>
               <legend>Select a No.</legend>
@@ -1755,7 +1755,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="assm" class="assm" hidden>
-          <h1>Assembly Requirement Analysis</h1>
+          <h1><span>Assembly Requirement Analysis</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="assm-btn-close-top" data-close-target="#assm-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="assm-body">
             <div>
               <p class="assm-caption">Select a Assembly</p>
@@ -1789,7 +1789,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="mat" class="mat" hidden>
-          <h1>Material Requirement Analysis</h1>
+          <h1><span>Material Requirement Analysis</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="mat-btn-close-top" data-close-target="#mat-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="mat-top">
             <div class="mat-mode">
               <label><input type="radio" name="mat-mode" id="mat-comp" checked> Component</label>
@@ -1816,7 +1816,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="plan" class="plan" hidden>
-          <h1>Production Plan</h1>
+          <h1><span>Production Plan</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="plan-btn-close-top" data-close-target="#plan-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="plan-body">
             <div class="plan-grid" id="plan-grid"></div>
             <div class="plan-side">
@@ -1852,7 +1852,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="capa" class="capa" hidden>
-          <h1>Production Capacity Planning</h1>
+          <h1><span>Production Capacity Planning</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="capa-btn-close-top" data-close-target="#capa-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <p class="capa-id">Plan No. <input id="capa-id" readonly></p>
           <div class="capa-grid" id="capa-grid"></div>
           <div class="actions">
@@ -1871,7 +1871,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="schd" class="schd" hidden>
-          <h1>Production Schedule</h1>
+          <h1><span>Production Schedule</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="schd-btn-close-top" data-close-target="#schd-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="schd-head">
             <label>Select Year <select id="schd-year"></select></label>
             <label>Select Month <select id="schd-month"></select></label>
@@ -1898,7 +1898,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="esti" class="esti" hidden>
-          <h1>Estimation</h1>
+          <h1><span>Estimation</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="esti-btn-close-top" data-close-target="#esti-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <input id="esti-id" hidden>
           <div class="esti-body">
             <div class="esti-left">
@@ -2358,6 +2358,7 @@ License Date   :   01/04/2008</div>
           <div style="background: #fff; width: 440px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden;">
             <div style="background: #0284c7; color: #fff; padding: 10px 14px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
               <span>📍 Tool Crib Issue / Machine Transfer</span>
+                <button type="button" class="invmfg-close-btn window-close-btn-top" id="gauge-issue-btn-close-top" data-close-target="#gauge-issue-cancel" title="Close [Esc]" aria-label="Close">✕</button>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span id="gauge-issue-ctrl-no" style="font-family: monospace; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 11px;">-</span>
                 <button type="button" id="gauge-issue-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px; line-height: 1;">✕</button>
@@ -2385,6 +2386,7 @@ License Date   :   01/04/2008</div>
           <div style="background: #fff; width: 560px; max-width: 95vw; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); overflow: hidden;">
             <div style="background: #6d28d9; color: #fff; padding: 10px 14px; font-weight: bold; font-size: 13px; display: flex; justify-content: space-between; align-items: center;">
               <span>+ Log Calibration &amp; Metrology Inspection</span>
+                <button type="button" class="invmfg-close-btn window-close-btn-top" id="gauge-calib-btn-close-top" data-close-target="#gauge-calib-cancel" title="Close [Esc]" aria-label="Close">✕</button>
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span id="calib-modal-ctrl-no" style="font-family: monospace; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-size: 11px;">-</span>
                 <button type="button" id="calib-modal-close-x" style="background: transparent; border: none; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; padding: 0 4px; line-height: 1;">✕</button>
@@ -2503,7 +2505,7 @@ License Date   :   01/04/2008</div>
         </section>
 
         <section id="issue" class="issue" hidden>
-          <h1>Material Issue Note</h1>
+          <h1><span>Material Issue Note</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="issue-btn-close-top" data-close-target="#issue-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="issue-top">
             <div class="issue-left">
               <div class="issue-line">
@@ -2553,7 +2555,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="tool" class="toolcrib" hidden>
-          <h1>INVENTORY - Tool Crib - Material Issue Note</h1>
+          <h1><span>INVENTORY - Tool Crib - Material Issue Note</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="tool-btn-close-top" data-close-target="#tool-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="tool-top">
             <div>
               <div class="tool-date-line"><span>Stock Position</span><input id="tool-date" type="date"></div>
@@ -2591,7 +2593,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="scngen" class="issue scngen" hidden>
-          <h1>Store Credit Note (General)</h1>
+          <h1><span>Store Credit Note (General)</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="scngen-btn-close-top" data-close-target="#scngen-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="issue-top">
             <div class="issue-left">
               <div class="issue-line">
@@ -2644,7 +2646,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="ist" class="issue ist" hidden>
-          <h1>Inter-Store Transfer</h1>
+          <h1><span>Inter-Store Transfer</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="ist-btn-close-top" data-close-target="#ist-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <div class="issue-top">
             <div class="issue-left">
               <div class="issue-line">
@@ -2698,7 +2700,7 @@ License Date   :   01/04/2008</div>
 
         <section id="enq" class="issue enq" hidden>
           <div class="enq-title">
-            <h1>Enquiry</h1>
+            <h1><span>Enquiry</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="enq-btn-close-top" data-close-target="#enq-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
             <p class="corres">Correspondences</p>
           </div>
           <div class="enq-head">
@@ -4872,7 +4874,7 @@ License Date   :   01/04/2008</div>
           <div class="ask-box" style="width: 530px; max-width: 95vw; background: #ece9d8; border: 2px outset #ffffff; padding: 10px; font-family: Tahoma, 'MS Sans Serif', Arial, sans-serif; font-size: 11px;">
             <div style="background: linear-gradient(90deg, #0a4b78, #3a93ff); color: #fff; font-weight: bold; padding: 5px 8px; margin: -10px -10px 10px -10px; display: flex; justify-content: space-between; align-items: center;">
               <span id="gpm-title">GST Compliance Portal Export (E-Way Bill &amp; E-Invoice)</span>
-              <button type="button" id="gpm-btn-close-x" style="background:#d4d0c8; border:1px outset #fff; cursor:pointer; font-weight:bold; padding:0 4px; line-height: 14px;">×</button>
+              <button type="button" id="gpm-btn-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#gpm-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Document Summary -->
@@ -4951,7 +4953,7 @@ License Date   :   01/04/2008</div>
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #107c41, #1e5c36); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 12px -12px; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">📑 Modern Document Generation &amp; Export Center (PDF &amp; Excel)</span>
-              <button type="button" id="exp-modal-close-x" style="background:#d4d0c8; border:1px outset #fff; cursor:pointer; font-weight:bold; padding:0 5px; line-height: 14px;">×</button>
+              <button type="button" id="exp-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#exp-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Two Columns: Excel Workbooks vs Vector PDFs -->
@@ -5067,7 +5069,7 @@ License Date   :   01/04/2008</div>
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #075e54, #128c7e); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">📲 Automated WhatsApp &amp; Email Dispatch Hub</span>
-              <button type="button" id="notify-modal-close-x" style="background:#d4d0c8; border:1px outset #fff; cursor:pointer; font-weight:bold; padding:0 5px; line-height: 14px;">×</button>
+              <button type="button" id="notify-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#notify-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Tabs: Send Dispatch, Outbox History, Gateway Settings -->
@@ -5259,7 +5261,7 @@ License Date   :   01/04/2008</div>
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #4a044e, #701a75, #6b21a8); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">🏷️ Industrial Barcode &amp; QR Label Generation Center (ZPL / Direct Print)</span>
-              <button type="button" id="barcode-modal-close-x" style="background:#d4d0c8; border:1px outset #fff; cursor:pointer; font-weight:bold; padding:0 5px; line-height: 14px;">×</button>
+              <button type="button" id="barcode-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#barcode-btn-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Top Controls Grid: Template, Source Item, Copies -->
@@ -5374,7 +5376,7 @@ License Date   :   01/04/2008</div>
             <!-- Titlebar -->
             <div style="background: linear-gradient(90deg, #b45309, #d97706); color: #fff; font-weight: bold; padding: 6px 10px; margin: -12px -12px 10px -12px; display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 12px; display: flex; align-items: center; gap: 6px;">🪙 Set Today's Mandi &amp; Factory Metal Rates</span>
-              <button type="button" id="metal-modal-close-x" style="background:#d4d0c8; border:1px outset #fff; cursor:pointer; font-weight:bold; padding:0 5px; line-height: 14px;">×</button>
+              <button type="button" id="metal-modal-close-x" class="invmfg-close-btn window-close-btn-top" data-close-target="#metal-rate-close" title="Close [Esc]" aria-label="Close">✕</button>
             </div>
 
             <!-- Header Description -->
@@ -8888,7 +8890,7 @@ License Date   :   01/04/2008</div>
           </section>
 
           <section id="corres" class="corres" hidden>
-          <h1>Correspondences</h1>
+          <h1><span>Correspondences</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="corres-btn-close-top" data-close-target="#corres-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
           <p id="corres-for"></p>
           <label>File Name <input id="corres-name" readonly></label>
           <label>Subject <input id="corres-subject"></label>
@@ -8906,7 +8908,7 @@ License Date   :   01/04/2008</div>
         
 
         <section id="rights" class="rights" hidden>
-          <h1>User Rights &amp; Role-Based Access Control (RBAC)</h1>
+          <h1><span>User Rights &amp; Role-Based Access Control (RBAC)</span><button type="button" class="invmfg-close-btn window-close-btn-top" id="rights-btn-close-top" data-close-target="#rights-close" title="Close [Esc]" aria-label="Close">✕</button></h1>
 
           <!-- Role-Based Access Control (RBAC) Preset Strip -->
           <div style="background: #eef3f8; border: 1px solid #7a98af; padding: 6px 12px; margin-bottom: 8px; border-radius: 3px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -9282,7 +9284,7 @@ License Date   :   01/04/2008</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <button type="button" id="print-preview-btn-print" class="btn" style="background: #0055aa; color: #fff; font-weight: bold; padding: 4px 16px; border: 1px outset #fff; cursor: pointer;">Print</button>
-          <button type="button" id="print-preview-btn-close" class="btn" style="background: #d4d0c8; color: #000; font-weight: bold; padding: 4px 14px; border: 1px outset #fff; cursor: pointer;">Close</button>
+          <button type="button" id="print-preview-btn-close" class="btn invmfg-close-btn window-close-btn-top" title="Close [Esc]" aria-label="Close" style="min-width: 24px;">✕</button>
           <button type="button" id="print-preview-btn-x" style="background: transparent; border: none; color: #fff; font-size: 18px; line-height: 1; font-weight: bold; cursor: pointer; padding: 0 4px; margin-left: 4px;">×</button>
         </div>
       </div>
@@ -9341,7 +9343,7 @@ License Date   :   01/04/2008</div>
 
   <script src="/print.js?v=8"></script>
   <script src="/onboarding.js?v=20261110_1"></script>
-  <script src="/app.js?v=20261110_1"></script>
+  <script src="/app.js?v=20261119_topclose"></script>
   <script src="/menu-layout.js?v=20261109_1"></script>
   <script src="/company.js"></script>
   <script src="/users.js?v=9"></script>

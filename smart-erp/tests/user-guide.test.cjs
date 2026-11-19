@@ -3,13 +3,17 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-test("User Guide: Sidebar 13th Tab & Window Markup in index.html", async () => {
+test("User Guide: Sidebar 13th Tab, Topbar Button & Window Markup in index.html", async () => {
   const html = fs.readFileSync(path.join(__dirname, "../public/index.html"), "utf8");
   
   // 13th Sidebar tab
   assert.ok(html.includes('data-menu="guide"'), "Must include data-menu='guide' button in sidebar");
   assert.ok(html.includes('id="btn-menu-guide"'), "Must include id='btn-menu-guide'");
   assert.ok(html.includes("📖 User Guide"), "Must display '📖 User Guide' text");
+
+  // Topbar quick button
+  assert.ok(html.includes('id="topbar-btn-guide"'), "Must include id='topbar-btn-guide'");
+  assert.ok(html.includes("window.openUserGuide()"), "Must call window.openUserGuide on click");
 
   // Guide window container
   assert.ok(html.includes('id="user-guide-window"'), "Must include user-guide-window container");
@@ -40,6 +44,7 @@ test("User Guide: Client Engine Completeness in guide.js", async () => {
   // Public API
   assert.ok(guideJs.includes("window.openUserGuide"), "Must expose window.openUserGuide");
   assert.ok(guideJs.includes("window.closeUserGuide"), "Must expose window.closeUserGuide");
+  assert.ok(guideJs.includes("window.guideJumpToScreen"), "Must expose window.guideJumpToScreen");
   assert.ok(guideJs.includes("printDeskCheatSheet"), "Must include printDeskCheatSheet function");
 
   // All 10 Business Chapters & FAQ
@@ -60,6 +65,31 @@ test("User Guide: Client Engine Completeness in guide.js", async () => {
   for (const ch of expectedChapters) {
     assert.ok(guideJs.includes(ch), `Must include chapter: ${ch}`);
   }
+
+  // Role Quickstart Checklists in Chapter 1
+  assert.ok(guideJs.includes("Day 1 Role Quickstart Checklists"), "Must include Day 1 Role Quickstart Checklists");
+  assert.ok(guideJs.includes("Storekeeper & Inward Logistics"), "Must include Storekeeper role checklist");
+  assert.ok(guideJs.includes("CNC Machinist & Supervisor"), "Must include CNC Machinist role checklist");
+  assert.ok(guideJs.includes("Quality & Metrology Inspector"), "Must include Quality inspector role checklist");
+  assert.ok(guideJs.includes("Accounts & Finance Specialist"), "Must include Accounts specialist role checklist");
+
+  // 10 Beginner FAQs
+  for (let i = 1; i <= 10; i++) {
+    assert.ok(guideJs.includes(`Q${i}:`), `Must include FAQ Q${i}`);
+  }
+
+  // Interactive Screen Jump Buttons
+  assert.ok(guideJs.includes("window.guideJumpToScreen('po')"), "Must have PO launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('grn')"), "Must have GRN launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('scn')"), "Must have SCN launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('invPurch')"), "Must have Inward Invoice launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('iwo')"), "Must have IWO launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('prodn')"), "Must have Production log launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('spectro')"), "Must have Spectro launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('gauge')"), "Must have Gauge launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('dc')"), "Must have DC launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('invoice')"), "Must have Invoice launcher");
+  assert.ok(guideJs.includes("window.guideJumpToScreen('cashflow')"), "Must have Cash Flow launcher");
 
   // Real-time search and role filtering
   assert.ok(guideJs.includes("guide-search-input"), "Must hook search input");

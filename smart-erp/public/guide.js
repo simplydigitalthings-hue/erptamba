@@ -6,6 +6,87 @@
 (function () {
   "use strict";
 
+  // Universal Safe Screen Jump Launcher
+  window.guideJumpToScreen = function (screenName, ...args) {
+    // 1. Close or minimize User Guide window
+    if (typeof window.closeUserGuide === "function") {
+      window.closeUserGuide();
+    }
+
+    // 2. Minimize / hide Live Dashboard if open
+    if (typeof window.toggleDashboard === "function") {
+      window.toggleDashboard(false);
+    }
+
+    // 3. Screen mapping dictionary
+    const SCREEN_MAP = {
+      // Masters
+      company: () => window.openCompany && window.openCompany(),
+      store: () => window.openStore && window.openStore(),
+      item: () => window.openItem && window.openItem(),
+      machine: () => window.openMachine && window.openMachine(),
+      recipe: () => window.openRecipeHub && window.openRecipeHub(),
+      customer: () => window.openCustomer && window.openCustomer(),
+      vendor: () => window.openVendor && window.openVendor(),
+      supplier: () => window.openSupplier && window.openSupplier(),
+
+      // Procurement / Inward
+      po: () => window.openPo && window.openPo(),
+      grn: () => window.openGrn && window.openGrn(),
+      scn: () => window.openScnPurch && window.openScnPurch(),
+      invPurch: () => window.openInvPurch && window.openInvPurch(),
+
+      // Production / Shopfloor
+      iwo: () => window.openIwo && window.openIwo(),
+      prodn: () => window.openProdn && window.openProdn(),
+      traveler: () => window.openTravelerHub && window.openTravelerHub(),
+      packing: () => window.openPackingHub && window.openPackingHub(),
+
+      // Quality & Metrology
+      spectro: () => window.openSpectroHub && window.openSpectroHub(),
+      gauge: () => window.openGaugeHub && window.openGaugeHub(),
+      traceability: () => window.openTraceability && window.openTraceability(),
+
+      // Sales & Outward
+      dc: () => window.openDC && window.openDC(),
+      invoice: () => window.openInvoiceMfg && window.openInvoiceMfg(),
+      labourDcIn: () => window.openLabourDCIn && window.openLabourDCIn(),
+      labourDcOut: () => window.openLabourDCOut && window.openLabourDCOut(),
+      labourInvoice: () => window.openLabourInvoice && window.openLabourInvoice(),
+
+      // Subcontract
+      subconPo: () => window.openSubconPO && window.openSubconPO(),
+      subconDcOut: () => window.openSubconDcOut && window.openSubconDcOut(),
+      subconDcIn: () => window.openSubconDcIn && window.openSubconDcIn(),
+      subconScn: () => window.openSubconScn && window.openSubconScn(),
+      subconInvoice: () => window.openSubconInvoice && window.openSubconInvoice(),
+
+      // Cash Flow & Accounts
+      cashflow: () => window.openCashflowHub ? window.openCashflowHub() : (window.openPayments && window.openPayments()),
+      payment: () => window.openCashflowHub ? window.openCashflowHub("voucher", "Payment") : (window.openPayments && window.openPayments()),
+      receipt: () => window.openCashflowHub ? window.openCashflowHub("voucher", "Receipt") : (window.openReceipts && window.openReceipts()),
+      advadjust: () => window.openCashflowHub ? window.openCashflowHub("advadjust") : (window.openAdvAdjust && window.openAdvAdjust()),
+
+      // HR & Payroll
+      staff: () => window.openStaff && window.openStaff(),
+      attendance: () => window.openAttendance && window.openAttendance(),
+      salary: () => window.openSalary && window.openSalary(),
+
+      // Reports & Statutory
+      gst: () => window.openGSTReports && window.openGSTReports(),
+      audit: () => window.openAuditTrail && window.openAuditTrail(),
+      stock: () => window.openStockPosition ? window.openStockPosition() : (window.openStock && window.openStock())
+    };
+
+    if (SCREEN_MAP[screenName]) {
+      SCREEN_MAP[screenName](...args);
+    } else if (typeof window[screenName] === "function") {
+      window[screenName](...args);
+    } else {
+      console.warn("[Guide] Unknown screen opener:", screenName);
+    }
+  };
+
   // Guide Knowledge Base Database
   const GUIDE_CHAPTERS = [
     {
@@ -19,7 +100,7 @@
         <div class="guide-intro-hero">
           <h3>Welcome to Tamba ERP! 👋</h3>
           <p class="guide-lead">
-            If you've never used an ERP (Enterprise Resource Planning) system before, don't worry! This guide is written in plain, human English. Think of Tamba ERP as your factory's <b>central nervous system</b> — connecting metal raw materials, machines, workers, quality inspectors, sales dispatch, and the bank ledger into one seamless workflow.
+            If you've never used an ERP (Enterprise Resource Planning) system before, don't worry! This guide is written in plain, human English. Think of Tamba ERP as your factory's <b>central nervous system</b> — connecting metal raw materials, CNC machines, workers, quality inspectors, sales dispatch, and the bank ledger into one seamless workflow.
           </p>
         </div>
 
@@ -59,6 +140,59 @@
           </div>
         </div>
 
+        <h4>Day 1 Role Quickstart Checklists</h4>
+        <p>Pick your job role below to see your essential 5-step daily operating checklist:</p>
+
+        <div class="guide-role-checklist-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px;">
+          <div class="guide-card" style="border-top: 3px solid #0284c7;">
+            <div style="font-weight: 700; color: #0284c7; margin-bottom: 6px;">📦 Storekeeper & Inward Logistics</div>
+            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+              <li>Log truck arrivals on <b>Purchase GRN</b>.</li>
+              <li>Wait for QC inspection approval.</li>
+              <li>Post approved quantity to stores via <b>SCN</b>.</li>
+              <li>Issue raw material to machines via <b>IWO Issue</b>.</li>
+              <li>Monitor store balances in <b>Stock Position</b>.</li>
+            </ol>
+            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('grn');">🚀 Open GRN Screen</button>
+          </div>
+
+          <div class="guide-card" style="border-top: 3px solid #16a34a;">
+            <div style="font-weight: 700; color: #16a34a; margin-bottom: 6px;">⚙️ CNC Machinist & Supervisor</div>
+            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+              <li>Review cutting parameters in <b>Tooling Recipes</b>.</li>
+              <li>Accept issued metal rods under <b>IWO Issue</b>.</li>
+              <li>Log output & downtime in <b>Production Log</b>.</li>
+              <li>Print & scan tote bin <b>QR Route Travelers</b>.</li>
+              <li>Weigh & verify carton counts in <b>Box Packing</b>.</li>
+            </ol>
+            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('prodn');">🚀 Open Production Log</button>
+          </div>
+
+          <div class="guide-card" style="border-top: 3px solid #9333ea;">
+            <div style="font-weight: 700; color: #9333ea; margin-bottom: 6px;">🔬 Quality & Metrology Inspector</div>
+            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+              <li>Perform inward inspection on <b>Material SCN</b>.</li>
+              <li>Run optical spectrometer chemical tests.</li>
+              <li>Generate certified <b>EN 10204 3.1 MTCs</b> with QR.</li>
+              <li>Calibrate Go/No-Go plug gauges in <b>Gauge Register</b>.</li>
+              <li>Verify backward/forward <b>360° Traceability</b>.</li>
+            </ol>
+            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('spectro');">🚀 Open Spectro Hub</button>
+          </div>
+
+          <div class="guide-card" style="border-top: 3px solid #d97706;">
+            <div style="font-weight: 700; color: #d97706; margin-bottom: 6px;">💼 Accounts & Finance Specialist</div>
+            <ol style="margin: 0; padding-left: 18px; font-size: 11px; line-height: 1.5;">
+              <li>Match vendor bills to SCNs in <b>Inward Invoice</b>.</li>
+              <li>Generate <b>Sales Tax Invoices</b> from DCs.</li>
+              <li>Record vendor payments & customer receipts.</li>
+              <li>Perform safe FIFO <b>Advance Adjustments</b>.</li>
+              <li>Check GSTR-1 & GSTR-3B monthly tax summaries.</li>
+            </ol>
+            <button type="button" class="guide-action-btn" style="margin-top: 10px;" onclick="window.guideJumpToScreen('cashflow');">🚀 Open Cash Flow Hub</button>
+          </div>
+        </div>
+
         <div class="guide-callout tip">
           <strong>💡 Pro-Tip for Daily Usage:</strong> You can switch between <b>🌙 Dark Theme</b> and <b>☀️ Light Theme</b> anytime using the button in the top bar. Use the <b>Live Dashboard</b> to check today's production output, pending dispatches, and bank balances at a glance.
         </div>
@@ -79,7 +213,7 @@
           <div class="guide-step-content">
             <h4>Set Up Your Company Profile</h4>
             <p>Go to <b>Master ➔ My Company Details</b>. Enter your exact legal name, address, GSTIN, PAN, and choose your invoice numbering scheme (Separate Books for Sales & Labour, or Combined). Also set prefixes for Quotations (e.g. <code>QT/</code>) and Purchase Orders (e.g. <code>PO/</code>).</p>
-            <button type="button" class="guide-action-btn" onclick="if(window.openCompany) window.openCompany();">🚀 Open Company Details</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('company');">🚀 Open Company Details</button>
           </div>
         </div>
 
@@ -94,6 +228,7 @@
                 <li><b>Scrap & Rejection Store</b> (Check <i>Can Add</i>)</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('store');">🚀 Open Store Master</button>
           </div>
         </div>
 
@@ -110,7 +245,7 @@
                 <li><b>Conversion Factor:</b> If you purchase rods in KGS but count finished output in PCS, set the weight-per-piece factor.</li>
               </ul>
             </p>
-            <button type="button" class="guide-action-btn" onclick="if(window.openItem) window.openItem();">🚀 Open Item Master</button>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('item');">🚀 Open Item Master</button>
           </div>
         </div>
 
@@ -119,7 +254,10 @@
           <div class="guide-step-content">
             <h4>Register Machines & Setup Tooling Recipes</h4>
             <p>Go to <b>Master ➔ General ➔ Machine</b> to enter machine IDs (e.g. <code>CNC-01</code>, <code>VMC-02</code>, <code>TRAUB-3</code>). Then use <b>Machine Setup & Tooling Recipe</b> to preset Jamnagar brass turning speeds, feeds, tool inserts, and coolant specifications for recurring jobs.</p>
-            <button type="button" class="guide-action-btn" onclick="if(window.openMachine) window.openMachine();">🚀 Open Machine Master</button>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('machine');">🚀 Open Machine Master</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('recipe');">⚙️ Open Tooling Recipes</button>
+            </div>
           </div>
         </div>
 
@@ -132,6 +270,11 @@
               • <b>Vendor:</b> Suppliers who sell you raw brass rods, cutting oils, cartons (<b>Master ➔ General ➔ Vendor</b>).<br>
               • <b>Supplier:</b> External plating, heat treatment, or job-work contractors (<b>Master ➔ General ➔ Supplier</b>).
             </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('customer');">🚀 Open Customer Master</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('vendor');">🚀 Open Vendor Master</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('supplier');">🚀 Open Supplier Master</button>
+            </div>
           </div>
         </div>
 
@@ -165,6 +308,7 @@
           <div class="guide-step-content">
             <h4>Raise a Purchase Order (PO)</h4>
             <p>Open <b>Purchase ➔ Purchase Order - Outgoing</b>. Select your vendor, payment terms, and items ordered. Specify rate, quantity, delivery date, and whether rates are inclusive or exclusive of GST. Print or email the PO to the vendor.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('po');">🚀 Open Purchase Order</button>
           </div>
         </div>
 
@@ -173,7 +317,8 @@
           <div class="guide-step-content">
             <h4>Receive the Truck with a GRN</h4>
             <p>When goods arrive at the factory gate, open <b>Purchase ➔ Goods Received Note</b>. Reference the vendor's DC number, vehicle number, and link it to your original PO. Enter the gross weight or received quantity.</p>
-            <div class="guide-callout warn">
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('grn');">🚀 Open Goods Received Note (GRN)</button>
+            <div class="guide-callout warn" style="margin-top: 8px;">
               <strong>Notice:</strong> At this stage, stock balance in the warehouse is still zero! The material is placed in a "Temporary Inspection Store" until verified.
             </div>
           </div>
@@ -191,6 +336,7 @@
                 <li>Click <b>Save</b>. <b>Now your inventory balance increases in the ledger!</b></li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('scn');">🚀 Open Material SCN</button>
           </div>
         </div>
 
@@ -199,6 +345,7 @@
           <div class="guide-step-content">
             <h4>Book the Vendor's Inward Invoice</h4>
             <p>When the vendor's tax invoice arrives, accounts opens <b>Purchase ➔ Invoice Inwards</b>. Select the vendor and tick the approved SCN. The ERP verifies taxable amount, CGST, SGST, IGST, and records the pending accounts payable liability in Cash Flow.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('invPurch');">🚀 Open Inward Invoice</button>
           </div>
         </div>
       `
@@ -234,6 +381,7 @@
                 <li>Select the department / operator. Click <b>Save</b>. Raw material stock is deducted from the store and transferred to work-in-progress (WIP).</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('iwo');">🚀 Open IWO Issue</button>
           </div>
         </div>
 
@@ -248,6 +396,7 @@
                 <li>The ERP instantly computes operator efficiency %, target achievement, and machine utilization.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('prodn');">🚀 Open Production Log</button>
           </div>
         </div>
 
@@ -262,6 +411,7 @@
                 <li>This sheet travels with the tote bin physically across Turning, Deburring, Threading, Washing, and Inspection stages.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('traveler');">🚀 Open Route Traveler Hub</button>
           </div>
         </div>
 
@@ -276,6 +426,7 @@
                 <li>Print export box packing labels with heat number, box ID, gross weight, net weight, and customer part number.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('packing');">🚀 Open Piece-Count Packing Hub</button>
           </div>
         </div>
       `
@@ -302,6 +453,7 @@
                 <li>Click <b>Print EN 10204 3.1 Certificate</b> to produce an internationally accepted lab test report with verification QR code.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('spectro');">🚀 Open Spectro Chemical Hub</button>
           </div>
         </div>
 
@@ -316,6 +468,16 @@
                 <li>Print <b>50x25mm direct thermal calibration stickers</b> to adhere onto gauge boxes showing Due Date and Metrologist signature.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('gauge');">🚀 Open Gauge Register Hub</button>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Module C</div>
+          <div class="guide-step-content">
+            <h4>360° Heat Batch Traceability Dossier</h4>
+            <p>Open <b>Inspection ➔ Traceability & Heat Dossier</b>. Enter any Inward Heat Number, Job Work batch, or Sales Invoice number. The system performs full backward and forward traversal, compiling chemical spectroscopy, raw material SCN, machining machine log, operator shift, and dispatch invoice into an audit-ready dossier.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('traceability');">🚀 Open 360° Traceability Hub</button>
           </div>
         </div>
       `
@@ -333,11 +495,11 @@
         <div class="guide-diagram-box">
           <div class="guide-diagram-title">Manufacturing Sales vs. Labour Job Work:</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
-            <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #c0d0e0;">
+            <div style="background: var(--surface-bg, #fff); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color, #c0d0e0);">
               <b>Manufacturing (You supply metal):</b><br>
               Quotation ➔ Inward PO ➔ Delivery Challan (DC) ➔ Tax Invoice (HSN Goods)
             </div>
-            <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #c0d0e0;">
+            <div style="background: var(--surface-bg, #fff); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color, #c0d0e0);">
               <b>Labour Work (Customer supplies metal):</b><br>
               DC Inward ➔ Machining ➔ DC Outward ➔ Labour Tax Invoice (SAC 9988 Service)
             </div>
@@ -355,6 +517,7 @@
                 <li><b>Stock Deduction:</b> The ERP checks warehouse stock. If available, saving the DC deducts the exact finished quantity from the store balance.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('dc');">🚀 Open Sales Delivery Challan (DC)</button>
           </div>
         </div>
 
@@ -369,11 +532,31 @@
                 <li>Print official GST Tax Invoices in 3 copies: <i>Original for Recipient, Duplicate for Transporter, Triplicate for Supplier</i>.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('invoice');">🚀 Open Manufacturing Invoice</button>
           </div>
         </div>
 
         <div class="guide-step-block">
           <div class="guide-step-num">Step 3</div>
+          <div class="guide-step-content">
+            <h4>Labour Job Work Inward & Outward</h4>
+            <p>When customers supply their own raw metal for machining only:
+              <ul>
+                <li>Record received raw metal in <b>Sales / Labour ➔ Labour Work ➔ DC - Inwards</b>.</li>
+                <li>After machining, dispatch finished turned parts via <b>Labour DC - Outwards</b>.</li>
+                <li>Raise the service bill via <b>Labour Tax Invoice</b> under SAC Code <code>9988</code>.</li>
+              </ul>
+            </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('labourDcIn');">🚀 Open Labour DC In</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('labourDcOut');">🚀 Open Labour DC Out</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('labourInvoice');">🚀 Open Labour Invoice</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-step-block">
+          <div class="guide-step-num">Step 4</div>
           <div class="guide-step-content">
             <h4>E-Way Bill JSON Export</h4>
             <p>For consignments exceeding ₹50,000, click <b>Export E-Way Bill JSON</b> on the invoice screen. Upload this JSON directly to the government NIC portal (<code>ewaybillgst.gov.in</code>) without manual re-typing!</p>
@@ -407,6 +590,10 @@
           <div class="guide-step-content">
             <h4>Issue Subcontract DC Outward</h4>
             <p>Open <b>Sub Contract ➔ DC Outwards</b>. Enter the supplier (job worker), item, sent quantity, and click <b>Annexure II Details</b> to enter GST Job Work declaration and estimated process duration. This protects your goods during road transport under GST Rule 45.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('subconPo');">🚀 Open Subcon PO</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('subconDcOut');">🚀 Open Subcon DC Out</button>
+            </div>
           </div>
         </div>
 
@@ -415,6 +602,11 @@
           <div class="guide-step-content">
             <h4>Receive Treated Parts Back</h4>
             <p>When the plating vendor returns parts, open <b>Sub Contract ➔ Goods Received Note</b> to record received quantity, then open <b>Subcontract Material Inspection & Acceptance (SCN)</b> to record acceptable vs rejected quantities and return parts into your warehouse stock.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('subconDcIn');">🚀 Open Subcon GRN</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('subconScn');">🚀 Open Subcon SCN</button>
+              <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('subconInvoice');">🚀 Open Subcon Bill</button>
+            </div>
           </div>
         </div>
       `
@@ -440,6 +632,7 @@
                 <li>Enter the allocated payment against specific bills or use auto-allocation. The bill balance decreases instantly.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('payment');">🚀 Open Vendor Payments</button>
           </div>
         </div>
 
@@ -454,6 +647,7 @@
                 <li>Print or save payment receipts. Outstanding customer receivables are updated on the Business Owner dashboard immediately.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('receipt');">🚀 Open Customer Receipts</button>
           </div>
         </div>
 
@@ -462,6 +656,7 @@
           <div class="guide-step-content">
             <h4>Advance Adjustments (Safe Reversible FIFO)</h4>
             <p>Open <b>Cash Flow ➔ Advance Adjustments</b>. When a party provides an advance deposit before invoicing, record it as an Advance voucher. When bills are subsequently raised, use Advance Adjustments to settle the bill against the advance balance without affecting your live bank account.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('advadjust');">🚀 Open Advance Adjustments</button>
           </div>
         </div>
 
@@ -470,6 +665,7 @@
           <div class="guide-step-content">
             <h4>Live Cash Flow Hub Cockpit</h4>
             <p>Click <b>Cash Flow</b> in the left sidebar to open the dedicated liquidity cockpit. View real-time bank account balances, 30-day cash projections, and pending debtor/creditor ageing tables in one visual dashboard.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('cashflow');">🚀 Open Live Cash Flow Hub</button>
           </div>
         </div>
       `
@@ -489,6 +685,7 @@
           <div class="guide-step-content">
             <h4>Employee Master & Shift Allocation</h4>
             <p>Go to <b>Master ➔ Human Resource ➔ Employee Details</b>. Enter employee name, department (CNC, Assembly, Stores, Office), basic salary, PF, ESI, and bank details. In <b>Shift Allocation</b>, assign General, Morning, or Night shift schedules.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('staff');">🚀 Open Staff Master</button>
           </div>
         </div>
 
@@ -497,6 +694,7 @@
           <div class="guide-step-content">
             <h4>Daily Attendance</h4>
             <p>Open <b>Human Resource ➔ Attendance</b>. Quickly mark Present, Absent, Half-Day, and Overtime hours for each department. The system tracks accumulated working days automatically.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('attendance');">🚀 Open Daily Attendance</button>
           </div>
         </div>
 
@@ -505,6 +703,7 @@
           <div class="guide-step-content">
             <h4>Monthly Salary Processing</h4>
             <p>Open <b>Human Resource ➔ Salary</b>. Select Year and Month. The ERP calculates gross pay, PF, ESI, Professional Tax (PT), loan installments, and net pay. Saving prints salary slips and updates staff balance ledgers.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('salary');">🚀 Open Monthly Salary</button>
           </div>
         </div>
       `
@@ -529,6 +728,7 @@
                 <li>Displays Taxable Amount, CGST, SGST, IGST, and customer GSTIN breakdowns for easy upload to the GST portal.</li>
               </ul>
             </p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('gst');">🚀 Open GST Tax Returns</button>
           </div>
         </div>
 
@@ -537,22 +737,25 @@
           <div class="guide-step-content">
             <h4>GSTR-3B Input Tax Credit (ITC) Summary</h4>
             <p>Aggregates all approved inward raw material and service purchases, showing eligible Input Tax Credit (ITC) broken down by central, state, and integrated tax.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('gst');">🚀 View GSTR-3B ITC Summary</button>
           </div>
         </div>
 
         <div class="guide-step-block">
           <div class="guide-step-num">Report 3</div>
           <div class="guide-step-content">
-            <h4>GSTR-2B JSON Reconciliation</h4>
-            <p>Download your GSTR-2B JSON file from the GST portal and drop it into Tamba ERP. The engine compares supplier invoices line-by-line and highlights any missing invoices or ITC mismatches.</p>
+            <h4>Stock Position & Inventory Valuation</h4>
+            <p>Open <b>Inventory ➔ Stock Position</b>. Review real-time physical stock counts across all stores, valuation at moving average price, and minimum re-order point alerts.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('stock');">🚀 Open Stock Position</button>
           </div>
         </div>
 
         <div class="guide-step-block">
           <div class="guide-step-num">Report 4</div>
           <div class="guide-step-content">
-            <h4>Security & Audit Trail</h4>
+            <h4>Security & Audit Trail (MCA Compliance)</h4>
             <p>Open <b>Utilities ➔ Security & Audit Trail</b>. In compliance with MCA (Ministry of Corporate Affairs) statutory requirements, Tamba ERP maintains an immutable audit log of every creation, edit, deletion, and financial adjustment with timestamps and user IDs.</p>
+            <button type="button" class="guide-action-btn" onclick="window.guideJumpToScreen('audit');">🚀 Open Security Audit Trail</button>
           </div>
         </div>
       `
@@ -593,6 +796,26 @@
         <div class="guide-faq-item">
           <div class="guide-faq-q">❓ Q6: What should I do if an operator logs overlapping machine hours?</div>
           <div class="guide-faq-a">Tamba ERP has built-in interval collision detection. If Machine CNC-01 is already logged for 08:00 AM - 04:00 PM, logging a shift from 01:00 PM - 05:00 PM will trigger a collision notice. Always verify operator shift times before saving.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q7: How do I handle metal scrap and rejected turned parts during production?</div>
+          <div class="guide-faq-a">In the <b>Production Log</b>, record rejected pieces in the <i>Rejection</i> column. In <b>Internal Work Order (IWO)</b>, scrap brass turning shavings (turning swarf/borings) can be credited back into the Scrap Store using <b>IWO Return / Scrap Credit</b>, keeping metal recovery percentages accurate.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q8: How do I adjust an advance payment received from a client against upcoming bills?</div>
+          <div class="guide-faq-a">Open <b>Cash Flow ➔ Receipts</b> and create an Advance receipt voucher. Once the manufacturing tax invoice is raised, go to <b>Cash Flow ➔ Advance Adjustments</b>. Select the client, select the advance voucher, and allocate it against the open bill. The advance is deducted without creating duplicate bank entries.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q9: How do I generate an E-Way Bill JSON for shipments exceeding ₹50,000?</div>
+          <div class="guide-faq-a">Open <b>Sales / Labour ➔ Manufacturing ➔ Invoice</b>. Open or save the invoice, then click the button <b>Export E-Way Bill JSON</b>. The ERP validates the vehicle number, transporter ID, pin codes, and HSN codes, generating a standard NIC schema JSON file ready to upload to <code>ewaybillgst.gov.in</code>.</div>
+        </div>
+
+        <div class="guide-faq-item">
+          <div class="guide-faq-q">❓ Q10: What happens if our factory loses internet connectivity temporarily?</div>
+          <div class="guide-faq-a">Tamba ERP runs on enterprise cloud infrastructure with offline client session caching. Open forms and tabs keep your typed input safe. If you get disconnected, wait for connectivity to resume before clicking Save to ensure the database transaction commits cleanly.</div>
         </div>
       `
     }
@@ -678,7 +901,7 @@
       return;
     }
 
-    listContainer.innerHTML = filtered.map((ch, idx) => {
+    listContainer.innerHTML = filtered.map((ch) => {
       const isActive = ch.id === activeChapterId;
       return `
         <button type="button" class="guide-nav-item ${isActive ? "active" : ""}" data-id="${ch.id}">

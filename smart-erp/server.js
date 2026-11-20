@@ -31047,66 +31047,95 @@ async function handleCalibrateReportDelete(req, res) {
 }
 
 async function handleSalaryInit(req, res, url) {
-  const session = await openSession(req);
-  if (!session) return sendJson(res, 401, { error: "Sign in first." });
+  try {
+    const session = await openSession(req);
+    if (!session) return sendJson(res, 401, { error: "Sign in first." });
 
-  const curDate = new Date();
-  const year = Number(url.searchParams.get("year")) || curDate.getFullYear();
-  const month = Number(url.searchParams.get("month")) || (curDate.getMonth() + 1);
+    const curDate = new Date();
+    const year = Number(url.searchParams.get("year")) || curDate.getFullYear();
+    const month = Number(url.searchParams.get("month")) || (curDate.getMonth() + 1);
 
-  const monthsQ = await pool.query("SELECT monthid, monthname FROM month1 ORDER BY monthid");
-  const daysInMonth = new Date(year, month, 0).getDate();
+    const monthsQ = await pool.query("SELECT monthid, monthname FROM month1 ORDER BY monthid");
+    const daysInMonth = new Date(year, month, 0).getDate();
 
-  // Working days = calendar days - holidays in holidays table
-  const holQ = await pool.query(
-    "SELECT holidays FROM holidays WHERE factory_id = $1 AND year = $2 AND monthid = $3 LIMIT 1",
-    [session.factory_id, year, month]
-  );
-  let holidayCount = 0;
-  if (holQ.rowCount > 0 && holQ.rows[0].holidays) {
-    const hStr = holQ.rows[0].holidays;
-    holidayCount = (hStr.match(/1/g) || []).length;
+    // Working days = calendar days - holidays in holidays table
+    let holidayCount = 0;
+    try {
+      const holQ = await pool.query(
+        "SELECT holidays FROM holidays WHERE factory_id = $1 AND year = $2 AND monthid = $3 LIMIT 1",
+        [session.factory_id, year, month]
+      );
+      if (holQ.rowCount > 0 && holQ.rows[0].holidays) {
+        const hStr = holQ.rows[0].holidays;
+        holidayCount = (hStr.match(/1/g) || []).length;
+      }
+    } catch (e) {
+      console.warn("Holidays query failed:", e.message);
+    }
+    const workingDays = Math.max(1, daysInMonth - holidayCount);
+
+    // Active staff list with resilient fallback
+    const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+    const endDate = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+    let staffRows = [];
+    try {
+      let staffQ = await pool.query(
+        `SELECT staff_id, staff_name, dept, doj, dol, COALESCE(payoldbal, 0) AS payoldbal, esi_code, pf_code
+         FROM staff
+         WHERE factory_id = $1 AND (doj <= $2 OR doj IS NULL) AND (dol >= $3 OR dol IS NULL)
+         ORDER BY staff_name`,
+        [session.factory_id, endDate, startDate]
+      );
+      if (staffRows.length === 0) {
+        staffQ = await pool.query(
+          `SELECT staff_id, staff_name, dept, doj, dol, COALESCE(payoldbal, 0) AS payoldbal, esi_code, pf_code
+           FROM staff
+           WHERE factory_id = $1
+           ORDER BY staff_name`,
+          [session.factory_id]
+        );
+      }
+      staffRows = staffQ.rows;
+    } catch (e) {
+      console.warn("Staff query with payoldbal failed, falling back:", e.message);
+      const staffFallbackQ = await pool.query(
+        `SELECT staff_id, staff_name, dept, doj, dol, 0 AS payoldbal, esi_code, pf_code
+         FROM staff
+         WHERE factory_id = $1
+         ORDER BY staff_name`,
+        [session.factory_id]
+      );
+      staffRows = staffFallbackQ.rows;
+    }
+
+    // Misc settings (PF & ESI percentage)
+    let pfRate = 12;
+    let esiRate = 1.75;
+    try {
+      const miscQ = await pool.query(
+        "SELECT pf, esi FROM misc WHERE factory_id = $1 AND year_label = $2 LIMIT 1",
+        [session.factory_id, session.year_label]
+      );
+      const misc = miscQ.rows[0] || {};
+      pfRate = Number(misc.pf || 12);
+      esiRate = Number(misc.esi || 1.75);
+    } catch (e) {
+      console.warn("Misc settings query failed, using defaults:", e.message);
+    }
+
+    return sendJson(res, 200, {
+      months: monthsQ.rows,
+      year,
+      month,
+      daysInMonth,
+      workingDays,
+      staffList: staffRows,
+      settings: { pfRate, esiRate }
+    });
+  } catch (err) {
+    console.error("handleSalaryInit error:", err);
+    return sendJson(res, 500, { error: err.message });
   }
-  const workingDays = Math.max(1, daysInMonth - holidayCount);
-
-  // Active staff list
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
-  let staffQ = await pool.query(
-    `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
-     FROM staff
-     WHERE factory_id = $1 AND doj <= $2 AND (dol >= $3 OR dol IS NULL)
-     ORDER BY staff_name`,
-    [session.factory_id, endDate, startDate]
-  );
-  if (staffQ.rowCount === 0) {
-    staffQ = await pool.query(
-      `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
-       FROM staff
-       WHERE factory_id = $1
-       ORDER BY staff_name`,
-      [session.factory_id]
-    );
-  }
-
-  // Misc settings (PF & ESI percentage)
-  const miscQ = await pool.query(
-    "SELECT pf, esi FROM misc WHERE factory_id = $1 AND year_label = $2 LIMIT 1",
-    [session.factory_id, session.year_label]
-  );
-  const misc = miscQ.rows[0] || {};
-  const pfRate = Number(misc.pf || 12);
-  const esiRate = Number(misc.esi || 1.75);
-
-  return sendJson(res, 200, {
-    months: monthsQ.rows,
-    year,
-    month,
-    daysInMonth,
-    workingDays,
-    staffList: staffQ.rows,
-    settings: { pfRate, esiRate }
-  });
 }
 
 async function handleSalaryGet(req, res, url) {
@@ -31136,12 +31165,22 @@ async function handleSalaryGet(req, res, url) {
   }
 
   // If not saved yet, build defaults from attendance, staff master, and loans
-  const staffQ = await pool.query(
-    `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
-     FROM staff WHERE staff_id = $1 LIMIT 1`,
-    [staffId]
-  );
-  const emp = staffQ.rows[0] || {};
+  let emp = {};
+  try {
+    const staffQ = await pool.query(
+      `SELECT staff_id, staff_name, dept, doj, dol, COALESCE(payoldbal, 0) AS payoldbal, esi_code, pf_code
+       FROM staff WHERE staff_id = $1 LIMIT 1`,
+      [staffId]
+    );
+    emp = staffQ.rows[0] || {};
+  } catch (e) {
+    const fallbackQ = await pool.query(
+      `SELECT staff_id, staff_name, dept, doj, dol, 0 AS payoldbal, esi_code, pf_code
+       FROM staff WHERE staff_id = $1 LIMIT 1`,
+      [staffId]
+    );
+    emp = fallbackQ.rows[0] || {};
+  }
 
   // Check attendance record
   const attQ = await pool.query(
@@ -31279,21 +31318,34 @@ async function handleSalaryBatchProcess(req, res) {
 
   const startDate = `${year}-${pad2(month)}-01`;
   const endDate = `${year}-${pad2(month)}-${pad2(daysInMonth)}`;
-  let staffQ = await pool.query(
-    `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
-     FROM staff
-     WHERE factory_id = $1 AND (doj <= $2 OR doj IS NULL) AND (dol >= $3 OR dol IS NULL)
-     ORDER BY staff_name`,
-    [session.factory_id, endDate, startDate]
-  );
-  if (staffQ.rowCount === 0) {
-    staffQ = await pool.query(
-      `SELECT staff_id, staff_name, dept, doj, dol, payoldbal, esi_code, pf_code
+  let staffRows = [];
+  try {
+    let staffQ = await pool.query(
+      `SELECT staff_id, staff_name, dept, doj, dol, COALESCE(payoldbal, 0) AS payoldbal, esi_code, pf_code
+       FROM staff
+       WHERE factory_id = $1 AND (doj <= $2 OR doj IS NULL) AND (dol >= $3 OR dol IS NULL)
+       ORDER BY staff_name`,
+      [session.factory_id, endDate, startDate]
+    );
+    if (staffQ.rowCount === 0) {
+      staffQ = await pool.query(
+        `SELECT staff_id, staff_name, dept, doj, dol, COALESCE(payoldbal, 0) AS payoldbal, esi_code, pf_code
+         FROM staff
+         WHERE factory_id = $1
+         ORDER BY staff_name`,
+        [session.factory_id]
+      );
+    }
+    staffRows = staffQ.rows;
+  } catch (e) {
+    const staffFallbackQ = await pool.query(
+      `SELECT staff_id, staff_name, dept, doj, dol, 0 AS payoldbal, esi_code, pf_code
        FROM staff
        WHERE factory_id = $1
        ORDER BY staff_name`,
       [session.factory_id]
     );
+    staffRows = staffFallbackQ.rows;
   }
 
   if (staffQ.rowCount === 0) {
@@ -31314,7 +31366,7 @@ async function handleSalaryBatchProcess(req, res) {
   try {
     await client.query("BEGIN");
 
-    for (const emp of staffQ.rows) {
+    for (const emp of staffRows) {
       const staffId = emp.staff_id;
 
       // Check attendance
@@ -31517,7 +31569,7 @@ async function handleSalaryBatchProcess(req, res) {
     return sendJson(res, 200, {
       ok: true,
       processedCount,
-      totalEmployees: staffQ.rowCount,
+      totalEmployees: staffRows.length,
       message: `Successfully processed payroll for ${processedCount} employee(s).`
     });
   } catch (err) {

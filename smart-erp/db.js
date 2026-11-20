@@ -1666,6 +1666,7 @@ async function initDatabase() {
     ALTER TABLE staff ADD COLUMN IF NOT EXISTS w3 text;
     ALTER TABLE staff ADD COLUMN IF NOT EXISTS w4 text;
     ALTER TABLE staff ADD COLUMN IF NOT EXISTS woff text;
+    ALTER TABLE staff ADD COLUMN IF NOT EXISTS payoldbal numeric(12, 2) DEFAULT 0;
     ALTER TABLE salary_print ADD COLUMN IF NOT EXISTS field_name text;
     ALTER TABLE item ADD COLUMN IF NOT EXISTS item_detail text;
     ALTER TABLE item ADD COLUMN IF NOT EXISTS item_desn text;

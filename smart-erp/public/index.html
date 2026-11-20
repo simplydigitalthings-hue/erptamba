@@ -8124,7 +8124,7 @@ License Date   :   01/04/2008</div>
                     </div>
                     <h4>No Active Staff Records Found</h4>
                     <p>No employees are currently active in Staff Master for this month. Register your plant workers to start recording daily muster roll and overtime hours.</p>
-                    <button type="button" class="btn btn-primary att-empty-btn" onclick="window.openStaff &amp;&amp; window.openStaff();">
+                    <button type="button" class="btn btn-primary att-empty-btn" onclick="if (window.closeAttendance) window.closeAttendance(); if (window.openStaff) window.openStaff();">
                       + Add Employee in Staff Master
                     </button>
                   </div>
@@ -8176,7 +8176,7 @@ License Date   :   01/04/2008</div>
                     </div>
                     <div id="loan-empty-state" class="loan-empty-state" hidden>
                       <p>No active employees found.</p>
-                      <button type="button" class="btn btn-primary" onclick="window.openStaff && window.openStaff();">
+                      <button type="button" class="btn btn-primary" onclick="if (window.closeSalary) window.closeSalary(); if (window.openStaff) window.openStaff();">
                         + Add Employee
                       </button>
                     </div>
@@ -8325,7 +8325,7 @@ License Date   :   01/04/2008</div>
                     </div>
                     <div id="sal-empty-state" class="sal-empty-state" hidden>
                       <p>No active employees found.</p>
-                      <button type="button" class="btn btn-primary" onclick="window.openStaff && window.openStaff();">
+                      <button type="button" class="btn btn-primary" onclick="if (window.closeSalary) window.closeSalary(); if (window.openStaff) window.openStaff();">
                         + Add Employee
                       </button>
                     </div>
